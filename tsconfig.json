@@ -1,0 +1,31 @@
+// https://www.typescriptlang.org/v2/en/tsconfig
+{
+	// ./node_modules/@alanscodelog/tsconfigs/tsconfig.json
+	// https://github.com/AlansCodeLog/my-tsconfigs
+	"extends": "@alanscodelog/tsconfigs",
+	"compilerOptions": {
+		"esModuleInterop": true,
+		"baseUrl": ".",
+		"paths": {
+			"@/*": ["src/*"],
+			"@tests/*": ["tests/*"],
+			"@utils/*": [ "node_modules/@alanscodelog/utils/dist/*" ],
+		},
+		"resolveJsonModule": true,
+		"downlevelIteration": true
+	},
+	"types" : [
+		"jest",
+		"node",
+	],
+	"lib": [
+		"esnext",
+	],
+	"include": [
+		"src/**/*.ts",
+		"src/**/*.js",
+		"tests/**/*.ts",
+	],
+	"exclude": [
+	]
+}
