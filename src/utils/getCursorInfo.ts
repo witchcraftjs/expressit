@@ -1,9 +1,10 @@
-import { isArray, unreachable } from "@utils/utils"
+import { isArray, unreachable } from "@alanscodelog/utils"
 
-import { ErrorToken, ValidToken } from "@/ast/classes"
-import type { AnyToken, CursorInfo, ParserResults } from "@/types"
+import { extractTokens } from "./extractTokens.js"
 
-import { extractTokens } from "."
+import { ErrorToken, ValidToken } from "../ast/classes/index.js"
+import type { AnyToken, ParserResults } from "../types/ast.js"
+import type { CursorInfo } from "../types/autocomplete.js"
 
 
 /**
@@ -55,9 +56,7 @@ export function getCursorInfo(
 			}
 		}
 		if (token.start >= index) {
-			if (!info.next) {
-				info.next = token
-			}
+			info.next ||= token
 			if (token instanceof ValidToken && !info.valid.next) {
 				info.valid.next = token
 				break

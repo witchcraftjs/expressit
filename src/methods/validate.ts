@@ -1,10 +1,17 @@
-import { get, isArray } from "@utils/utils"
+import { type AddParameters, get, isArray } from "@alanscodelog/utils"
 
-import { ArrayNode, ConditionNode, ErrorToken, ExpressionNode, GroupNode, ValidToken, VariableNode } from "@/ast/classes"
-import { applyBoolean, applyPrefix } from "@/helpers/general"
-import { unescape } from "@/helpers/parser"
-import type { Parser } from "@/parser"
-import { AddParameters, ParserResults, Position, TOKEN_TYPE, ValidationQuery } from "@/types"
+import { ArrayNode } from "../ast/classes/ArrayNode.js"
+import { ConditionNode } from "../ast/classes/ConditionNode.js"
+import { ErrorToken } from "../ast/classes/ErrorToken.js"
+import { ExpressionNode } from "../ast/classes/ExpressionNode.js"
+import { GroupNode } from "../ast/classes/GroupNode.js"
+import { ValidToken } from "../ast/classes/ValidToken.js"
+import { VariableNode } from "../ast/classes/VariableNode.js"
+import { applyBoolean } from "../helpers/general/applyBoolean.js"
+import { applyPrefix } from "../helpers/general/applyPrefix.js"
+import type { Parser } from "../parser.js"
+import { type ParserResults, type Position, TOKEN_TYPE } from "../types/ast.js"
+import type { ValidationQuery } from "../types/parser.js"
 
 
 export class ValidateMixin<T extends {}> {
@@ -74,7 +81,7 @@ export class ValidateMixin<T extends {}> {
 				const valuePrefix = ast.value instanceof VariableNode && ast.value.prefix
 					? ast.value.prefix
 					: undefined
-				operator = operator ?? ast.propertyOperator as ValidToken<TOKEN_TYPE.VALUE | TOKEN_TYPE.OP_CUSTOM>
+				operator ??= ast.propertyOperator as ValidToken<TOKEN_TYPE.VALUE | TOKEN_TYPE.OP_CUSTOM>
 				const isRegex = (ast.value as VariableNode)?.quote?.left.type === TOKEN_TYPE.REGEX
 				const isQuoted = (ast.value as VariableNode)?.quote !== undefined
 				const isExpanded = ast.sep !== undefined

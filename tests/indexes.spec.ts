@@ -1,9 +1,9 @@
-import { testName } from "@utils/testing"
+import { testName } from "@alanscodelog/utils"
+import { describe, expect, it } from "vitest"
 
-import { expect } from "./chai"
-
-import { defaultConditionNormalizer, defaultValueComparer } from "@/helpers/general"
-import { Parser } from "@/index"
+import { defaultConditionNormalizer } from "../src/helpers/general/defaultConditionNormalizer.js"
+import { defaultValueComparer } from "../src/helpers/general/defaultValueComparer.js"
+import { Parser } from "../src/parser.js"
 
 
 const parser = new Parser({

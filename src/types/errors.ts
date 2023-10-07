@@ -1,7 +1,7 @@
-import type { DeepPartial } from "@utils/types"
+import type { DeepPartial } from "@alanscodelog/utils"
 import type { ILexingError, IRecognitionException, IToken } from "chevrotain"
 
-import type { ParserOptions } from "./parser"
+import type { ParserOptions } from "./parser.js"
 
 
 export enum ERROR_CODES {

@@ -1,8 +1,8 @@
 /* eslint-disable camelcase */
-import { escapeRegex, isBlank } from "@utils/utils"
-import { createToken, Lexer, TokenType } from "chevrotain"
+import { escapeRegex, isBlank } from "@alanscodelog/utils"
+import { createToken, Lexer, type TokenType } from "chevrotain"
 
-import type { FullParserOptions } from "@/types"
+import type { FullParserOptions } from "../types/parser.js"
 
 
 /** Makes it easier to rename the tokens while still returning a properly typed record of them.*/
@@ -207,9 +207,7 @@ export function createTokens<T extends {} = {}>(opts: FullParserOptions<T>): {
 							prevEscaped = false
 						}
 					} else {
-						if (prevEscaped) {
-							prevEscaped = false
-						}
+						prevEscaped &&= false
 					}
 					end++
 					char = text[end]

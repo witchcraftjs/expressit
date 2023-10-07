@@ -1,4 +1,4 @@
-import { AnyToken, TOKEN_TYPE, TokenDelimiterTypes } from "@/types"
+import { type AnyToken, TOKEN_TYPE, type TokenDelimiterTypes } from "../types/ast.js"
 
 /**
  * Returns whether token is a delimiter type (including if it's an expanded operator separator).

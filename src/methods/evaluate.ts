@@ -1,9 +1,9 @@
-import { get, unreachable } from "@utils/utils"
+import { type AddParameters, get, unreachable } from "@alanscodelog/utils"
 
-import { Expression } from "@/ast/classes"
-import { Condition } from "@/ast/classes/Condition"
-import type { Parser } from "@/parser"
-import { AddParameters, TOKEN_TYPE } from "@/types"
+import { Condition } from "../ast/classes/Condition.js"
+import { Expression } from "../ast/classes/Expression.js"
+import type { Parser } from "../parser.js"
+import { TOKEN_TYPE } from "../types/ast.js"
 
 
 export class EvaluateMixin<T extends {}> {

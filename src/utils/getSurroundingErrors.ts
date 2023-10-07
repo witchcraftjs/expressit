@@ -1,6 +1,3 @@
-import { ErrorToken } from "@/ast/classes"
-import { AnyToken, CursorInfo, TOKEN_TYPE } from "@/types"
-
 /**
  * Mostly for internal use by @see autosuggest.
  *
@@ -21,6 +18,11 @@ import { AnyToken, CursorInfo, TOKEN_TYPE } from "@/types"
  * either insertion would fix the issue for either position would fix the issue, albeit with different results
  * ```
  */
+
+import { ErrorToken } from "../ast/classes/ErrorToken.js"
+import { type AnyToken, TOKEN_TYPE } from "../types/ast.js"
+import type { CursorInfo } from "../types/autocomplete.js"
+
 
 export function getSurroundingErrors(tokens: AnyToken[], token: CursorInfo): ErrorToken[] {
 	if (token.at) {return []}

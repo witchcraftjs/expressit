@@ -1,7 +1,7 @@
-import { type } from "./type"
+import { type } from "./type.js"
 
-import { ErrorToken } from "@/ast/classes"
-import { TOKEN_TYPE } from "@/types"
+import { TOKEN_TYPE } from "../../types/ast.js"
+import { ErrorToken } from "../classes/ErrorToken.js"
 
 
 /**

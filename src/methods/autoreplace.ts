@@ -1,6 +1,6 @@
-import { insert } from "@utils/utils"
+import { insert } from "@alanscodelog/utils"
 
-import type { Completion } from "@/types"
+import type { Completion } from "../types/autocomplete.js"
 
 
 export class AutoreplaceMixin {

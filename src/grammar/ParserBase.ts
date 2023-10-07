@@ -1,16 +1,23 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-/* eslint-disable import/no-namespace */
-import { isArray, unreachable } from "@utils/utils"
-import { EmbeddedActionsParser, EOF, IToken, tokenMatcher } from "chevrotain"
 
-import type { createTokens } from "./createTokens"
+import { isArray, unreachable } from "@alanscodelog/utils"
+import { EmbeddedActionsParser, EOF, type IToken, tokenMatcher } from "chevrotain"
 
-import { pos } from "@/ast/builders"
-import { ArrayNode, ConditionNode, ErrorToken, ExpressionNode, GroupNode, ValidToken, VariableNode } from "@/ast/classes"
-import * as handle from "@/ast/handlers"
-import { extractPosition } from "@/helpers/parser"
-import { Parser } from "@/parser"
-import { AnyToken, FullParserOptions, ParserResults, Position, TOKEN_TYPE, TokenQuoteTypes } from "@/types"
+import type { createTokens } from "./createTokens.js"
+
+import { pos } from "../ast/builders/pos.js"
+import { ArrayNode } from "../ast/classes/ArrayNode.js"
+import { ConditionNode } from "../ast/classes/ConditionNode.js"
+import { ErrorToken } from "../ast/classes/ErrorToken.js"
+import type { ExpressionNode } from "../ast/classes/ExpressionNode.js"
+import type { GroupNode } from "../ast/classes/GroupNode.js"
+import type { ValidToken } from "../ast/classes/ValidToken.js"
+import { VariableNode } from "../ast/classes/VariableNode.js"
+import * as handle from "../ast/handlers.js"
+import { extractPosition } from "../helpers/parser/extractPosition.js"
+import { Parser } from "../parser.js"
+import { type AnyToken, type ParserResults, type Position, TOKEN_TYPE, type TokenQuoteTypes } from "../types/ast.js"
+import type { FullParserOptions } from "../types/parser.js"
 
 
 function processToken<TDefined extends boolean = boolean>(token: IToken, shift: number): [TDefined extends true ? string : string | undefined, Position] {
@@ -20,8 +27,11 @@ function processToken<TDefined extends boolean = boolean>(token: IToken, shift: 
 }
 export class ParserBase<T extends {} = {}> extends EmbeddedActionsParser {
 	rawInput!: string
+
 	private subParser?: Parser
+
 	private subParser2?: Parser
+
 	constructor(opts: FullParserOptions<T>, t: ReturnType<typeof createTokens>["tokens"], { customOpAlsoNegation, expandedSepAlsoCustom }: ReturnType<typeof createTokens>["info"]) {
 		super(t, {
 			recoveryEnabled: true,
@@ -187,30 +197,30 @@ export class ParserBase<T extends {} = {}> extends EmbeddedActionsParser {
 			const property = $.OPTION2({
 				GATE: () => (
 					tokenMatcher($.LA(1), t.EXP_PROP_OP) ||
-						tokenMatcher($.LA(1), t.CUSTOM_PROP_OP) ||
-						tokenMatcher($.LA(2), t.EXP_PROP_OP) ||
-						tokenMatcher($.LA(2), t.CUSTOM_PROP_OP) ||
+					tokenMatcher($.LA(1), t.CUSTOM_PROP_OP) ||
+					tokenMatcher($.LA(2), t.EXP_PROP_OP) ||
+					tokenMatcher($.LA(2), t.CUSTOM_PROP_OP) ||
+					(
+						customOpAlsoNegation &&
 						(
-							customOpAlsoNegation &&
-							(
-								tokenMatcher($.LA(2), t.SYM_NOT) ||
-								(tokenMatcher($.LA(0), t.SYM_NOT) && tokenMatcher($.LA(1), t.SYM_NOT))
-							)
+							tokenMatcher($.LA(2), t.SYM_NOT) ||
+							(tokenMatcher($.LA(0), t.SYM_NOT) && tokenMatcher($.LA(1), t.SYM_NOT))
 						)
+					)
 				),
 				DEF: () => $.SUBRULE($.property),
 			}) as ReturnType<typeof $["property"]> | undefined
 			const propVal = $.ACTION(() => property?.prop?.value === undefined
 				? undefined
 				: property.prop.value instanceof ErrorToken
-				? ""
-				: property.prop.value.value)
+					? ""
+					: property.prop.value.value)
 
 			const propOpVal = $.ACTION(() => property?.rest.propertyOperator === undefined
 				? undefined
 				: property.rest.propertyOperator instanceof ErrorToken
-				? ""
-				: property.rest.propertyOperator.value)
+					? ""
+					: property.rest.propertyOperator.value)
 
 			const isExpanded = $.ACTION(() => (property?.rest.sepL ?? property?.rest.sepR) !== undefined)
 			const convertRegexValues = $.ACTION(() =>
@@ -226,29 +236,29 @@ export class ParserBase<T extends {} = {}> extends EmbeddedActionsParser {
 			undefined = $.OR2([
 				{
 					GATE: () => opts.prefixableGroups && property === undefined &&
-						$.LA(1).tokenType !== t.PAREN_L && // moves to parsing group below
-						(
+							$.LA(1).tokenType !== t.PAREN_L && // moves to parsing group below
 							(
-								tokenMatcher($.LA(1), t.VALUE) &&
 								(
-									tokenMatcher($.LA(2), t.PAREN_L) || // a(
-									(tokenMatcher($.LA(2), t.QUOTE_ANY) && tokenMatcher($.LA(3), t.PAREN_L)) // a"(
-								)
-							) ||
-							(
-								tokenMatcher($.LA(1), t.QUOTE_ANY) &&
+									tokenMatcher($.LA(1), t.VALUE) &&
+									(
+										tokenMatcher($.LA(2), t.PAREN_L) || // a(
+										(tokenMatcher($.LA(2), t.QUOTE_ANY) && tokenMatcher($.LA(3), t.PAREN_L)) // a"(
+									)
+								) ||
 								(
-									tokenMatcher($.LA(2), t.PAREN_L) || // "(
-									(tokenMatcher($.LA(2), t.VALUE) &&
-										(
-											tokenMatcher($.LA(3), t.PAREN_L) || // "a(
-											(tokenMatcher($.LA(3), t.QUOTE_ANY) && tokenMatcher($.LA(4), t.PAREN_L)) // "a"(
+									tokenMatcher($.LA(1), t.QUOTE_ANY) &&
+									(
+										tokenMatcher($.LA(2), t.PAREN_L) || // "(
+										(tokenMatcher($.LA(2), t.VALUE) &&
+											(
+												tokenMatcher($.LA(3), t.PAREN_L) || // "a(
+												(tokenMatcher($.LA(3), t.QUOTE_ANY) && tokenMatcher($.LA(4), t.PAREN_L)) // "a"(
+											)
 										)
 									)
 								)
-							)
 
-						)
+							)
 					,
 					ALT: () => $.SUBRULE<any, any>($.variable, { ARGS: [{ unprefixed: true }]}), // un-prefixed
 				},
@@ -312,13 +322,13 @@ export class ParserBase<T extends {} = {}> extends EmbeddedActionsParser {
 				{
 					ALT: () => {
 						let sepL: any = $.CONSUME(t.EXP_PROP_OP)
-						if (sepL) sepL = handle.token.sep(...processToken(sepL, $.shift))
+						sepL &&= handle.token.sep(...processToken(sepL, $.shift))
 
 						let op: any = $.OPTION4(() => $.CONSUME2(t.VALUE_UNQUOTED))
-						if (op) op = handle.token.value(...processToken(op, $.shift))
+						op &&= handle.token.value(...processToken(op, $.shift))
 
 						let sepR: any = $.OPTION5(() => $.CONSUME2(t.EXP_PROP_OP))
-						if (sepR) sepR = handle.token.sep(...processToken(sepR, $.shift))
+						sepR &&= handle.token.sep(...processToken(sepR, $.shift))
 						if (expandedSepAlsoCustom && op === undefined && sepR === undefined) {
 							op = sepL
 							op.type = TOKEN_TYPE.OP_CUSTOM
@@ -367,7 +377,7 @@ export class ParserBase<T extends {} = {}> extends EmbeddedActionsParser {
 				) {
 					const token = $.CONSUME(t.ANY)
 
-					start = start ?? extractPosition(token, this.shift).start
+					start ??= extractPosition(token, this.shift).start
 					if (tokenMatcher(token, t.PAREN_L)) {
 						parenLeftCount++
 					}
@@ -378,7 +388,7 @@ export class ParserBase<T extends {} = {}> extends EmbeddedActionsParser {
 			}
 
 			if (start !== undefined) {
-				end = end ?? extractPosition($.LA(0), this.shift).end
+				end ??= extractPosition($.LA(0), this.shift).end
 			}
 
 			const parenR = $.OPTION2(() => $.SUBRULE1($.parenR))
@@ -479,7 +489,7 @@ export class ParserBase<T extends {} = {}> extends EmbeddedActionsParser {
 			})
 
 
-			if (prefix) prefix = handle.token.value(...processToken(prefix, $.shift))
+			prefix &&= handle.token.value(...processToken(prefix, $.shift))
 
 			const ARGS = [{ bracketVal }]
 			const val = $.OR([
@@ -556,14 +566,14 @@ export class ParserBase<T extends {} = {}> extends EmbeddedActionsParser {
 			const value = $.CONSUME(t.QUOTE_ANY)
 			return $.ACTION(() => {
 				const type = value.image === `"`
-				? "double"
-				: value.image === "'"
-				? "single"
-				: value.image === "\\"
-				? "regex"
-				: value.image === "`"
-				? "tick"
-				: unreachable()
+					? "double"
+					: value.image === "'"
+						? "single"
+						: value.image === "\\"
+							? "regex"
+							: value.image === "`"
+								? "tick"
+								: unreachable()
 				return handle.delimiter[type](...processToken(value, $.shift))
 			})
 		})

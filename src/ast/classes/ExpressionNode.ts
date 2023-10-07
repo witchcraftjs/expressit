@@ -1,10 +1,10 @@
-import type { ConditionNode } from "./ConditionNode"
-import type { ErrorToken } from "./ErrorToken"
-import type { GroupNode } from "./GroupNode"
-import { Node } from "./Node"
-import { ValidToken } from "./ValidToken"
+import type { ConditionNode } from "./ConditionNode.js"
+import type { ErrorToken } from "./ErrorToken.js"
+import type { GroupNode } from "./GroupNode.js"
+import { Node } from "./Node.js"
+import { ValidToken } from "./ValidToken.js"
 
-import { AnyToken, AST_TYPE, TOKEN_TYPE, TokenBooleanTypes } from "@/types"
+import { type AnyToken, AST_TYPE, type TOKEN_TYPE, type TokenBooleanTypes } from "../../types/ast.js"
 
 
 export class ExpressionNode<
@@ -12,26 +12,33 @@ export class ExpressionNode<
 >
 	extends Node<AST_TYPE.EXPRESSION> {
 	readonly operator: AnyToken<TokenBooleanTypes>
+
 	readonly left:
 	| ExpressionNode<TValid>
 	| ConditionNode<TValid>
 	| GroupNode<TValid>
 	| (TValid extends false ? ErrorToken<TOKEN_TYPE.VALUE> : never)
+
 	readonly right:
 	| ExpressionNode<TValid>
 	| ConditionNode<TValid>
 	| GroupNode<TValid>
 	| (TValid extends false ? ErrorToken<TOKEN_TYPE.VALUE> : never)
+
 	#parent: any
+
 	#setParent: boolean = false
+
 	get parent(): GroupNode | undefined {
 		return this.#parent
 	}
+
 	set parent(value: GroupNode | undefined) {
 		if (this.#setParent) {throw new Error("parent property is readonly")}
 		this.#parent = value
 		this.#setParent = true
 	}
+
 	constructor({ operator, left, right, start, end }: {
 		operator: ExpressionNode<TValid>["operator"]
 		right: ExpressionNode<TValid>["right"]

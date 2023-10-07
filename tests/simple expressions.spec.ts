@@ -1,11 +1,11 @@
-import { testName } from "@utils/testing"
+import { testName } from "@alanscodelog/utils"
+import { describe, expect, it } from "vitest"
 
-import { expect } from "./chai"
-import { checkVariables, e, t, unquoted, v } from "./utils"
+import { checkVariables, e, t, unquoted, v } from "./utils.js"
 
-import { condition, delim, expression, pos, token } from "@/ast/builders"
-import { Parser } from "@/index"
-import { TOKEN_TYPE } from "@/types"
+import { condition, delim, expression, pos, token } from "../src/ast/builders/index.js"
+import { Parser } from "../src/parser.js"
+import { TOKEN_TYPE } from "../src/types/ast.js"
 
 
 describe(testName({ __filename }), () => {
@@ -175,15 +175,15 @@ describe(testName({ __filename }), () => {
 			const ast = new Parser({ onMissingBooleanOperator: "and" }).parse(input)
 
 			const expected =
-			expression(
-				condition(
-					v(input, "a")
-				),
-				token(TOKEN_TYPE.AND, "", { start: input.indexOf(" "), end: input.indexOf(" ") }),
-				condition(
-					v(input, "b")
-				),
-			)
+				expression(
+					condition(
+						v(input, "a")
+					),
+					token(TOKEN_TYPE.AND, "", { start: input.indexOf(" "), end: input.indexOf(" ") }),
+					condition(
+						v(input, "b")
+					),
+				)
 
 			expect(ast).deep.equal(expected)
 		})
@@ -192,15 +192,15 @@ describe(testName({ __filename }), () => {
 			const ast = new Parser({ onMissingBooleanOperator: "or" }).parse(input)
 
 			const expected =
-			expression(
-				condition(
-					v(input, "a")
-				),
-				token(TOKEN_TYPE.OR, "", { start: input.indexOf(" "), end: input.indexOf(" ") }),
-				condition(
-					v(input, "b")
-				),
-			)
+				expression(
+					condition(
+						v(input, "a")
+					),
+					token(TOKEN_TYPE.OR, "", { start: input.indexOf(" "), end: input.indexOf(" ") }),
+					condition(
+						v(input, "b")
+					),
+				)
 
 			expect(ast).deep.equal(expected)
 		})
@@ -209,21 +209,21 @@ describe(testName({ __filename }), () => {
 			const ast = new Parser(({ onMissingBooleanOperator: "and" })).parse(input)
 
 			const expected =
-			expression(
-				condition(
-					v(input, "a")
-				),
-				t(input, "&&"),
 				expression(
 					condition(
-						v(input, "b")
+						v(input, "a")
 					),
-					token(TOKEN_TYPE.AND, "", { start: input.indexOf(" c"), end: input.indexOf(" c") }),
-					condition(
-						v(input, "c")
+					t(input, "&&"),
+					expression(
+						condition(
+							v(input, "b")
+						),
+						token(TOKEN_TYPE.AND, "", { start: input.indexOf(" c"), end: input.indexOf(" c") }),
+						condition(
+							v(input, "c")
+						),
 					),
-				),
-			)
+				)
 			expect(ast).deep.equal(expected)
 		})
 		it(`a && b c - onMissingBooleanOperator = or`, () => {
@@ -231,21 +231,21 @@ describe(testName({ __filename }), () => {
 			const ast = new Parser(({ onMissingBooleanOperator: "or" })).parse(input)
 
 			const expected =
-			expression(
 				expression(
-					condition(
-						v(input, "a")
+					expression(
+						condition(
+							v(input, "a")
+						),
+						t(input, "&&"),
+						condition(
+							v(input, "b")
+						),
 					),
-					t(input, "&&"),
+					token(TOKEN_TYPE.OR, "", { start: input.indexOf(" c"), end: input.indexOf(" c") }),
 					condition(
-						v(input, "b")
+						v(input, "c")
 					),
-				),
-				token(TOKEN_TYPE.OR, "", { start: input.indexOf(" c"), end: input.indexOf(" c") }),
-				condition(
-					v(input, "c")
-				),
-			)
+				)
 			expect(ast).deep.equal(expected)
 		})
 	})

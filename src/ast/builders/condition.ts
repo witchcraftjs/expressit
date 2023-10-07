@@ -1,8 +1,12 @@
-import { pos } from "./pos"
+import { pos } from "./pos.js"
 
-import { ArrayNode, ConditionNode, ErrorToken, GroupNode, ValidToken, VariableNode } from "@/ast/classes"
-import { AnyToken, AST_TYPE, TOKEN_TYPE } from "@/types"
-
+import { type AnyToken, type Position, type TOKEN_TYPE } from "../../types/ast.js"
+import type { ArrayNode } from "../classes/ArrayNode.js"
+import { ConditionNode } from "../classes/ConditionNode.js"
+import type { ErrorToken } from "../classes/ErrorToken.js"
+import type { GroupNode } from "../classes/GroupNode.js"
+import type { ValidToken } from "../classes/ValidToken.js"
+import type { VariableNode } from "../classes/VariableNode.js"
 
 /**
  * Creates a @see ConditionNode
@@ -27,12 +31,11 @@ export function condition(
 	propertyOperator?: AnyToken<TOKEN_TYPE.OP_CUSTOM | TOKEN_TYPE.VALUE>,
 	{ right, left }: Partial<Record<"right" | "left", ValidToken<TOKEN_TYPE.OP_EXPANDED_SEP>>> = { }
 ): ConditionNode {
-	const position = pos(value)
+	const position = pos(value satisfies Position)
 	const notStart = not === true ? undefined : not.start
 	position.start = notStart ?? property?.start ?? propertyOperator?.start ?? position.start
 
-	const node: Partial<ConditionNode> = {
-		type: AST_TYPE.CONDITION,
+	const node: Partial<ConstructorParameters<typeof ConditionNode>[0]> = {
 		property,
 		value,
 		propertyOperator,
@@ -40,11 +43,9 @@ export function condition(
 	}
 
 	if (not !== true) {
-		// @ts-expect-error ignore readonly
 		node.operator = not
 	}
 	if (right || left) {
-		// @ts-expect-error ignore readonly
 		node.sep = {}
 		if (right) node.sep.right = right
 		if (left) node.sep.left = left

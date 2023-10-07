@@ -1,8 +1,7 @@
-import { isFullPos } from "./isFullPos"
+import { isFullPos } from "./isFullPos.js"
 
-import type { Node } from "@/ast/classes"
-import type { AnyToken, AST_TYPE, EmptyObj, Position, TOKEN_TYPE } from "@/types"
-
+import type { AnyToken, AST_TYPE, EmptyObj, Position, TOKEN_TYPE } from "../../types/ast.js"
+import type { Node } from "../classes/Node.js"
 
 /**
  * Can either:

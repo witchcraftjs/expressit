@@ -1,10 +1,10 @@
 import { testName } from "@alanscodelog/utils"
+import { describe, expect, it } from "vitest"
 
-import { expect } from "@tests/chai"
 
-
-describe(testName(), () => {
-	it("missing tests", () => {
+describe(testName({ __filename }), () => {
+	it("works", () => {
 		expect(true).to.equal(false)
 	})
 })
+

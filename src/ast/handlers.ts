@@ -1,8 +1,14 @@
 /* eslint-disable @typescript-eslint/no-shadow */
-import { ConditionNode, ErrorToken, ExpressionNode, GroupNode, ValidToken, VariableNode } from "./classes"
-import { ArrayNode } from "./classes/ArrayNode"
 
-import { AnyToken, FirstConstructorParam, Position, TOKEN_TYPE, TokenBooleanTypes, TokenDelimiterTypes, TokenOperatorTypes, TokenQuoteTypes } from "@/types"
+import { ArrayNode } from "./classes/ArrayNode.js"
+import { ConditionNode } from "./classes/ConditionNode.js"
+import { ErrorToken } from "./classes/ErrorToken.js"
+import { ExpressionNode } from "./classes/ExpressionNode.js"
+import { GroupNode } from "./classes/GroupNode.js"
+import { ValidToken } from "./classes/ValidToken.js"
+import { VariableNode } from "./classes/VariableNode.js"
+
+import { type AnyToken, type FirstConstructorParam, type Position, TOKEN_TYPE, type TokenBooleanTypes, type TokenDelimiterTypes, type TokenOperatorTypes, type TokenQuoteTypes } from "../types/ast.js"
 
 
 /* #region HELPERS */
@@ -111,15 +117,15 @@ export function condition(
 		node.sep = {}
 		if (sepL) {
 			node.sep.left = sepL
-			if (!node.property) node.property = error(sepL.start, [TOKEN_TYPE.VALUE])
-			if (!node.propertyOperator) node.propertyOperator = error(sepL?.end ?? sepR?.start, [TOKEN_TYPE.VALUE])
+			node.property ||= error(sepL.start, [TOKEN_TYPE.VALUE])
+			node.propertyOperator ||= error(sepL?.end ?? sepR?.start, [TOKEN_TYPE.VALUE])
 		}
 		if (sepR) node.sep.right = sepR
 		else if (!node.value || node.value instanceof VariableNode) {
 			node.sep.right = error(node.value?.start ?? end, [TOKEN_TYPE.OP_EXPANDED_SEP])
 		}
 	} else if (propertyOperator) {
-		if (!node.property) node.property = error(propertyOperator.start, [TOKEN_TYPE.VALUE])
+		node.property ||= error(propertyOperator.start, [TOKEN_TYPE.VALUE])
 	}
 
 	const instance = new ConditionNode(node as any)

@@ -8,7 +8,7 @@ Every function normally has it's own file and there should only be one export pe
 
 The only exception is the handlers for the parser rules. These are internal, short, easier to maintain in one file, and used like `import * as handle`.
 
-```
+```text
 src
  ┣ ast
  ┃ ┣ builders - used to quickly build ast classes for testing
@@ -30,15 +30,7 @@ src
  ┣ package.js - see file for explanation
  ┗ parser.ts - the root / main export of the project. all it's longer methods are in the ./methods folder
 tests
- ┣ chai.ts - imports & re-exports retyped chai + plugins
  ┣ template.ts - the template to use for tests, just copy and rename to the name of the test + `.spec.ts`
  ┗ utils.ts - contains even shorter (one letter) versions of the ast/builders for the most common uses
 ```
 
-## Building
-
-Run `yarn build` to build the library and the types. If you don't need to build the types you can use the `build:babel` or `build:babel:watch` commands.
-
-# Other
-
-`@utils/*` imports are an alias to my utils library [`@alanscodelog/utils`](https://github.com/AlansCodeLog/my-utils).

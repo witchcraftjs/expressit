@@ -1,21 +1,10 @@
-import type { Mutable } from "@utils/types"
+import { pos } from "./pos.js"
+import { token } from "./token.js"
 
-import { pos } from "./pos"
-import { token } from "./token"
+import { type AnyToken, type EmptyObj, type Position, TOKEN_TYPE, type TokenQuoteTypes } from "../../types/ast.js"
+import type { ValidToken } from "../classes/ValidToken.js"
+import { VariableNode } from "../classes/VariableNode.js"
 
-import { ValidToken, VariableNode } from "@/ast/classes"
-import { AnyToken, AST_TYPE, EmptyObj, Position, TOKEN_TYPE, TokenQuoteTypes } from "@/types"
-
-
-function quoteFromType(type: TokenQuoteTypes | undefined): string {
-	switch (type) {
-		case TOKEN_TYPE.BACKTICK: return "`"
-		case TOKEN_TYPE.DOUBLEQUOTE: return "\""
-		case TOKEN_TYPE.SINGLEQUOTE: return "'"
-		case TOKEN_TYPE.REGEX: return "/"
-		case undefined: return ""
-	}
-}
 
 /**
  * Creates an @see VariableNode .
@@ -37,8 +26,7 @@ export function variable(
 
 	position = pos(value)
 
-	const node: Mutable<Partial<VariableNode>> = {
-		type: AST_TYPE.VARIABLE,
+	const node: Partial<ConstructorParameters<typeof VariableNode>[0]> = {
 		value,
 		prefix,
 	}
@@ -88,4 +76,14 @@ export function variable(
 
 	const instance = new VariableNode(node as any)
 	return instance
+}
+
+function quoteFromType(type: TokenQuoteTypes | undefined): string {
+	switch (type) {
+		case TOKEN_TYPE.BACKTICK: return "`"
+		case TOKEN_TYPE.DOUBLEQUOTE: return "\""
+		case TOKEN_TYPE.SINGLEQUOTE: return "'"
+		case TOKEN_TYPE.REGEX: return "/"
+		case undefined: return ""
+	}
 }

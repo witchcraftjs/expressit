@@ -1,10 +1,11 @@
-import type { Mutable } from "@utils/types"
+import { token } from "./token.js"
 
-import { token } from "./token"
-
-import { ConditionNode, ErrorToken, ExpressionNode, GroupNode, ValidToken } from "@/ast/classes"
-import { AST_TYPE, Position, TOKEN_TYPE } from "@/types"
-
+import { type Position, TOKEN_TYPE } from "../../types/ast.js"
+import type { ConditionNode } from "../classes/ConditionNode.js"
+import type { ErrorToken } from "../classes/ErrorToken.js"
+import type { ExpressionNode } from "../classes/ExpressionNode.js"
+import { GroupNode } from "../classes/GroupNode.js"
+import type { ValidToken } from "../classes/ValidToken.js"
 
 /**
  * Creates a group.
@@ -37,8 +38,7 @@ export function group(
 		expression = token(TOKEN_TYPE.VALUE, undefined, prefix?.end !== undefined ? { start: prefix.end } : undefined)
 	}
 
-	const node: Mutable<Partial<GroupNode>> = {
-		type: AST_TYPE.GROUP,
+	const node: Partial<ConstructorParameters<typeof GroupNode>[0]> = {
 		expression,
 	}
 	if (prefix) {
@@ -54,8 +54,8 @@ export function group(
 	const start = expression.start
 	const end = expression.end
 
-	parenLeftPos = parenLeftPos ?? (start !== undefined ? { start: start - 1, end: start } : undefined)
-	parenRightPos = parenRightPos ?? (end !== undefined ? { start: end, end: end + 1 } : undefined)
+	parenLeftPos ??= (start !== undefined ? { start: start - 1, end: start } : undefined)
+	parenRightPos ??= (end !== undefined ? { start: end, end: end + 1 } : undefined)
 
 	if (paren?.left) {
 		node.paren!.left = token(TOKEN_TYPE.PARENL, "(", parenLeftPos)

@@ -1,7 +1,12 @@
-import type { AnyFunction } from "@utils/types"
+import type { AnyFunction } from "@alanscodelog/utils"
 
-import type { ConditionNode, ErrorToken, ExpressionNode, GroupNode, ValidToken, VariableNode } from "@/ast/classes"
-import type { ArrayNode } from "@/ast/classes/ArrayNode"
+import type { ArrayNode } from "../ast/classes/ArrayNode.js"
+import type { ConditionNode } from "../ast/classes/ConditionNode.js"
+import type { ErrorToken } from "../ast/classes/ErrorToken.js"
+import type { ExpressionNode } from "../ast/classes/ExpressionNode.js"
+import type { GroupNode } from "../ast/classes/GroupNode.js"
+import type { ValidToken } from "../ast/classes/ValidToken.js"
+import type { VariableNode } from "../ast/classes/VariableNode.js"
 
 
 export type AddParameters<T extends AnyFunction, TExtra extends any[] = [boolean]> = (...args: [...Parameters<T>, ...TExtra]) => ReturnType<T>

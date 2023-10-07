@@ -1,7 +1,8 @@
 name: Docs
 
 env:
-  USE_LOCKFILE: false
+  USE_LOCKFILE: ${{ secrets.USE_LOCKFILE }}
+  ENABLE_DOCS: ${{ secrets.ENABLE_DOCS }}
 
 on:
   push:
@@ -34,13 +35,11 @@ jobs:
           version: latest
 
     - name: Get Pnpm Cache Path
-      if: "env.USE_LOCKFILE == 'true'"
       id: pnpm-cache
       run: |
         echo "::set-output name=dir::$(pnpm store path)"
 
     - uses: actions/cache@v3
-      if: "env.USE_LOCKFILE == 'true'"
       name: pnpm cache
       with:
         path: ${{ steps.pnpm-cache.outputs.dir }}
@@ -53,23 +52,35 @@ jobs:
     - run: "echo Pnpm Cache Hit: ${{ steps.pnpm-cache.outputs.cache-hit }}"
     # regionend
 
-    # region Steps
     - run: pnpm install --frozen-lockfile
       if: "env.USE_LOCKFILE == 'true'"
 
-    - run: pnpm install
+    - run: pnpm install --no-lockfile
+      if: "env.USE_LOCKFILE != 'true'"
 
     - run: pnpm build
+
+    - run: pnpm lint
+
+    - run: pnpm test
+
+    - run: pnpm install --frozen-lockfile
+      working-directory: demo
+
+    - run: pnpm demo:build
 
     - run: pnpm doc
 
     - name: Documentation
-      # TOCONFIGURE
-      if: "env.REMOVE_LINE_TO_ENABLE == 'true'"
+      if: "env.ENABLE_DOCS == 'true'"
       uses: crazy-max/ghaction-github-pages@v2
       with:
+        jekyll: false
         target_branch: gh-pages
         build_dir: docs
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - run: echo "env.ENABLE_DOCS is ${{ env.ENABLE_DOCS }}, no documentation can be published" && exit 1
+      if: "env.ENABLE_DOCS != 'true'"
     # regionend

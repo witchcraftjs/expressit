@@ -1,10 +1,10 @@
 /* eslint-disable no-labels */
 
-import type { AddParameters } from "@utils/types"
-import { unreachable } from "@utils/utils"
+import { type AddParameters, unreachable } from "@alanscodelog/utils"
 
-import { Condition, Expression } from "@/ast/classes"
-import { TOKEN_TYPE } from "@/types"
+import { Condition } from "../ast/classes/Condition.js"
+import { Expression } from "../ast/classes/Expression.js"
+import { TOKEN_TYPE } from "../types/ast.js"
 
 
 export class GetIndexMixin<T> {

@@ -1,9 +1,8 @@
-import { testName } from "@utils/testing"
+import { testName } from "@alanscodelog/utils"
+import { describe, expect, it } from "vitest"
 
-import { expect } from "./chai"
-
-import { getUnclosedRightParenCount } from "@/helpers/parser"
-import { Parser } from "@/index"
+import { getUnclosedRightParenCount } from "../src/helpers/parser/getUnclosedRightParenCount.js"
+import { Parser } from "../src/parser.js"
 
 
 describe(testName({ __filename }), () => {

@@ -1,10 +1,19 @@
-import { unreachable } from "@utils/utils"
+import { type AddParameters, unreachable } from "@alanscodelog/utils"
 
-import { ArrayNode, Condition, ConditionNode, ErrorToken, Expression, ExpressionNode, GroupNode, ValidToken, VariableNode } from "@/ast/classes"
-import { applyBoolean, applyPrefix } from "@/helpers/general"
-import { unescape } from "@/helpers/parser"
-import type { Parser } from "@/parser"
-import { AddParameters, ParserResults, TOKEN_TYPE, TokenBooleanTypes, ValueQuery } from "@/types"
+import { ArrayNode } from "../ast/classes/ArrayNode.js"
+import { Condition } from "../ast/classes/Condition.js"
+import { ConditionNode } from "../ast/classes/ConditionNode.js"
+import { ErrorToken } from "../ast/classes/ErrorToken.js"
+import { Expression } from "../ast/classes/Expression.js"
+import { ExpressionNode } from "../ast/classes/ExpressionNode.js"
+import { GroupNode } from "../ast/classes/GroupNode.js"
+import { ValidToken } from "../ast/classes/ValidToken.js"
+import { VariableNode } from "../ast/classes/VariableNode.js"
+import { applyBoolean } from "../helpers/general/applyBoolean.js"
+import { applyPrefix } from "../helpers/general/applyPrefix.js"
+import type { Parser } from "../parser.js"
+import { type ParserResults, TOKEN_TYPE, type TokenBooleanTypes } from "../types/ast.js"
+import type { ValueQuery } from "../types/parser.js"
 
 
 const OPPOSITE = {
@@ -70,7 +79,7 @@ export class NormalizeMixin<T extends {}> {
 					? unescape(ast.value.prefix.value)
 					: undefined
 				// one or the other might be defined, but never both since nested properties (e.g. `prop:op(prop:op(...))`) are not allowed
-				operator = operator ?? ast.propertyOperator?.value
+				operator ??= ast.propertyOperator?.value
 				const isRegex = (ast.value as VariableNode)?.quote?.left.type === TOKEN_TYPE.REGEX
 				const isQuoted = (ast.value as VariableNode)?.quote !== undefined
 				const isExpanded = ast.sep !== undefined

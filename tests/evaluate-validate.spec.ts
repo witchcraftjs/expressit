@@ -1,13 +1,16 @@
-import { testName } from "@utils/testing"
-import { get, isArray, unreachable } from "@utils/utils"
+import { get, isArray, testName, unreachable } from "@alanscodelog/utils"
+import { describe, expect, it, vi } from "vitest"
 
-import { nCondition, nExpression } from "./utils"
+import { nCondition, nExpression } from "./utils.js"
 
-import { GroupNode, ValidToken, VariableNode } from "@/ast/classes"
-import { applyBoolean, defaultConditionNormalizer, defaultValueComparer } from "@/helpers/general"
-import { Parser } from "@/index"
-import type { FullParserOptions, ValidationQuery, ValueValidator } from "@/types"
-import { expect } from "@tests/chai"
+import type { GroupNode } from "../src/ast/classes/GroupNode.js"
+import { ValidToken } from "../src/ast/classes/ValidToken.js"
+import { VariableNode } from "../src/ast/classes/VariableNode.js"
+import { applyBoolean } from "../src/helpers/general/applyBoolean.js"
+import { defaultConditionNormalizer } from "../src/helpers/general/defaultConditionNormalizer.js"
+import { defaultValueComparer } from "../src/helpers/general/defaultValueComparer.js"
+import { Parser } from "../src/parser.js"
+import type { FullParserOptions, ValidationQuery, ValueValidator } from "../src/types/parser.js"
 
 
 describe(testName(), () => {
@@ -188,7 +191,7 @@ describe(testName(), () => {
 		describe("custom validation", () => {
 			it("a(b:val)", () => {
 				const input = "a(b:val)"
-				const valueValidator = jest.fn((_contextValue: string, query: ValidationQuery) => {
+				const valueValidator = vi.fn((_contextValue: string, query: ValidationQuery) => {
 					expect(query.value).to.be.instanceof(VariableNode)
 					expect(query.property[0]).to.be.instanceof(VariableNode)
 					expect(query.property[1]).to.be.instanceof(VariableNode)
@@ -210,7 +213,7 @@ describe(testName(), () => {
 			})
 			it("a(b)", () => {
 				const input = "a(b)"
-				const valueValidator = jest.fn((_contextValue: string, query: ValidationQuery) => {
+				const valueValidator = vi.fn((_contextValue: string, query: ValidationQuery) => {
 					expect(query.property[0]).to.be.instanceof(VariableNode)
 					expect(query.property[1]).to.be.instanceof(VariableNode)
 					expect(query.property[0].value.value).to.equal("a")
@@ -231,7 +234,7 @@ describe(testName(), () => {
 			})
 			it(`a(prefix"b")`, () => {
 				const input = `a(prefix"b")`
-				const valueValidator = jest.fn((_contextValue: string | undefined, query: ValidationQuery) => {
+				const valueValidator = vi.fn((_contextValue: string | undefined, query: ValidationQuery) => {
 					expect(query.property[0]).to.be.instanceof(VariableNode)
 					expect(query.property[1]).to.be.instanceof(VariableNode)
 					expect(query.property[0].value.value).to.equal("a")
@@ -279,7 +282,7 @@ describe(testName(), () => {
 			})
 			it(`a(c(d)) || e - partial prefix "highlighting"`, () => {
 				const input = `a(c(d)) || e`
-				const valueValidator = jest.fn((_contextValue: string | undefined, query: ValidationQuery, context: any): any => {
+				const valueValidator = vi.fn((_contextValue: string | undefined, query: ValidationQuery, context: any): any => {
 					const values = query.property.map(node => node.value.value)
 					let i = 1
 					while (i < query.property.length && get(context, values.slice(0, i)) !== undefined) {

@@ -1,4 +1,4 @@
-import { AnyToken, TOKEN_TYPE, TokenBracketTypes } from "@/types"
+import { type AnyToken, TOKEN_TYPE, type TokenBracketTypes } from "../types/ast.js"
 
 
 export function isBracket(token?: AnyToken): token is AnyToken<TokenBracketTypes> {

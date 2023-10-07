@@ -1,15 +1,20 @@
-import type { Keys } from "@utils/types"
-import { crop, indent, pretty } from "@utils/utils"
+import type { Keys } from "@alanscodelog/utils"
+import { crop, indent, pretty } from "@alanscodelog/utils"
 
-import { repository, version } from "@/package"
-import type { ERROR_CODES, ErrorInfo } from "@/types"
+// @ts-expect-error todo
+import { repository, version } from "../package.js"
+import type { ERROR_CODES, ErrorInfo } from "../types/errors.js"
 
 
 export class BooleanParserLibraryError<T extends ERROR_CODES> extends Error {
 	version: string = version
+
 	repo: string = repository
+
 	type: T
+
 	info: ErrorInfo<T>
+
 	constructor(type: T, info: ErrorInfo<T>, message?: string) {
 		super(
 			message

@@ -1,8 +1,8 @@
-import type { DeepRequired, MakeRequired } from "@utils/types"
+import type { DeepRequired, MakeRequired } from "@alanscodelog/utils"
 
-import type { Position, TOKEN_TYPE } from "./ast"
+import type { Position, TOKEN_TYPE } from "./ast.js"
 
-import type { ArrayNode, Condition, ConditionNode, ValidToken, VariableNode } from "@/ast/classes"
+import type { ArrayNode, Condition, ConditionNode, ValidToken, VariableNode } from "../ast/classes/index.js"
 
 
 // #partially-synced

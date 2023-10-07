@@ -1,17 +1,22 @@
-// https://www.typescriptlang.org/v2/en/tsconfig
-// see https://github.com/babel/babel/issues/9668 for why a tsconfig specifically for types
+// https://www.typescriptlang.org/tsconfig/
 {
 	"extends": "./tsconfig",
 	"compilerOptions": {
 		"outDir": "dist",
+		"rootDir": "src",
 		"declaration": true,
-		"emitDeclarationOnly": true,
-		"noEmit": false,
-		"allowJs": false,
 		"declarationMap": true,
+		// "emitDeclarationOnly": controlled by build/lint:types scripts which both need this config
+		"noEmit": false, // override value in ./tsconfig
+		"allowJs": false,
+		"skipLibCheck": true, // ignore node modules
+		// preserve documentation
+		"removeComments": false
 	},
 	"exclude": [
-		"tests/**/*.ts",
-		"**/*.js",
-	]
+		"tests/**"
+	],
+	"tsc-alias": {
+		"resolveFullPaths": true // for esm compatibility
+	}
 }

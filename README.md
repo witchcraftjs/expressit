@@ -8,6 +8,8 @@
 Expressit is blazing fast, customizable, error-tolerant expression parser that creates safe to eval expressions + a few other goodies.
 
 # [Docs](https://alanscodelog.github.io/expressit)
+# [Demo](https://alanscodelog.github.io/expressit/demo)
+
 # Features
 - **Error Recovery**
 	- The parser is designed to recover from ALL errors, even **multiple** errors, making it easy to provide things like syntax highlighting.

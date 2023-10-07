@@ -1,11 +1,11 @@
-import { testName } from "@utils/testing"
+import { testName } from "@alanscodelog/utils"
+import { describe, expect, it } from "vitest"
 
-import { expect } from "./chai"
-import { findPos, t, v } from "./utils"
+import { findPos, t, v } from "./utils.js"
 
-import { array, condition, delim, variable } from "@/ast/builders"
-import { Parser } from "@/index"
-import { TOKEN_TYPE } from "@/types"
+import { array, condition, delim, variable } from "../src/ast/builders/index.js"
+import { Parser } from "../src/parser.js"
+import { TOKEN_TYPE } from "../src/types/ast.js"
 
 
 // more related tests are in ./property operators

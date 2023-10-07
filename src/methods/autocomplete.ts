@@ -1,8 +1,10 @@
-import { unreachable } from "@utils/utils"
+import { unreachable } from "@alanscodelog/utils"
 
-import { ConditionNode, VariableNode } from "@/ast/classes"
-import type { Parser } from "@/parser"
-import { Completion, FullParserOptions, Suggestion, SUGGESTION_TYPE } from "@/types"
+import { ConditionNode } from "../ast/classes/ConditionNode.js"
+import { VariableNode } from "../ast/classes/VariableNode.js"
+import type { Parser } from "../parser.js"
+import { type Completion, type Suggestion, SUGGESTION_TYPE } from "../types/autocomplete.js"
+import type { FullParserOptions } from "../types/parser.js"
 
 
 export class AutocompleteMixin<T extends {}> {

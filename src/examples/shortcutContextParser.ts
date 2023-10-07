@@ -1,6 +1,3 @@
-import { Parser } from "@/parser"
-import type { Position, ValueQuery } from "@/types"
-
 /* TODO TOUPDATE */
 /**
  * A pre-configured parser for parsing shortcut contexts (similar to VSCode's [when clause contexts](https://code.visualstudio.com/docs/getstarted/keybindings#_when-clause-contexts)).
@@ -12,12 +9,19 @@ import type { Position, ValueQuery } from "@/types"
  * The validate function will return a list of positions with a list of errors which includes handling invalid or duplicate regex flags.
  */
 
+import { Parser } from "../parser.js"
+import type { Position } from "../types/ast.js"
+import type { ValueQuery } from "../types/parser.js"
+
+
 export class ShortcutContextParser<T extends
 	Position & { type: ("invalidKey" | "unregexableKey" | "invalidRegexFlag" | "duplicateRegexFlag") } =
 	Position & { type: ("invalidKey" | "unregexableKey" | "invalidRegexFlag" | "duplicateRegexFlag") },
 > extends Parser<T> {
 	validKeys: string[] = []
+
 	regexablekeys: string[] = []
+
 	constructor(
 		dummyContext: Record<string, any>,
 		validRegexFlags: string[] = ["i", "u", "m"]
@@ -118,6 +122,7 @@ export class ShortcutContextParser<T extends
 		})
 		this._extractKeysFromContext(dummyContext)
 	}
+
 	private _extractKeysFromContext(context: Record<string, any>, prev?: string): void {
 		for (const key of Object.keys(context)) {
 			if (typeof context[key] === "boolean") {

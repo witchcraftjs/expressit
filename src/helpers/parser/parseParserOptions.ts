@@ -1,6 +1,8 @@
-import { defaultConditionNormalizer, defaultKeyParser, defaultPrefixApplier, defaultValueComparer } from "@/helpers/general"
-import type { FullParserOptions, ParserOptions } from "@/types/parser"
-
+import type { FullParserOptions, ParserOptions } from "../../types/parser.js"
+import { defaultConditionNormalizer } from "../general/defaultConditionNormalizer.js"
+import { defaultKeyParser } from "../general/defaultKeyParser.js"
+import { defaultPrefixApplier } from "../general/defaultPrefixApplier.js"
+import { defaultValueComparer } from "../general/defaultValueComparer.js"
 
 /** @internal */
 export function parseParserOptions<T extends {} = {}>(

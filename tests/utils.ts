@@ -1,12 +1,11 @@
-import type { DeepPartial } from "@utils/types"
+import type { DeepPartial } from "@alanscodelog/utils"
+import { expect } from "vitest"
 
-import { expect } from "./chai"
-
-import { condition, pos, token, type, variable } from "@/ast/builders"
-import { error } from "@/ast/builders/error"
-import { Condition, ErrorToken, Expression, ValidToken, VariableNode } from "@/ast/classes"
-import { Parser } from "@/index"
-import { ExtractTokenType, ParserOptions, Position, TOKEN_TYPE } from "@/types"
+import { condition, error, pos, token, type, variable } from "../src/ast/builders/index.js"
+import { Condition, type ErrorToken, Expression, type ValidToken, type VariableNode } from "../src/ast/classes/index.js"
+import { Parser } from "../src/parser.js"
+import type { ExtractTokenType, ParserOptions, Position } from "../src/types/index.js"
+import { TOKEN_TYPE } from "../src/types/index.js"
 
 
 // for delims
@@ -44,7 +43,7 @@ export const checkVariables = (
  */
 export const t = <T extends string, TForceType extends TOKEN_TYPE>(
 	input: string, value: T, tokenType?: TForceType
-): TForceType extends TOKEN_TYPE ? ValidToken<TForceType>: ValidToken<ExtractTokenType<T>> =>
+): TForceType extends TOKEN_TYPE ? ValidToken<TForceType> : ValidToken<ExtractTokenType<T>> =>
 	token(tokenType ?? type(value) as any, value, findPos(input, value)) as any
 
 /**
@@ -62,7 +61,7 @@ export const v = <T extends string>(
  * Given the input, a string right before the error, and the expected token types, returns an error token.
  *
  */
-export const e = <T extends string> (
+export const e = <T extends string>(
 	input: string, beforeError: string, expected: T[]
 ): ErrorToken<ExtractTokenType<T>> => error<ExtractTokenType<T>>(findPos(input, beforeError).end, expected as any)
 

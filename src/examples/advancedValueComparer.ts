@@ -1,4 +1,4 @@
-import type { ValueQuery } from "@/types"
+import type { ValueQuery } from "../types/parser.js"
 
 /* TODO TOUPDATE */
 type Operators = ">" | "contains"

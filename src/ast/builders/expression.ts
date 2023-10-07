@@ -1,8 +1,11 @@
-import { pos } from "./pos"
-import { token } from "./token"
+import { pos } from "./pos.js"
+import { token } from "./token.js"
 
-import { ConditionNode, ErrorToken, ExpressionNode, GroupNode } from "@/ast/classes"
-import { AnyToken, AST_TYPE, EmptyObj, Position, TOKEN_TYPE, TokenBooleanTypes } from "@/types"
+import { type AnyToken, type Position, TOKEN_TYPE, type TokenBooleanTypes } from "../../types/ast.js"
+import type { ConditionNode } from "../classes/ConditionNode.js"
+import type { ErrorToken } from "../classes/ErrorToken.js"
+import { ExpressionNode } from "../classes/ExpressionNode.js"
+import type { GroupNode } from "../classes/GroupNode.js"
 
 
 /**
@@ -10,7 +13,6 @@ import { AnyToken, AST_TYPE, EmptyObj, Position, TOKEN_TYPE, TokenBooleanTypes }
  *
  * Also automatically sets the correct start/end positions from valid tokens (e.g. for start, searching left to right for a valid token and vice versa) assuming at least one is defined.
  */
-
 export function expression(
 	left:
 	ConditionNode |
@@ -38,7 +40,7 @@ export function expression(
 		left?.end
 
 
-	const position = pos({ start, end } as Position | EmptyObj)
+	const position = pos({ start, end } as Position)
 
 	if (left === undefined) {
 		left = token(TOKEN_TYPE.VALUE, undefined, { start: position.start })
@@ -52,14 +54,13 @@ export function expression(
 		right = token(TOKEN_TYPE.VALUE, undefined, { start: op.end })
 	}
 
-	const node: Partial<ExpressionNode> = {
-		type: AST_TYPE.EXPRESSION,
+	const node: ConstructorParameters<typeof ExpressionNode>[0] = {
 		left,
 		operator: op,
 		right,
 		...position,
 	}
 
-	const instance = new ExpressionNode(node as any)
+	const instance = new ExpressionNode(node)
 	return instance
 }

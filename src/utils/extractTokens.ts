@@ -1,7 +1,13 @@
-import { unreachable } from "@utils/utils"
+import { unreachable } from "@alanscodelog/utils"
 
-import { ArrayNode, ConditionNode, ErrorToken, ExpressionNode, GroupNode, Node, VariableNode } from "@/ast/classes"
-import type { AnyToken, AST_TYPE } from "@/types"
+import { ArrayNode } from "../ast/classes/ArrayNode.js"
+import { ConditionNode } from "../ast/classes/ConditionNode.js"
+import { ErrorToken } from "../ast/classes/ErrorToken.js"
+import { ExpressionNode } from "../ast/classes/ExpressionNode.js"
+import { GroupNode } from "../ast/classes/GroupNode.js"
+import { Node } from "../ast/classes/Node.js"
+import { VariableNode } from "../ast/classes/VariableNode.js"
+import type { AnyToken, AST_TYPE } from "../types/ast.js"
 
 
 /**

@@ -1,7 +1,6 @@
-import { type } from "./type"
+import { type } from "./type.js"
 
-import { ExtractTokenType, TOKEN_TYPE } from "@/types"
-
+import { type ExtractTokenType, TOKEN_TYPE } from "../../types/ast.js"
 
 /**
  * Faster way, more intuitive way to generate the options for matching delimiters (e.g. quotes and parens) for functions like @see variable and @see group .

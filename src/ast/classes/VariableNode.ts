@@ -1,11 +1,10 @@
-import type { ArrayNode } from "./ArrayNode"
-import type { ConditionNode } from "./ConditionNode"
-import type { ErrorToken } from "./ErrorToken"
-import { Node } from "./Node"
-import { ValidToken } from "./ValidToken"
+import type { ArrayNode } from "./ArrayNode.js"
+import type { ConditionNode } from "./ConditionNode.js"
+import type { ErrorToken } from "./ErrorToken.js"
+import { Node } from "./Node.js"
+import { ValidToken } from "./ValidToken.js"
 
-import { AnyToken, AST_TYPE, NodeDelimiters, TOKEN_TYPE, TokenQuoteTypes } from "@/types"
-
+import { type AnyToken, AST_TYPE, type NodeDelimiters, type TOKEN_TYPE, type TokenQuoteTypes } from "../../types/ast.js"
 
 /**
  * A variable represents **just** a string value (NOT it's boolean value).
@@ -18,7 +17,6 @@ import { AnyToken, AST_TYPE, NodeDelimiters, TOKEN_TYPE, TokenQuoteTypes } from 
  *
  * If `prefixableStrings` is true, the `prefix` property might contain a value token.
  */
-
 export class VariableNode<
 	TValid extends boolean = boolean,
 > extends Node<AST_TYPE.VARIABLE, TValid> {
@@ -27,18 +25,25 @@ export class VariableNode<
 		: TValid extends true
 		? ValidToken<TOKEN_TYPE.VALUE>
 	: ErrorToken<TOKEN_TYPE.VALUE>
+
 	readonly prefix?: ValidToken<TOKEN_TYPE.VALUE> // todo
+
 	readonly quote?: NodeDelimiters<TokenQuoteTypes, TokenQuoteTypes>
+
 	#parent: any
+
 	#setParent: boolean = false
+
 	get parent(): ConditionNode | ArrayNode | undefined {
 		return this.#parent
 	}
+
 	set parent(value: ConditionNode | ArrayNode | undefined) {
 		if (this.#setParent) {throw new Error("parent property is readonly")}
 		this.#parent = value
 		this.#setParent = true
 	}
+
 	constructor({ prefix, value, quote, start, end }: {
 		prefix?: VariableNode<TValid>["prefix"]
 		value: VariableNode<TValid>["value"]

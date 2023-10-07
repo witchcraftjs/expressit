@@ -1,14 +1,14 @@
 /* eslint-disable max-lines */
-import { catchError, testName } from "@utils/testing"
-import type { DeepPartial } from "@utils/types"
+import type { DeepPartial } from "@alanscodelog/utils"
+import { catchError, testName } from "@alanscodelog/utils"
+import { describe, expect, it } from "vitest"
 
-import { expect } from "./chai"
-import { findPos } from "./utils"
+import { findPos } from "./utils.js"
 
-import { Parser } from "@/index"
-import type { AnyToken, Position } from "@/types"
-import { CursorInfo, Suggestion, SUGGESTION_TYPE } from "@/types/autocomplete"
-import { getCursorInfo } from "@/utils"
+import { Parser } from "../src/parser.js"
+import type { AnyToken, Position } from "../src/types/ast.js"
+import { type CursorInfo, type Suggestion, SUGGESTION_TYPE } from "../src/types/autocomplete.js"
+import { getCursorInfo } from "../src/utils/getCursorInfo.js"
 
 
 const emptyCursor: Omit<CursorInfo, "index"> = Object.freeze({

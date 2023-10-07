@@ -1,13 +1,12 @@
-import type { ArrayNode } from "./ArrayNode"
-import type { ConditionNode } from "./ConditionNode"
-import type { ExpressionNode } from "./ExpressionNode"
-import type { GroupNode } from "./GroupNode"
-import type { VariableNode } from "./VariableNode"
+import type { ArrayNode } from "./ArrayNode.js"
+import type { ConditionNode } from "./ConditionNode.js"
+import type { ExpressionNode } from "./ExpressionNode.js"
+import type { GroupNode } from "./GroupNode.js"
+import type { VariableNode } from "./VariableNode.js"
 
-import { BooleanParserLibraryError } from "@/helpers/errors"
-import type { TOKEN_TYPE } from "@/types"
-import { ERROR_CODES } from "@/types/errors"
-
+import { BooleanParserLibraryError } from "../../helpers/errors.js"
+import type { TOKEN_TYPE } from "../../types/ast.js"
+import { ERROR_CODES } from "../../types/errors.js"
 
 /**
  * The base class from which @see ValidToken and @see ErrorToken extend.
@@ -20,7 +19,6 @@ import { ERROR_CODES } from "@/types/errors"
  * ```
  * Only really takes care of setting the start/end position.
  */
-
 export class Token<
 	TValid extends boolean = boolean,
 	TType extends
@@ -34,10 +32,15 @@ export class Token<
 		TValid extends false ? TOKEN_TYPE[] : never,
 > {
 	readonly type!: TType
+
 	readonly value!: TValue
+
 	readonly expected!: TExpected
+
 	readonly start!: number
+
 	readonly end!: number
+
 	get parent(): VariableNode |
 	GroupNode |
 	ExpressionNode |
@@ -45,6 +48,7 @@ export class Token<
 	ConditionNode {
 		return undefined as any
 	}
+
 	constructor(start: number, end: number) {
 		if (start === undefined || end === undefined) {
 			throw new BooleanParserLibraryError(ERROR_CODES.PARSER_POSITION_ERROR, { start, end })

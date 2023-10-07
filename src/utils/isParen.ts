@@ -1,4 +1,4 @@
-import { AnyToken, TOKEN_TYPE, TokenParenTypes } from "@/types"
+import { type AnyToken, TOKEN_TYPE, type TokenParenTypes } from "../types/ast.js"
 
 
 export function isParen(token?: AnyToken): token is AnyToken<TokenParenTypes> {

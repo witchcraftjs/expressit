@@ -1,7 +1,7 @@
-import type { ValueComparer } from "@/types"
+import type { ValueComparer } from "../../types/parser.js"
 
 
 export const defaultValueComparer: ValueComparer =
-function defaultValueComparer(condition, contextValue) {
+function defaultValueComparer(condition: { value: any }, contextValue: any) {
 	return contextValue === condition.value
 }

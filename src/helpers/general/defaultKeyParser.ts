@@ -1,8 +1,8 @@
-import type { KeyParser } from "@/types"
+import type { KeyParser } from "../../types/parser.js"
 
 
 export const defaultKeyParser: KeyParser =
-	function defaultKeyParser(value) {
+	function defaultKeyParser(value?: string) {
 		if (value === undefined) return []
 		return [value]
 	}

@@ -1,6 +1,6 @@
-import { IToken, tokenMatcher } from "chevrotain"
+import { type IToken, tokenMatcher } from "chevrotain"
 
-import type { createTokens } from "@/grammar"
+import type { createTokens } from "../../grammar/createTokens.js"
 
 
 /** @internal */

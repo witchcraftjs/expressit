@@ -1,16 +1,16 @@
-import { testName } from "@utils/testing"
-import { multisplice } from "@utils/utils"
+import { multisplice, testName } from "@alanscodelog/utils"
+import { describe, expect, it } from "vitest"
 
-import { expect } from "./chai"
-import { checkVariables, e, t, unquoted, v } from "./utils"
+import { checkVariables, e, t, unquoted, v } from "./utils.js"
 
-import { condition, delim, expression, pos } from "@/ast/builders"
-import { Parser } from "@/index"
+import { condition, delim, expression, pos } from "../src/ast/builders/index.js"
+import { Parser } from "../src/parser.js"
 
 
 const allQuotes = ["`", "'", `"`]
 const delims = ["(", ")", "["] // "]" not technically delim unless preceded by [ so will leave out for these tests
 const requireEscape = ["/", " ", "\n", "\t", "\r"]
+
 describe(testName({ __filename }), () => {
 	it(`escaped symbols`, () => {
 		checkVariables([

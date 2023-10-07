@@ -1,11 +1,10 @@
-import { testName } from "@utils/testing"
+import { testName } from "@alanscodelog/utils"
+import { describe, expect, it } from "vitest"
 
-import { expect } from "./chai"
-import { e, v } from "./utils"
+import { e, v } from "./utils.js"
 
-import { condition, delim, variable } from "@/ast/builders"
-import { Parser } from "@/index"
-
+import { condition, delim, variable } from "../src/ast/builders/index.js"
+import { Parser } from "../src/parser.js"
 
 // more related tests are in ./property operators
 describe(testName({ __filename }), () => {

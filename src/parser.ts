@@ -9,18 +9,27 @@
  * Docs work like normal (on methods). From the outside, users of the library cannot even tell the class is composed of mixins.
  */
 
-import type { Mixin } from "@utils/types"
-import { isWhitespace, mixin } from "@utils/utils"
-import { createSyntaxDiagramsCode, ILexingResult, Lexer } from "chevrotain"
+import type { Mixin } from "@alanscodelog/utils"
+import { isWhitespace, mixin } from "@alanscodelog/utils"
+import { createSyntaxDiagramsCode, type ILexingResult, type Lexer } from "chevrotain"
 
-import { NormalizeMixin } from "./methods/normalize"
-
-import { token as tokenHandler } from "@/ast/handlers"
-import { createTokens, ParserBase } from "@/grammar"
-import { BooleanParserLibraryError } from "@/helpers"
-import { checkParserOpts, getUnclosedRightParenCount, parseParserOptions, seal } from "@/helpers/parser"
-import { AutocompleteMixin, AutoreplaceMixin, Autosuggest, EvaluateMixin, GetBestIndexesMixin, GetIndexMixin, ValidateMixin } from "@/methods"
-import { ERROR_CODES, FullParserOptions, ParserOptions, ParserResults } from "@/types"
+import { token as tokenHandler } from "./ast/handlers.js"
+import { createTokens } from "./grammar/createTokens.js"
+import { ParserBase } from "./grammar/ParserBase.js"
+import { BooleanParserLibraryError } from "./helpers/errors.js"
+import { checkParserOpts } from "./helpers/parser/checkParserOpts.js"
+import { getUnclosedRightParenCount } from "./helpers/parser/getUnclosedRightParenCount.js"
+import { parseParserOptions, seal } from "./helpers/parser/index.js"
+import { AutocompleteMixin } from "./methods/autocomplete.js"
+import { AutoreplaceMixin } from "./methods/autoreplace.js"
+import { Autosuggest } from "./methods/autosuggest.js"
+import { EvaluateMixin } from "./methods/evaluate.js"
+import { GetBestIndexesMixin } from "./methods/getBestIndex.js"
+import { GetIndexMixin } from "./methods/getIndexes.js"
+import { NormalizeMixin, ValidateMixin } from "./methods/index.js"
+import type { ParserResults } from "./types/ast.js"
+import { ERROR_CODES } from "./types/errors.js"
+import type { FullParserOptions, ParserOptions } from "./types/parser.js"
 
 
 /**
@@ -28,11 +37,17 @@ import { ERROR_CODES, FullParserOptions, ParserOptions, ParserResults } from "@/
  */
 export class Parser<T extends {} = {}> {
 	options: FullParserOptions<T>
+
 	private readonly rawOptions: ParserOptions<T>
+
 	parser: ParserBase<T>
+
 	private readonly lexer: Lexer
+
 	private readonly tokens: ReturnType<typeof createTokens>["tokens"]
+
 	info: ReturnType<typeof createTokens>["info"]
+
 	constructor(options?: ParserOptions<T>) {
 		this.rawOptions = options ?? {}
 		const opts = parseParserOptions<T>(this.rawOptions)
@@ -44,6 +59,7 @@ export class Parser<T extends {} = {}> {
 		this.info = info
 		this.parser = new ParserBase<T>(opts, this.tokens, this.info)
 	}
+
 	/**
 	 * Parses a string.
 	 */
@@ -91,8 +107,10 @@ export class Parser<T extends {} = {}> {
 			throw err
 		}
 	}
+
 	// needed for evaluate and validate so they are only checked on demand
 	private evaluationOptionsChecked: boolean = false
+
 	// eslint-disable-next-line @typescript-eslint/naming-convention
 	_checkEvaluationOptions(): void {
 		if (!this.evaluationOptionsChecked) {
@@ -100,7 +118,9 @@ export class Parser<T extends {} = {}> {
 			this.evaluationOptionsChecked = true
 		}
 	}
+
 	private validationOptionsChecked: boolean = false
+
 	// eslint-disable-next-line @typescript-eslint/naming-convention
 	_checkValidationOptions(): void {
 		if (!this.validationOptionsChecked) {
@@ -108,6 +128,7 @@ export class Parser<T extends {} = {}> {
 			this.validationOptionsChecked = true
 		}
 	}
+
 	/**
 	 * Generates a railroad diagram for debugging. Does not 100% represent how things are actually handled internally.
 	 *
@@ -120,6 +141,7 @@ export class Parser<T extends {} = {}> {
 		const html = createSyntaxDiagramsCode(serialized)
 		return html
 	}
+
 	/**
 	 * For debugging.
 	 * Not exposed because it returns the raw chevrotain tokens.

@@ -1,9 +1,10 @@
-import { isArray } from "@utils/utils"
+import { isArray } from "@alanscodelog/utils"
 
-import { pos } from "./pos"
+import { pos } from "./pos.js"
 
-import { ErrorToken, ValidToken } from "@/ast/classes"
-import type { AnyToken, EmptyObj, Position, TOKEN_TYPE } from "@/types"
+import type { AnyToken, EmptyObj, Position, TOKEN_TYPE } from "../../types/ast.js"
+import { ErrorToken } from "../classes/ErrorToken.js"
+import { ValidToken } from "../classes/ValidToken.js"
 
 
 /**

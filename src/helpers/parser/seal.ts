@@ -1,8 +1,7 @@
-import { assignParents } from "./assignParents"
+import { assignParents } from "./assignParents.js"
 
-import { Node } from "@/ast/classes"
-import type { AnyToken, Nodes } from "@/types"
-
+import { Node } from "../../ast/classes/Node.js"
+import type { AnyToken, Nodes } from "../../types/ast.js"
 
 /**
  * set and "seals" all parent properties

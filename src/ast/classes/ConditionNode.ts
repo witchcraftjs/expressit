@@ -1,12 +1,12 @@
-import type { ArrayNode } from "./ArrayNode"
-import type { ErrorToken } from "./ErrorToken"
-import type { ExpressionNode } from "./ExpressionNode"
-import type { GroupNode } from "./GroupNode"
-import { Node } from "./Node"
-import { ValidToken } from "./ValidToken"
-import { VariableNode } from "./VariableNode"
+import type { ArrayNode } from "./ArrayNode.js"
+import type { ErrorToken } from "./ErrorToken.js"
+import type { ExpressionNode } from "./ExpressionNode.js"
+import type { GroupNode } from "./GroupNode.js"
+import { Node } from "./Node.js"
+import { ValidToken } from "./ValidToken.js"
+import { VariableNode } from "./VariableNode.js"
 
-import { AnyToken, AST_TYPE, TOKEN_TYPE } from "@/types"
+import { type AnyToken, AST_TYPE, type TOKEN_TYPE } from "../../types/ast.js"
 
 
 /**
@@ -32,10 +32,12 @@ export class ConditionNode<
 	| ArrayNode<TValid>
 	| GroupNode<TValid>
 	| (TValid extends false ? ErrorToken<TOKEN_TYPE.VALUE> : never)
+
 	/**
 	 * If the condition was negated, contains the "not" token, @see ValidToken , the condition was negated with.
 	 */
 	readonly operator?: ValidToken<TOKEN_TYPE.NOT>
+
 	/**
 	 * If condition property operators are used, this will contain the property (as a variable), or an error token if it was missing (but some separator or operator was passed).
 	 *
@@ -44,6 +46,7 @@ export class ConditionNode<
 	 * See the corresponding @see ParserOptions for more details.
 	 */
 	readonly property?: VariableNode | (TValid extends false ? ErrorToken<TOKEN_TYPE.VALUE> : never)
+
 	/**
 	 * If condition property operators are used, this will contain the operator.
 	 *
@@ -54,6 +57,7 @@ export class ConditionNode<
 	 * See the corresponding @see ParserOptions for more details.
 	 */
 	readonly propertyOperator?: AnyToken<TOKEN_TYPE.OP_CUSTOM | TOKEN_TYPE.VALUE>
+
 	/**
 	 * If "long/expanded" form condition property operators are used, this will contain the separators, otherwise it is undefined.
 	 *
@@ -69,13 +73,17 @@ export class ConditionNode<
 		left?: AnyToken<TOKEN_TYPE.OP_EXPANDED_SEP>
 		right?: AnyToken<TOKEN_TYPE.OP_EXPANDED_SEP>
 	}
+
 	#parent: any
+
 	#setParent: boolean = false
+
 	get parent(): GroupNode |
 	ExpressionNode |
 	undefined {
 		return this.#parent
 	}
+
 	set parent(value: GroupNode |
 	ExpressionNode |
 	undefined
@@ -84,6 +92,7 @@ export class ConditionNode<
 		this.#parent = value
 		this.#setParent = true
 	}
+
 	constructor({ property, propertyOperator, sep, value, start, end, operator }: {
 		operator?: TOperator
 		property?: ConditionNode<TValid>["property"]

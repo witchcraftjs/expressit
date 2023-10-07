@@ -1,15 +1,13 @@
-import { testName } from "@utils/testing"
+import { testName } from "@alanscodelog/utils"
 import { performance } from "perf_hooks"
+import { describe, expect, it } from "vitest"
 
-import { expect } from "./chai"
-import { e, findPos, t, v } from "./utils"
+import { e, findPos, t, v } from "./utils.js"
 
-import { array, condition, delim, group, token, variable } from "@/ast/builders"
-import { Parser } from "@/index"
-import { TOKEN_TYPE } from "@/types"
-import { prettyAst } from "@/utils"
-
-
+import { array, condition, delim, group, token, variable } from "../src/ast/builders/index.js"
+import { Parser } from "../src/parser.js"
+import { TOKEN_TYPE } from "../src/types/ast.js"
+import { prettyAst } from "../src/utils/prettyAst.js"
 /**
  * Note: If prop and op are used in the test inputings, the helper functions will "incorrectly" find the op in prop instead of op, so that's why OP is used instead
  */
@@ -277,7 +275,7 @@ describe(testName({ __filename }), () => {
 				e(input, ":", [TOKEN_TYPE.VALUE]),
 				{
 					left: t(input, ":", TOKEN_TYPE.OP_EXPANDED_SEP),
-				// right: undefined, // right is undefined because we don' know if we need another separator or not
+					// right: undefined, // right is undefined because we don' know if we need another separator or not
 				}
 			)
 

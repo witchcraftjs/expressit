@@ -1,6 +1,10 @@
-import { ArrayNode, ConditionNode, ExpressionNode, GroupNode, Node, VariableNode } from "@/ast/classes"
-import type { Nodes } from "@/types"
-
+import { ArrayNode } from "../../ast/classes/ArrayNode.js"
+import { ConditionNode } from "../../ast/classes/ConditionNode.js"
+import { ExpressionNode } from "../../ast/classes/ExpressionNode.js"
+import { GroupNode } from "../../ast/classes/GroupNode.js"
+import { Node } from "../../ast/classes/Node.js"
+import { VariableNode } from "../../ast/classes/VariableNode.js"
+import type { Nodes } from "../../types/ast.js"
 
 /** @internal */
 export function assignParents(ast: Nodes): void {

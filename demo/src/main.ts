@@ -1,12 +1,12 @@
 /* eslint-disable no-eval */
 /* eslint-disable no-restricted-imports */
-import "./styles.css"
+import "./style.css"
 
-import { crop } from "../../UTILS/my-utils/dist"
-import { parseParserOptions } from "../dist/helpers/parser"
-import { prettyAst } from "../dist/utils"
+import { crop } from "@alanscodelog/utils"
+import { parseParserOptions } from "expressit/helpers/parser/index.js"
+import { prettyAst } from "expressit/utils"
 
-import { Parser } from ".."
+import { Parser } from "expressit"
 
 
 const body = document.body
@@ -128,11 +128,10 @@ function onKeyboardInput(e, force = false) {
 				<div class="suggestion-entry">
 					<div>${entry.type}</div>
 					${entry.isError ? `<div>${entry.isError}</div>` : "<div></div>"}
-					<div>${
-					typeof entry.range === "string"
+					<div>${typeof entry.range === "string"
 					? entry.range
-				: `[${entry.range.start}, ${entry.range.end}]`
-					}</div>
+					: `[${entry.range.start}, ${entry.range.end}]`
+				}</div>
 				</div>
 			`)
 			.join("\n")
@@ -160,8 +159,7 @@ function onKeyboardInput(e, force = false) {
 			const str = typeof replacement === "string"
 				? replacement
 				: `${escapeHtml(replacement.replacement.slice(0, replacement.cursor))
-				}</span><span class="cursor">|</span><span>${
-				escapeHtml(replacement.replacement.slice(replacement.cursor))}`
+				}</span><span class="cursor">|</span><span>${escapeHtml(replacement.replacement.slice(replacement.cursor))}`
 
 			const res = crop`
 				<div class="completion-entry">
@@ -170,7 +168,7 @@ function onKeyboardInput(e, force = false) {
 				</div>
 		`
 			return res
-}).join("\n")
+		}).join("\n")
 		els.completion.innerHTML = str2
 	}
 }

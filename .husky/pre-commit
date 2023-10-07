@@ -3,4 +3,4 @@
 
 echo "Running pre-commit hook"
 
-npm run build && npm run lint && npm run test -- --no-cache
+npm run build && npm run lint && npm run test

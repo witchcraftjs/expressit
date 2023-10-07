@@ -1,11 +1,10 @@
-import type { ConditionNode } from "./ConditionNode"
-import type { ExpressionNode } from "./ExpressionNode"
-import type { GroupNode } from "./GroupNode"
-import { Token } from "./Token"
-import type { VariableNode } from "./VariableNode"
+import type { ConditionNode } from "./ConditionNode.js"
+import type { ExpressionNode } from "./ExpressionNode.js"
+import type { GroupNode } from "./GroupNode.js"
+import { Token } from "./Token.js"
+import type { VariableNode } from "./VariableNode.js"
 
-import type { TOKEN_TYPE } from "@/types"
-
+import type { TOKEN_TYPE } from "../../types/ast.js"
 
 /**
  * The class for invalid recovery tokens.
@@ -20,13 +19,16 @@ export class ErrorToken<
 	TExpected extends TOKEN_TYPE = TOKEN_TYPE,
 > extends Token<false, never, never, TExpected[]> {
 	readonly expected: TExpected[]
+
 	#parent: any
+
 	get parent(): VariableNode |
 	GroupNode |
 	ExpressionNode |
 	ConditionNode {
 		return this.#parent
 	}
+
 	set parent(value: VariableNode |
 	GroupNode |
 	ExpressionNode |
@@ -35,6 +37,7 @@ export class ErrorToken<
 		if (this.#parent) {throw new Error("parent property is readonly")}
 		this.#parent = value
 	}
+
 	constructor({ expected, start, end }: {
 		expected: TExpected[]
 		start: number

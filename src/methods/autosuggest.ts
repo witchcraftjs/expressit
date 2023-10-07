@@ -1,11 +1,20 @@
-import type { DeepPartial } from "@utils/types"
-import { unreachable } from "@utils/utils"
+import type { DeepPartial } from "@alanscodelog/utils"
+import { unreachable } from "@alanscodelog/utils"
 
-import { pos } from "@/ast/builders"
-import { ArrayNode, ConditionNode, ErrorToken, GroupNode, ValidToken, VariableNode } from "@/ast/classes"
-import type { Parser } from "@/parser"
-import { KeywordEntry, ParserResults, Suggestion, SUGGESTION_TYPE, TOKEN_TYPE } from "@/types"
-import { extractTokens, getCursorInfo, getSurroundingErrors } from "@/utils"
+import { pos } from "../ast/builders/pos.js"
+import { ArrayNode } from "../ast/classes/ArrayNode.js"
+import { ConditionNode } from "../ast/classes/ConditionNode.js"
+import { ErrorToken } from "../ast/classes/ErrorToken.js"
+import { GroupNode } from "../ast/classes/GroupNode.js"
+import type { ValidToken } from "../ast/classes/ValidToken.js"
+import { VariableNode } from "../ast/classes/VariableNode.js"
+import type { Parser } from "../parser.js"
+import { type ParserResults, TOKEN_TYPE } from "../types/ast.js"
+import { type Suggestion, SUGGESTION_TYPE } from "../types/autocomplete.js"
+import type { KeywordEntry } from "../types/parser.js"
+import { extractTokens } from "../utils/extractTokens.js"
+import { getCursorInfo } from "../utils/getCursorInfo.js"
+import { getSurroundingErrors } from "../utils/getSurroundingErrors.js"
 
 
 const defaultNodeDirs = {

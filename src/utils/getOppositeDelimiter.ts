@@ -1,13 +1,12 @@
-import { unreachable } from "@utils/utils"
+import { unreachable } from "@alanscodelog/utils"
 
-import { isBracket } from "./isBracket"
-import { isDelimiter } from "./isDelimiter"
-import { isParen } from "./isParen"
-import { isQuote } from "./isQuote"
+import { isBracket } from "./isBracket.js"
+import { isDelimiter } from "./isDelimiter.js"
+import { isParen } from "./isParen.js"
+import { isQuote } from "./isQuote.js"
 
-import type { ArrayNode, ConditionNode, GroupNode, VariableNode } from "@/ast/classes"
-import { AnyToken, TOKEN_TYPE, TokenDelimiterTypes } from "@/types"
-
+import type { ArrayNode, ConditionNode, GroupNode, VariableNode } from "../ast/classes/index.js"
+import { type AnyToken, TOKEN_TYPE, type TokenDelimiterTypes } from "../types/ast.js"
 
 /**
  * Given a delimiter token, returns it's opposite pair, or undefined if the type passed was not a delimiter token (so you can pass any type without checking).

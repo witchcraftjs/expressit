@@ -1,8 +1,10 @@
-import { isBlank, pushIfNotIn } from "@utils/utils"
+import { isBlank, pushIfNotIn } from "@alanscodelog/utils"
 
-import { BooleanParserLibraryError } from "@/helpers/errors"
-import { defaultConditionNormalizer, defaultValueComparer } from "@/helpers/general"
-import { ERROR_CODES, FullParserOptions, ParserOptions } from "@/types"
+import { ERROR_CODES } from "../../types/errors.js"
+import type { FullParserOptions, ParserOptions } from "../../types/parser.js"
+import { BooleanParserLibraryError } from "../errors.js"
+import { defaultConditionNormalizer } from "../general/defaultConditionNormalizer.js"
+import { defaultValueComparer } from "../general/defaultValueComparer.js"
 
 
 export function checkParserOpts<T extends {}>(opts: FullParserOptions<T>, evaluatorChecks: boolean = false, validatorChecks: boolean = false): void {

@@ -1,7 +1,7 @@
-import { testName } from "@utils/testing"
+import { testName } from "@alanscodelog/utils"
+import { describe, expect, it } from "vitest"
 
-import { ShortcutContextParser } from "@/examples/shortcutContextParser"
-import { expect } from "@tests/chai"
+import { ShortcutContextParser } from "../src/examples/shortcutContextParser.js"
 
 
 describe(testName(), () => {

@@ -1,10 +1,10 @@
-import type { ConditionNode } from "./ConditionNode"
-import type { ErrorToken } from "./ErrorToken"
-import type { ExpressionNode } from "./ExpressionNode"
-import { Node } from "./Node"
-import { ValidToken } from "./ValidToken"
+import type { ConditionNode } from "./ConditionNode.js"
+import type { ErrorToken } from "./ErrorToken.js"
+import type { ExpressionNode } from "./ExpressionNode.js"
+import { Node } from "./Node.js"
+import { ValidToken } from "./ValidToken.js"
 
-import { AST_TYPE, NodeDelimiters, TOKEN_TYPE } from "@/types"
+import { AST_TYPE, type NodeDelimiters, type TOKEN_TYPE } from "../../types/ast.js"
 
 
 /**
@@ -65,25 +65,32 @@ export class GroupNode<
 	 * See examples at @see GroupNode .
 	 */
 	readonly prefix: TPrefix
+
 	expression:
 	| ConditionNode<TValid>
 	| GroupNode<TValid>
 	| ExpressionNode<TValid>
 	| (TValid extends false ? ErrorToken<TOKEN_TYPE.VALUE> : never)
+
 	/**
 	 * The parenthesis tokens, @see ValidToken . These will always be defined (although not necessarily with valid tokens).
 	 */
 	readonly paren: NodeDelimiters<TOKEN_TYPE.PARENL, TOKEN_TYPE.PARENR>
+
 	#parent: any
+
 	#setParent: boolean = false
+
 	get parent(): ExpressionNode | undefined {
 		return this.#parent
 	}
+
 	set parent(value: ExpressionNode | undefined) {
 		if (this.#setParent) {throw new Error("parent property is readonly")}
 		this.#parent = value
 		this.#setParent = true
 	}
+
 	constructor({ prefix, expression, paren, start, end }: {
 		prefix: TPrefix
 		expression: GroupNode<TValid>["expression"]

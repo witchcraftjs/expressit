@@ -1,6 +1,6 @@
-import type { AnyToken, Position } from "./ast"
+import type { AnyToken, Position } from "./ast.js"
 
-import type { ValidToken } from "@/ast/classes"
+import type { ValidToken } from "../ast/classes/ValidToken.js"
 
 
 /**
