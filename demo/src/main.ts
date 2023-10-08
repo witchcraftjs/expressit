@@ -17,7 +17,7 @@ body.innerHTML = `
 	<div class="options">
 		<h2>Options</h2>
 		<div class="options-group">
-			<textarea class="options-raw">${crop(`
+			<textarea spellcheck="false" class="options-raw">${crop(`
 			{
 				customPropertyOperators: [":", ">", "<"],
 				expandedPropertySeparator: ":",
@@ -102,7 +102,11 @@ function onInput(e) {
 			variable: "<span class=\"res-var\">",
 			other: "<span class=\"res-other\">",
 			position: "<span class=\"res-pos\">",
-			reset: "</span>",
+			reset: "<\/span>",
+			values: "<span>",
+			info: "<span>",
+			error: "<span>",
+			hint: "<span>"
 		})
 		els.resultSimple.innerHTML = parsedString
 
