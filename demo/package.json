@@ -15,7 +15,7 @@
 	"devDependencies": {
 		"typescript": "^5.0.2",
 		"vite": "^4.4.5",
-		"expressit": "file:../"
+		"@witchcraft/expressit": "file:../"
 	},
 	"dependencies": {
 		"@alanscodelog/utils": "4.0.0-beta.11"

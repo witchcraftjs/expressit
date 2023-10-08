@@ -1,14 +1,19 @@
 
 ### 🚧 WORK IN PROGRESS 🚧
 
-![Docs](https://github.com/alanscodelog/expressit/workflows/Docs/badge.svg)
-![Build](https://github.com/alanscodelog/expressit/workflows/Build/badge.svg)
-[![Release](https://github.com/alanscodelog/expressit/workflows/Release/badge.svg)](https://www.npmjs.com/package/TONAME)
+![Docs](https://github.com/witchcraftjs/expressit/workflows/Docs/badge.svg)
+![Build](https://github.com/witchcraftjs/expressit/workflows/Build/badge.svg)
+[![Release](https://github.com/witchcraftjs/expressit/workflows/Release/badge.svg)](https://www.npmjs.com/@witchcraft/expressit)
 
-Expressit is blazing fast, customizable, error-tolerant expression parser that creates safe to eval expressions + a few other goodies.
+Expressit is a blazing fast, customizable, error-tolerant expression parser that creates safe to eval expressions + a few other goodies.
 
-# [Docs](https://alanscodelog.github.io/expressit)
-# [Demo](https://alanscodelog.github.io/expressit/demo)
+# [Docs](https://witchcraftjs.github.io/expressit)
+# [Demo](https://witchcraftjs.github.io/expressit/demo)
+# Install
+
+```
+pnpm install @witchcraft/expressit
+```
 
 # Features
 - **Error Recovery**
@@ -36,7 +41,7 @@ Expressit is blazing fast, customizable, error-tolerant expression parser that c
 # Usage
 
 ```ts
-import { Parser, ErrorToken } from "expressit"
+import { Parser, ErrorToken } from "@witchcraft/expressit"
 
 const parser = new Parser({/* opts */})
 	const context = {
@@ -70,7 +75,7 @@ const parser = new Parser({/* opts */})
 	// ON ENTER/SUBMIT
 	const res = parser.evaluate(ast, context)
 ```
-Many more examples can be found in the [tests](https://github.com/AlansCodeLog/expressit/blob/master/tests), and there's also some WIP pre-configured parsers in [src/examples](https://github.com/AlansCodeLog/expressit/blob/master/src/examples/) whose usage can be seen in [./test/examples.spec.ts](https://github.com/AlansCodeLog/expressit/blob/master/test/examples.spec.ts).
+Many more examples can be found in the [tests](https://github.com/witchcraftjs/expressit/blob/master/tests), and there's also some WIP pre-configured parsers in [src/examples](https://github.com/witchcraftjs/expressit/blob/master/src/examples/) whose usage can be seen in [./test/examples.spec.ts](https://github.com/witchcraftjs/expressit/blob/master/test/examples.spec.ts).
 
 ## [Development](./docs-src/DEVELOPMENT.md)
 

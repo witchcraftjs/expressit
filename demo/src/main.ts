@@ -3,10 +3,10 @@
 import "./style.css"
 
 import { crop } from "@alanscodelog/utils"
-import { parseParserOptions } from "expressit/helpers/parser/index.js"
-import { prettyAst } from "expressit/utils"
+import { parseParserOptions } from "@witchcraft/expressit/helpers/parser/index.js"
+import { prettyAst } from "@witchcraft/expressit/utils"
 
-import { Parser } from "expressit"
+import { Parser } from "@witchcraft/expressit"
 
 
 const body = document.body

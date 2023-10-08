@@ -10,7 +10,7 @@ dependencies:
     version: 4.0.0-beta.11
 
 devDependencies:
-  expressit:
+  '@witchcraft/expressit':
     specifier: file:../
     version: file:..
   typescript:
@@ -379,7 +379,7 @@ packages:
 
   file:..:
     resolution: {directory: .., type: directory}
-    name: expressit
+    name: '@witchcraft/expressit'
     engines: {node: '>=18.0.0'}
     dependencies:
       '@alanscodelog/utils': 4.0.0-beta.11

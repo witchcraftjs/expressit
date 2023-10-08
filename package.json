@@ -1,6 +1,6 @@
 {
-	"name": "expressit",
-	"description": "A blazing fast, customizable, error-tolerant expression parser that creates safe to eval expressions + a few other goodies.",
+	"name": "@witchcraft/expressit",
+	"description": "A blazing fast, customizable, error-tolerant expression parser that creates safe to eval expressions + a few other goodies like autocomplete.",
 	"version": "0.0.0-semantically-released",
 	"types": "./dist/index.d.ts",
 	"type": "module",
@@ -109,7 +109,16 @@
 		"vitest": "^0.34.6"
 	},
 	"author": "Alan <alanscodelog@gmail.com>",
-	"repository": "https://github.com/alanscodelog/expressit",
+	"repository": "https://github.com/witchcraftjs/expressit",
+	"keywords": [
+		"boolean",
+		"parser",
+		"query",
+		"evaluator",
+		"expression",
+		"condition",
+		"search"
+	],
 	"license": "MIT",
 	"files": [
 		"src",
