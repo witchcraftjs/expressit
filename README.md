@@ -3,7 +3,7 @@
 
 ![Docs](https://github.com/alanscodelog/expressit/workflows/Docs/badge.svg)
 ![Build](https://github.com/alanscodelog/expressit/workflows/Build/badge.svg)
-<!-- [![Release](https://github.com/alanscodelog/expressit/workflows/Release/badge.svg)](https://www.npmjs.com/package/TONAME) -->
+[![Release](https://github.com/alanscodelog/expressit/workflows/Release/badge.svg)](https://www.npmjs.com/package/TONAME)
 
 Expressit is blazing fast, customizable, error-tolerant expression parser that creates safe to eval expressions + a few other goodies.
 
