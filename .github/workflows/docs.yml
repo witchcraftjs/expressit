@@ -64,12 +64,12 @@ jobs:
 
     - run: pnpm test
 
+    - run: pnpm doc
+
     - run: pnpm install --frozen-lockfile
       working-directory: demo
 
     - run: pnpm demo:build
-
-    - run: pnpm doc
 
     - name: Documentation
       if: "env.ENABLE_DOCS == 'true'"

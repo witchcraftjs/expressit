@@ -4,9 +4,13 @@
 	"version": "0.0.0",
 	"type": "module",
 	"scripts": {
+		"debug": "ts-node -r tsconfig-paths/register -T --esm",
 		"dev": "vite",
-		"build": "tsc && vite build",
-		"preview": "vite preview"
+		"build": "npm run build:parent && vite build && cp -r dist ../docs/demo",
+		"build:dev": "vite build --mode development",
+		"build:watch": "vite build --watch --mode production",
+		"build:parent": "npm run build --prefix ../",
+		"prepare": " npm run build"
 	},
 	"devDependencies": {
 		"typescript": "^5.0.2",

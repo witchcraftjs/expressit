@@ -64,6 +64,8 @@
 		"doc:serve": "http-server docs --port=5001",
 		"doc:dev": "concurrently \"npm run doc:watch\" \"npm run doc:serve\"",
 		"doc:check-invalid": "typedoc --options typedoc.config.cjs --listInvalidSymbolLinks",
+		"demo:dev": "cd demo && concurrently \"vite\" \"npm run build:watch\"",
+		"demo:build": "cd demo && npm run build",
 		"actions:debug": "act -r -v -j build",
 		"gen:exports": "indexit update -o '${path}.js' -i **/*.d.ts",
 		"prepare": "husky install && npm run build"
