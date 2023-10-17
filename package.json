@@ -145,5 +145,8 @@
 			"prepare": "Needed so that if we pull the package from git it will get built and installed properly.",
 			"actions:debug": "For debugging github build action locally with nektos/act. Requires act and docker. Note: Cache will never work locally because of https://github.com/nektos/act/issues/285"
 		}
+	},
+	"publishConfig": {
+		"access": "public"
 	}
 }
