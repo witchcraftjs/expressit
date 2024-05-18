@@ -1,4 +1,4 @@
-import { unreachable } from "@alanscodelog/utils"
+import { unreachable } from "@alanscodelog/utils/unreachable"
 
 import { ConditionNode } from "../ast/classes/ConditionNode.js"
 import { VariableNode } from "../ast/classes/VariableNode.js"

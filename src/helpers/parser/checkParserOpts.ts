@@ -1,4 +1,5 @@
-import { isBlank, pushIfNotIn } from "@alanscodelog/utils"
+import { isBlank } from "@alanscodelog/utils/isBlank"
+import { pushIfNotIn } from "@alanscodelog/utils/pushIfNotIn"
 
 import { ERROR_CODES } from "../../types/errors.js"
 import type { FullParserOptions, ParserOptions } from "../../types/parser.js"

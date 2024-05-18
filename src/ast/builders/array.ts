@@ -1,4 +1,4 @@
-import type { Mutable } from "@alanscodelog/utils"
+import type { Mutable } from "@alanscodelog/utils/types"
 
 import { token } from "./token.js"
 

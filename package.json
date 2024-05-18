@@ -13,29 +13,49 @@
 			"types": "./dist/ast/index.d.ts",
 			"import": "./dist/ast/index.js"
 		},
+		"./ast/*": {
+			"types": "./dist/ast/*",
+			"import": "./dist/ast/*"
+		},
 		"./grammar": {
 			"types": "./dist/grammar/index.d.ts",
 			"import": "./dist/grammar/index.js"
+		},
+		"./grammar/*": {
+			"types": "./dist/grammar/*",
+			"import": "./dist/grammar/*"
 		},
 		"./helpers": {
 			"types": "./dist/helpers/index.d.ts",
 			"import": "./dist/helpers/index.js"
 		},
+		"./helpers/*": {
+			"types": "./dist/helpers/*",
+			"import": "./dist/helpers/*"
+		},
 		"./methods": {
 			"types": "./dist/methods/index.d.ts",
 			"import": "./dist/methods/index.js"
 		},
-		"./types": {
-			"types": "./dist/types/index.d.ts",
-			"import": "./dist/types/index.js"
+		"./methods/*": {
+			"types": "./dist/methods/*",
+			"import": "./dist/methods/*"
 		},
 		"./utils": {
 			"types": "./dist/utils/index.d.ts",
 			"import": "./dist/utils/index.js"
 		},
+		"./utils/*": {
+			"types": "./dist/utils/*",
+			"import": "./dist/utils/*"
+		},
 		"./examples": {
 			"types": "./dist/examples/index.d.ts",
 			"import": "./dist/examples/index.js"
+		},
+		"./examples/*": {
+			"types": "./dist/examples/*",
+			"import": "./dist/examples/*"
 		},
 		"./*": {
 			"types": "./dist/*",

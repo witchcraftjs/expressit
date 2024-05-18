@@ -1,4 +1,6 @@
-import { type AddParameters, get, unreachable } from "@alanscodelog/utils"
+import { get } from "@alanscodelog/utils/get"
+import { type AddParameters } from "@alanscodelog/utils/types"
+import { unreachable } from "@alanscodelog/utils/unreachable"
 
 import { Condition } from "../ast/classes/Condition.js"
 import { Expression } from "../ast/classes/Expression.js"

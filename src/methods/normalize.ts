@@ -1,4 +1,5 @@
-import { type AddParameters, unreachable } from "@alanscodelog/utils"
+import { type AddParameters } from "@alanscodelog/utils/types"
+import { unreachable } from "@alanscodelog/utils/unreachable"
 
 import { ArrayNode } from "../ast/classes/ArrayNode.js"
 import { Condition } from "../ast/classes/Condition.js"
@@ -24,8 +25,6 @@ const OPPOSITE = {
 export class NormalizeMixin<T extends {}> {
 	/**
 	 * Normalizes the ast by applying {@link GroupNode GroupNodes} and converting {@link ConditionNode ConditionNodes} to {@link NormalizedConditionNode NormalizedConditionNodes}.
-	 *
-	 * To do this, a
 	 */
 	normalize<TType extends string, TValue>(ast: ParserResults): Condition<TType, TValue> | Expression<TType, TValue> {
 		// @ts-expect-error private method

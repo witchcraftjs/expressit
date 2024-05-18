@@ -1,5 +1,6 @@
 /* eslint-disable camelcase */
-import { escapeRegex, isBlank } from "@alanscodelog/utils"
+import { escapeRegex } from "@alanscodelog/utils/escapeRegex"
+import { isBlank } from "@alanscodelog/utils/isBlank"
 import { createToken, Lexer, type TokenType } from "chevrotain"
 
 import type { FullParserOptions } from "../types/parser.js"

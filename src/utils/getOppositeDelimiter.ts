@@ -1,4 +1,4 @@
-import { unreachable } from "@alanscodelog/utils"
+import { unreachable } from "@alanscodelog/utils/unreachable"
 
 import { isBracket } from "./isBracket.js"
 import { isDelimiter } from "./isDelimiter.js"

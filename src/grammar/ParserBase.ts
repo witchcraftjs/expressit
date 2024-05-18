@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 
-import { isArray, unreachable } from "@alanscodelog/utils"
+import { isArray } from "@alanscodelog/utils/isArray"
+import { unreachable } from "@alanscodelog/utils/unreachable"
 import { EmbeddedActionsParser, EOF, type IToken, tokenMatcher } from "chevrotain"
 
 import type { createTokens } from "./createTokens.js"

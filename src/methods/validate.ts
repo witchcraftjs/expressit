@@ -1,4 +1,6 @@
-import { type AddParameters, get, isArray } from "@alanscodelog/utils"
+import { get } from "@alanscodelog/utils/get"
+import { isArray } from "@alanscodelog/utils/isArray"
+import { type AddParameters } from "@alanscodelog/utils/types"
 
 import { ArrayNode } from "../ast/classes/ArrayNode.js"
 import { ConditionNode } from "../ast/classes/ConditionNode.js"

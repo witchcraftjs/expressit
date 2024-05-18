@@ -1,4 +1,4 @@
-import type { AnyFunction } from "@alanscodelog/utils"
+import type { AnyFunction } from "@alanscodelog/utils/types"
 
 import type { ArrayNode } from "../ast/classes/ArrayNode.js"
 import type { ConditionNode } from "../ast/classes/ConditionNode.js"

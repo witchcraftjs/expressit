@@ -1,4 +1,4 @@
-import { insert } from "@alanscodelog/utils"
+import { insert } from "@alanscodelog/utils/insert"
 
 import type { Completion } from "../types/autocomplete.js"
 

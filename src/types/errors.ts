@@ -1,4 +1,4 @@
-import type { DeepPartial } from "@alanscodelog/utils"
+import type { DeepPartial } from "@alanscodelog/utils/types"
 import type { ILexingError, IRecognitionException, IToken } from "chevrotain"
 
 import type { ParserOptions } from "./parser.js"

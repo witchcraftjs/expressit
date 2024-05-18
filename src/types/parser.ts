@@ -1,9 +1,12 @@
-import type { DeepRequired, MakeRequired } from "@alanscodelog/utils"
+import type { DeepRequired, MakeRequired } from "@alanscodelog/utils/types"
 
 import type { Position, TOKEN_TYPE } from "./ast.js"
 
-import type { ArrayNode, Condition, ConditionNode, ValidToken, VariableNode } from "../ast/classes/index.js"
-
+import type { ArrayNode } from "../ast/classes/ArrayNode.js"
+import type { Condition } from "../ast/classes/Condition.js"
+import type { ConditionNode } from "../ast/classes/ConditionNode.js"
+import type { ValidToken } from "../ast/classes/ValidToken.js"
+import type { VariableNode } from "../ast/classes/VariableNode.js"
 
 // #partially-synced
 export type FullParserOptions<T extends {} = {}> = MakeRequired<

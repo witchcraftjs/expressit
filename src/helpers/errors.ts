@@ -1,5 +1,7 @@
-import type { Keys } from "@alanscodelog/utils"
-import { crop, indent, pretty } from "@alanscodelog/utils"
+import { crop } from "@alanscodelog/utils/crop"
+import { indent } from "@alanscodelog/utils/indent"
+import { pretty } from "@alanscodelog/utils/pretty"
+import type { Keys } from "@alanscodelog/utils/types"
 
 // @ts-expect-error todo
 import { repository, version } from "../package.js"

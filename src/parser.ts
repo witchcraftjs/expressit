@@ -9,8 +9,9 @@
  * Docs work like normal (on methods). From the outside, users of the library cannot even tell the class is composed of mixins.
  */
 
-import type { Mixin } from "@alanscodelog/utils"
-import { isWhitespace, mixin } from "@alanscodelog/utils"
+import { isWhitespace } from "@alanscodelog/utils/isWhitespace"
+import { mixin } from "@alanscodelog/utils/mixin"
+import type { Mixin } from "@alanscodelog/utils/types"
 import { createSyntaxDiagramsCode, type ILexingResult, type Lexer } from "chevrotain"
 
 import { token as tokenHandler } from "./ast/handlers.js"
