@@ -123,6 +123,11 @@ export class ShortcutContextParser<T extends
 		this._extractKeysFromContext(dummyContext)
 	}
 
+	setContext(context: Record<string, any>): void {
+		this.validKeys = []
+		this._extractKeysFromContext(context)
+	}
+
 	private _extractKeysFromContext(context: Record<string, any>, prev?: string): void {
 		for (const key of Object.keys(context)) {
 			if (typeof context[key] === "boolean") {
