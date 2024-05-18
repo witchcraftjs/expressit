@@ -91,7 +91,7 @@
 		"prepare": "husky install && npm run build"
 	},
 	"dependencies": {
-		"@alanscodelog/utils": "^4.0.0-beta.11",
+		"@alanscodelog/utils": "4.0.0-beta.15",
 		"chevrotain": "^11.0.3"
 	},
 	"devDependencies": {

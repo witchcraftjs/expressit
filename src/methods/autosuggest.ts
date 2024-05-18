@@ -1,5 +1,5 @@
-import { unreachable } from "@alanscodelog/utils/unreachable"
 import type { DeepPartial } from "@alanscodelog/utils/types"
+import { unreachable } from "@alanscodelog/utils/unreachable"
 
 import { pos } from "../ast/builders/pos.js"
 import { ArrayNode } from "../ast/classes/ArrayNode.js"

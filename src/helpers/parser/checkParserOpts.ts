@@ -20,7 +20,7 @@ export function checkParserOpts<T extends {}>(opts: FullParserOptions<T>, evalua
 		]
 		const extra: string[] = []
 		if (opts.expandedPropertySeparator) extra.push(opts.expandedPropertySeparator)
-		if (opts.customPropertyOperators) pushIfNotIn(extra, ...opts.customPropertyOperators)
+		if (opts.customPropertyOperators) pushIfNotIn(extra, opts.customPropertyOperators)
 
 
 		/* #region Blank Operator Checks */

@@ -1,9 +1,8 @@
 /* eslint-disable prefer-rest-params */
 import * as color from "@alanscodelog/utils/colors"
+import { isBlank } from "@alanscodelog/utils/isBlank"
 import { type AddParameters } from "@alanscodelog/utils/types"
-import { isBlank} from "@alanscodelog/utils/isBlank"
 import { unreachable } from "@alanscodelog/utils/unreachable"
-
 
 import { ArrayNode, ConditionNode, ErrorToken, ExpressionNode, GroupNode, ValidToken, VariableNode } from "../ast/classes/index.js"
 import { type AnyToken, type ParserResults, TOKEN_TYPE } from "../types/ast.js"
