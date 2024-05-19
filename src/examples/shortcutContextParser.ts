@@ -43,11 +43,11 @@ export class ShortcutContextParser<T extends
 				}
 				return prefix + variable
 			},
-			valueComparer: (_condition, contextValue, query) => {
-				if (query.isRegex) {
-					return contextValue.match(new RegExp(query.value as string, query.regexFlags ?? "")) !== null
+			valueComparer: (condition, contextValue, _context) => {
+				if (condition.value instanceof RegExp) {
+					return contextValue.match(condition.value) !== null
 				}
-				return contextValue === query.value
+				return contextValue === condition.value
 			},
 			valueValidator: (_contextValue, query): T[] | void => {
 				let tokens: T[] = []
