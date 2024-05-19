@@ -1,10 +1,8 @@
-
 // import vue from "@vitejs/plugin-vue"
 import tsconfigPaths from "vite-tsconfig-paths"
 import { defineConfig } from "vitest/config"
 
 // import postcss from "./postcss.config.js"
-
 import pkg from "../package.json"
 
 // https://vitejs.dev/config/
@@ -17,7 +15,7 @@ export default async ({ mode }: { mode: string }) => defineConfig({
 		//         },
 		// }),
 	],
-	base: `/${pkg.name}/demo`,
+	base: `/${pkg.name.slice(pkg.name.indexOf("/") + 1)}/demo`,
 	build: {
 		outDir: "dist",
 		...(mode === "production" ? {
