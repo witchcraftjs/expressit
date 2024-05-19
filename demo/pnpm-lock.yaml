@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@alanscodelog/utils':
-    specifier: 4.0.0-beta.11
-    version: 4.0.0-beta.11
+    specifier: 4.0.0-beta.15
+    version: 4.0.0-beta.15
 
 devDependencies:
   '@witchcraft/expressit':
@@ -22,8 +22,8 @@ devDependencies:
 
 packages:
 
-  /@alanscodelog/utils@4.0.0-beta.11:
-    resolution: {integrity: sha512-qBOoK2X4/EoH1ER2NllZFmS9tjS7iQFtK94kFAgfJtVwlwpQsKQ3kJVXFa5w2Ka9h4RqYbBNNfpy3nmRmh6kEQ==}
+  /@alanscodelog/utils@4.0.0-beta.15:
+    resolution: {integrity: sha512-83cyseaCIJNobPOQf4R6ZJ9Hecu8Tt1VAS/EalhLrmPP7EBjBYLqbRD364EtCcSOBmDb247yEQ9aHki+LVPyoQ==}
     engines: {node: '>=14.0.0'}
 
   /@chevrotain/cst-dts-gen@11.0.3:
@@ -382,6 +382,6 @@ packages:
     name: '@witchcraft/expressit'
     engines: {node: '>=18.0.0'}
     dependencies:
-      '@alanscodelog/utils': 4.0.0-beta.11
+      '@alanscodelog/utils': 4.0.0-beta.15
       chevrotain: 11.0.3
     dev: true

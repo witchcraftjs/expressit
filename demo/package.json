@@ -18,6 +18,6 @@
 		"@witchcraft/expressit": "file:../"
 	},
 	"dependencies": {
-		"@alanscodelog/utils": "4.0.0-beta.11"
+		"@alanscodelog/utils": "4.0.0-beta.15"
 	}
 }
