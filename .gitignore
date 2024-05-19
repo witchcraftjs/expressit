@@ -8,3 +8,6 @@ docs
 coverage
 
 dist
+.direnv
+!flake.lock
+
