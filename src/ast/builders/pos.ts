@@ -31,7 +31,7 @@ export function pos<TItem extends Position | Partial<Position> | EmptyObj>(
 export function pos(start: number, end: number): Position
 export function pos(
 	start: number | Position | Partial<Position> | EmptyObj | undefined,
-	end?: number | { fill: boolean }
+	end?: number | { fill: boolean },
 ): Position | EmptyObj {
 	if (typeof start === "number") {
 		return { start, end: end as number }

@@ -17,14 +17,6 @@
 			"types": "./dist/ast/*",
 			"import": "./dist/ast/*"
 		},
-		"./grammar": {
-			"types": "./dist/grammar/index.d.ts",
-			"import": "./dist/grammar/index.js"
-		},
-		"./grammar/*": {
-			"types": "./dist/grammar/*",
-			"import": "./dist/grammar/*"
-		},
 		"./helpers": {
 			"types": "./dist/helpers/index.d.ts",
 			"import": "./dist/helpers/index.js"
@@ -58,8 +50,8 @@
 			"import": "./dist/examples/*"
 		},
 		"./*": {
-			"types": "./dist/*",
-			"import": "./dist/*"
+			"types": "./dist/types/*",
+			"import": "./dist/types/*"
 		}
 	},
 	"scripts": {
@@ -74,10 +66,10 @@
 		"lint:commits": "commitlint --from $(git rev-list --max-parents=0 HEAD) --to HEAD --verbose",
 		"lint:imports": "madge --circular --extensions ts ./src",
 		"lint": "npm run lint:types && npm run lint:eslint",
-		"coverage": "vitest --coverage",
-		"coverage:dev": "vitest --watch --coverage",
-		"test": "npm run lint:types && vitest run",
-		"test:watch": "vitest --watch",
+		"coverage": "vitest --exclude '.direnv/**/*' --coverage",
+		"coverage:dev": "vitest --exclude '.direnv/**/*'  --watch --coverage",
+		"test": "npm run lint:types && vitest run --exclude '.direnv/**/*'",
+		"test:watch": "vitest --watch --exclude '.direnv/**/*'",
 		"test:inspect-errors": "cross-env INSPECT_ERRORS=true npm run test",
 		"doc": "typedoc --options typedoc.config.cjs",
 		"doc:watch": "onchange -i \"src/**/*.ts\" \"typedoc.config.cjs\" -- npm run doc",
@@ -88,45 +80,38 @@
 		"demo:build": "cd demo && npm run build",
 		"actions:debug": "act -r -v -j build",
 		"gen:exports": "indexit update -o '${path}.js' -i **/*.d.ts",
-		"prepare": "husky install && npm run build"
+		"prepare": "husky && npm run build"
 	},
 	"dependencies": {
-		"@alanscodelog/utils": "4.0.0-beta.15",
-		"chevrotain": "^11.0.3"
+		"@alanscodelog/utils": "4.0.0-beta.15"
 	},
 	"devDependencies": {
 		"@alanscodelog/commitlint-config": "^2.0.0",
 		"@alanscodelog/eslint-config": "^4.0.3",
 		"@alanscodelog/semantic-release-config": "^3.0.0",
-		"@alanscodelog/tsconfigs": "^3.2.0",
+		"@alanscodelog/tsconfigs": "^4.0.1",
 		"@knodes/typedoc-plugin-pages": "^0.23.4",
 		"@types/node": "^20.4.1",
-		"@typescript-eslint/eslint-plugin": "^6.7.4",
-		"@typescript-eslint/parser": "^6.7.4",
-		"@vitest/coverage-c8": "^0.33.0",
-		"commitlint": "^17.6.6",
+		"@vitest/coverage-v8": "^1.6.0",
+		"commitlint": "^19.3.0",
 		"concurrently": "^8.2.0",
 		"cross-env": "^7.0.3",
-		"eslint": "^8.44.0",
-		"eslint-import-resolver-typescript": "^3.5.5",
-		"eslint-plugin-import": "^2.27.5",
-		"eslint-plugin-jsdoc": "^46.4.3",
-		"eslint-plugin-simple-import-sort": "^10.0.0",
+		"eslint": "^9.0.0",
 		"fast-glob": "^3.3.1",
 		"http-server": "^14.1.1",
-		"husky": "^8.0.3",
+		"husky": "^9.0.11",
 		"indexit": "2.1.0-beta.3",
-		"madge": "^6.1.0",
+		"madge": "^7.0.0",
 		"onchange": "^7.1.0",
-		"semantic-release": "^22.0.5",
+		"semantic-release": "^23.1.1",
 		"ts-node": "^10.9.1",
 		"tsc-alias": "^1.8.7",
 		"typedoc": "~0.23.1",
-		"typescript": "~5.0.0",
-		"vite": "^4.4.2",
-		"vite-plugin-externalize-deps": "^0.7.0",
+		"typescript": "~5.4.5",
+		"vite": "^5.2.11",
+		"vite-plugin-externalize-deps": "^0.8.0",
 		"vite-tsconfig-paths": "^4.2.0",
-		"vitest": "^0.34.6"
+		"vitest": "^1.6.0"
 	},
 	"author": "Alan <alanscodelog@gmail.com>",
 	"repository": "https://github.com/witchcraftjs/expressit",

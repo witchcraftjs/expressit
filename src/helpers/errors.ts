@@ -40,7 +40,7 @@ function forceStringifyErrors(_key: string, value: any): any {
 					key === "stack"
 						? value[key]!.split(/\n/)
 						: value[key],
-				])
+				]),
 		)
 	}
 	return value

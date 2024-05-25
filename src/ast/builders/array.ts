@@ -11,7 +11,7 @@ export function array(
 	values: VariableNode[],
 	bracket: { left?: boolean, right?: boolean } = { right: true, left: true },
 	parenLeftPos?: Position,
-	parenRightPos?: Position
+	parenRightPos?: Position,
 ): ArrayNode {
 	const node: Mutable<Partial<ArrayNode>> = {
 		type: AST_TYPE.ARRAY,

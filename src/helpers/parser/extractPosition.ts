@@ -1,15 +1,11 @@
+import type { Token } from "../../Lexer.js"
 import type { Position } from "../../types/ast.js"
 
 
-type ChevrotainLocation = {
-	startOffset?: number
-	endOffset?: number
-}
-
 /** @internal */
-export function extractPosition(loc: ChevrotainLocation, shift: number): Position {
+export function extractPosition(pos: Pick<Token, "startOffset" | "endOffset">, shift: number): Position {
 	return {
-		start: loc.startOffset! - (shift ?? 0),
-		end: loc.endOffset! + 1 - (shift ?? 0),
+		start: pos.startOffset! - (shift ?? 0),
+		end: pos.endOffset! + 1 - (shift ?? 0),
 	}
 }

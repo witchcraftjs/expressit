@@ -29,11 +29,11 @@ const delimiters = <T extends TokenDelimiterTypes>
 		// check must be falsy, we want to return undefined when given ""
 		value ? new ValidToken({ value, type, ...pos }) : undefined
 
-const maybeToken = <T extends TOKEN_TYPE>(type: T) => (value: string | undefined, pos: Position,): AnyToken<T> => {
+const maybeToken = <T extends TOKEN_TYPE> (type: T) => <TVal extends string | undefined> (value: TVal, pos: Position): TVal extends string ? ValidToken<T> : ErrorToken<T> => {
 	if (value === undefined) {
-		return error(pos.end, [type])
+		return error(pos.end, [type]) as any
 	} else {
-		return new ValidToken({ value, type, ...pos })
+		return new ValidToken({ value, type, ...pos }) as any
 	}
 }
 
@@ -68,7 +68,7 @@ export function variable(
 	quoteL: AnyToken<TokenQuoteTypes> | null | undefined,
 	value: AnyToken<TOKEN_TYPE.VALUE> | null | undefined,
 	quoteR: AnyToken<TokenQuoteTypes> | null | undefined,
-	flags?: ValidToken<TOKEN_TYPE.VALUE>
+	flags?: ValidToken<TOKEN_TYPE.VALUE>,
 ): VariableNode {
 	const node: FirstConstructorParam<typeof VariableNode> = {
 		prefix: prefix ?? undefined,
@@ -152,7 +152,7 @@ export function group(
 	prefix: ConditionNode | null | undefined,
 	parenL: ValidToken<TOKEN_TYPE.PARENL> | null | undefined,
 	condition: GroupNode["expression"],
-	parenR: ValidToken<TOKEN_TYPE.PARENR> | null | undefined
+	parenR: ValidToken<TOKEN_TYPE.PARENR> | null | undefined,
 ): GroupNode {
 	const node: FirstConstructorParam<typeof GroupNode> = {
 		prefix: prefix ?? operator ?? undefined,
@@ -172,7 +172,7 @@ export function group(
 export function array(
 	bracketL: ValidToken<TOKEN_TYPE.BRACKETL>,
 	values: VariableNode[],
-	bracketR: ValidToken<TOKEN_TYPE.BRACKETR> | null | undefined
+	bracketR: ValidToken<TOKEN_TYPE.BRACKETR> | null | undefined,
 ): ArrayNode {
 	const node: FirstConstructorParam<typeof ArrayNode> = {
 		values,

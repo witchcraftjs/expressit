@@ -36,7 +36,7 @@ export class ValidToken<
 	| GroupNode
 	| ExpressionNode
 	| ConditionNode
-	| ArrayNode
+	| ArrayNode,
 	) {
 		if (this.#parent) {throw new Error("parent property is readonly")}
 		this.#parent = value
@@ -47,7 +47,7 @@ export class ValidToken<
 		value: string
 		start: number
 		end: number
-	}
+	},
 	) {
 		super(start, end)
 		this.type = type

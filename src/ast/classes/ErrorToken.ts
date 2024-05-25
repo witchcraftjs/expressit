@@ -32,7 +32,7 @@ export class ErrorToken<
 	set parent(value: VariableNode |
 	GroupNode |
 	ExpressionNode |
-	ConditionNode
+	ConditionNode,
 	) {
 		if (this.#parent) {throw new Error("parent property is readonly")}
 		this.#parent = value

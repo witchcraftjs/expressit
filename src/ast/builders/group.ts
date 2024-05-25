@@ -32,7 +32,7 @@ export function group(
 
 	paren: { left?: boolean, right?: boolean } = { right: true, left: true },
 	parenLeftPos?: Position,
-	parenRightPos?: Position
+	parenRightPos?: Position,
 ): GroupNode {
 	if (expression === undefined) {
 		expression = token(TOKEN_TYPE.VALUE, undefined, prefix?.end !== undefined ? { start: prefix.end } : undefined)

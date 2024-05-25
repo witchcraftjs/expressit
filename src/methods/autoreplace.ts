@@ -11,7 +11,7 @@ export class AutoreplaceMixin {
 	 */
 	autoreplace(
 		input: string,
-		{ value, suggestion }: Completion
+		{ value, suggestion }: Completion,
 	): { replacement: string, cursor: number } {
 		const isQuotedLeft = ["\"", "'", "`"].includes(value[0])
 		const isQuotedRight = ["\"", "'", "`"].includes(value[value.length - 1])

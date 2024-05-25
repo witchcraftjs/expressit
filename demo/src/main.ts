@@ -1,12 +1,11 @@
 /* eslint-disable no-eval */
-/* eslint-disable no-restricted-imports */
+ 
 import "./style.css"
 
-import { crop } from "@alanscodelog/utils"
+import { crop } from "@alanscodelog/utils/crop"
+import { Parser } from "@witchcraft/expressit"
 import { parseParserOptions } from "@witchcraft/expressit/helpers/parser/index.js"
 import { prettyAst } from "@witchcraft/expressit/utils"
-
-import { Parser } from "@witchcraft/expressit"
 
 
 const body = document.body
@@ -106,7 +105,7 @@ function onInput(e) {
 			values: "<span>",
 			info: "<span>",
 			error: "<span>",
-			hint: "<span>"
+			hint: "<span>",
 		})
 		els.resultSimple.innerHTML = parsedString
 

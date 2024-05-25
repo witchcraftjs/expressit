@@ -28,7 +28,7 @@ export function expression(
 	ExpressionNode |
 	GroupNode |
 	ErrorToken<TOKEN_TYPE.VALUE> |
-	undefined
+	undefined,
 ): ExpressionNode {
 	const start =
 		left?.start ??

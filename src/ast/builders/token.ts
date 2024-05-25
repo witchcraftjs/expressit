@@ -21,7 +21,7 @@ export function token<
 >(
 	type: TValue extends undefined ? TType | TType[] : TType,
 	value: TValue,
-	position: Position | Partial<Position> | EmptyObj = {}
+	position: Position | Partial<Position> | EmptyObj = {},
 ): TValue extends undefined
 	? ErrorToken<TType>
 	: ValidToken<TType> {

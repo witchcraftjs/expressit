@@ -4,7 +4,7 @@ import { unreachable } from "@alanscodelog/utils/unreachable"
 
 import { Condition } from "../ast/classes/Condition.js"
 import { Expression } from "../ast/classes/Expression.js"
-import type { Parser } from "../parser.js"
+import type { Parser } from "../Parser.js"
 import { TOKEN_TYPE } from "../types/ast.js"
 
 

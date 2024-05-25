@@ -128,7 +128,7 @@ export function prettyAst(
 		const bracketL = ast.bracket.left ? prettyAst_(ast.bracket.left, opts, c, ast.values.length === 0 && !ast.bracket.right ? __L : ___, "") : ""
 		const values = ast.values.length > 0
 			? ast.values.map((node, i) =>
-				prettyAst_(node, opts, c, !ast.bracket.right && i === ast.values.length - 1 ? __L : ___, "")
+				prettyAst_(node, opts, c, !ast.bracket.right && i === ast.values.length - 1 ? __L : ___, ""),
 			)
 			: []
 		const bracketR = ast.bracket.right ? prettyAst_(ast.bracket.right, opts, c, __L, "") : ""

@@ -1,4 +1,4 @@
-import { run } from "@alanscodelog/utils/node"
+import { run } from "@alanscodelog/utils/run"
 import glob from "fast-glob"
 import path from "path"
 import type { PluginOption } from "vite"

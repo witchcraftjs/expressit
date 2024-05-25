@@ -16,9 +16,6 @@ src
  ┃ ┣ classes - the actual ast node classes
  ┃ ┣ handlers.ts - used inside grammar/ParserBase.ts to handle the creation of tokens / ast node classes
  ┣ examples - contains fully implemented parser examples
- ┣ grammar
- ┃ ┣ createTokens.ts - contains the main lexer logic
- ┃ ┗ ParserBase.ts - contains the main chevrotain parser logic
  ┣ helpers
  ┃ ┣ general - ...various internal helper functions not related to parsing + default functions for the default parser options
  ┃ ┣ parser - ...various internal helper functions used before/during parsing

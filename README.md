@@ -41,7 +41,9 @@ pnpm install @witchcraft/expressit
 # Usage
 
 ```ts
-import { Parser, ErrorToken } from "@witchcraft/expressit"
+// while you can import from "@witchcraft/expressit", if using something like vite, it's recommended you do not use barrel imports.
+import { Parser } from "@witchcraft/expressit/Parser.js"
+import { ErrorToken } from "@witchcraft/expressit/classes/ErrorToken.js"
 
 const parser = new Parser({/* opts */})
 	const context = {

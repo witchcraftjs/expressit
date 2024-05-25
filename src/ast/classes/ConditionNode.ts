@@ -86,7 +86,7 @@ export class ConditionNode<
 
 	set parent(value: GroupNode |
 	ExpressionNode |
-	undefined
+	undefined,
 	) {
 		if (this.#setParent) {throw new Error("parent property is readonly")}
 		this.#parent = value

@@ -28,7 +28,7 @@ export function checkParserOpts<T extends {}>(opts: FullParserOptions<T>, evalua
 			throw new BooleanParserLibraryError(
 				ERROR_CODES.PARSER_CONFLICTING_OPTIONS_ERROR,
 				{ prohibited: [""], invalid: opts.expandedPropertySeparator },
-			`expandedPropertySeparator cannot be blank`
+			`expandedPropertySeparator cannot be blank`,
 			)
 		}
 		const customInvalid = opts.customPropertyOperators?.find(_ => isBlank(_))
@@ -36,7 +36,7 @@ export function checkParserOpts<T extends {}>(opts: FullParserOptions<T>, evalua
 			throw new BooleanParserLibraryError(
 				ERROR_CODES.PARSER_CONFLICTING_OPTIONS_ERROR,
 				{ prohibited: [""], invalid: customInvalid },
-			`customPropertyOperators cannot contain blank entries`
+			`customPropertyOperators cannot contain blank entries`,
 			)
 		}
 		const prefixInvalid = opts.prefixableStrings?.find(_ => isBlank(_))
@@ -44,7 +44,7 @@ export function checkParserOpts<T extends {}>(opts: FullParserOptions<T>, evalua
 			throw new BooleanParserLibraryError(
 				ERROR_CODES.PARSER_CONFLICTING_OPTIONS_ERROR,
 				{ prohibited: [""], invalid: prefixInvalid },
-			`prefixableStrings cannot contain blank entries`
+			`prefixableStrings cannot contain blank entries`,
 			)
 		}
 		for (const key of ["and", "or", "not"]) {
@@ -55,7 +55,7 @@ export function checkParserOpts<T extends {}>(opts: FullParserOptions<T>, evalua
 				throw new BooleanParserLibraryError(
 					ERROR_CODES.PARSER_CONFLICTING_OPTIONS_ERROR,
 					{ prohibited: [""], invalid },
-				`keywords.${key} cannot contain entries with blank values`
+				`keywords.${key} cannot contain entries with blank values`,
 				)
 			}
 		}
@@ -78,7 +78,7 @@ export function checkParserOpts<T extends {}>(opts: FullParserOptions<T>, evalua
 			throw new BooleanParserLibraryError(
 				ERROR_CODES.PARSER_CONFLICTING_OPTIONS_ERROR,
 				{ prohibited: all, invalid: invalidPrefixableString },
-			`prefixableStrings ${messageInvalidAny} "${invalidPrefixableString}"`
+			`prefixableStrings ${messageInvalidAny} "${invalidPrefixableString}"`,
 			)
 		}
 
@@ -88,7 +88,7 @@ export function checkParserOpts<T extends {}>(opts: FullParserOptions<T>, evalua
 			throw new BooleanParserLibraryError(
 				ERROR_CODES.PARSER_CONFLICTING_OPTIONS_ERROR,
 				{ prohibited: allKeywords, invalid: invalidExpandedPropertySeparator },
-			`expandedPropertySeparator ${messageInvalidBool} "${invalidExpandedPropertySeparator}"`
+			`expandedPropertySeparator ${messageInvalidBool} "${invalidExpandedPropertySeparator}"`,
 			)
 		}
 
@@ -99,7 +99,7 @@ export function checkParserOpts<T extends {}>(opts: FullParserOptions<T>, evalua
 			throw new BooleanParserLibraryError(
 				ERROR_CODES.PARSER_CONFLICTING_OPTIONS_ERROR,
 				{ prohibited: keywords, invalid: invalidCustomPropertyOperator },
-			`customPropertyOperator ${messageInvalidBool} "${invalidCustomPropertyOperator}"`
+			`customPropertyOperator ${messageInvalidBool} "${invalidCustomPropertyOperator}"`,
 			)
 		}
 		/* #regionend */
@@ -116,7 +116,7 @@ export function checkParserOpts<T extends {}>(opts: FullParserOptions<T>, evalua
 			throw new BooleanParserLibraryError(
 				ERROR_CODES.PARSER_OPTION_REQUIRED_ERROR,
 				{ options: requireCustomNormalizer, requires: "conditionNormalizer" },
-				`A custom conditionNormalizer function must be specified when using the following options: ${requireCustomNormalizer.join(", ")}`
+				`A custom conditionNormalizer function must be specified when using the following options: ${requireCustomNormalizer.join(", ")}`,
 			)
 		}
 		const requireCustomComparer: (keyof ParserOptions)[] = [] as any
@@ -127,7 +127,7 @@ export function checkParserOpts<T extends {}>(opts: FullParserOptions<T>, evalua
 			throw new BooleanParserLibraryError(
 				ERROR_CODES.PARSER_OPTION_REQUIRED_ERROR,
 				{ options: requireCustomComparer, requires: "valueComparer" },
-					`A custom valueComparer function must be specified when using the following options: ${requireCustomComparer.join(", ")}`
+					`A custom valueComparer function must be specified when using the following options: ${requireCustomComparer.join(", ")}`,
 			)
 		}
 	}
@@ -136,7 +136,7 @@ export function checkParserOpts<T extends {}>(opts: FullParserOptions<T>, evalua
 			throw new BooleanParserLibraryError(
 				ERROR_CODES.PARSER_OPTION_REQUIRED_ERROR,
 				{ requires: "valueValidator" },
-				`A custom valueValidator function must be specified when using the validate method.`
+				`A custom valueValidator function must be specified when using the validate method.`,
 			)
 		}
 	}

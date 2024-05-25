@@ -396,7 +396,6 @@ export type ParserOptions<T extends {} = {}> = {
 	 * ```
 	 */
 	valueValidator?: ValueValidator<T>
-
 }
 
 /** {@link ParserOptions.conditionNormalizer} */

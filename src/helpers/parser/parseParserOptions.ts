@@ -6,7 +6,7 @@ import { defaultValueComparer } from "../general/defaultValueComparer.js"
 
 /** @internal */
 export function parseParserOptions<T extends {} = {}>(
-	options: ParserOptions<T>
+	options: ParserOptions<T>,
 ): FullParserOptions<T> {
 	const opts: ParserOptions = {
 		prefixApplier: defaultPrefixApplier,

@@ -3,9 +3,10 @@ import { unreachable } from "@alanscodelog/utils/unreachable"
 
 import { extractTokens } from "./extractTokens.js"
 
-import { ErrorToken, ValidToken } from "../ast/classes/index.js"
-import type { AnyToken, ParserResults } from "../types/ast.js"
-import type { CursorInfo } from "../types/autocomplete.js"
+import { ErrorToken } from "../ast/classes/ErrorToken.js"
+import { ValidToken } from "../ast/classes/ValidToken.js"
+import { type AnyToken, type ParserResults } from "../types/ast.js"
+import { type CursorInfo } from "../types/autocomplete.js"
 
 
 /**

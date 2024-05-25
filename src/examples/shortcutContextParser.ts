@@ -9,7 +9,7 @@
  * The validate function will return a list of positions with a list of errors which includes handling invalid or duplicate regex flags.
  */
 
-import { Parser } from "../parser.js"
+import { Parser } from "../Parser.js"
 import type { Position } from "../types/ast.js"
 import type { ValueQuery } from "../types/parser.js"
 
@@ -24,7 +24,7 @@ export class ShortcutContextParser<T extends
 
 	constructor(
 		dummyContext: Record<string, any>,
-		validRegexFlags: string[] = ["i", "u", "m"]
+		validRegexFlags: string[] = ["i", "u", "m"],
 	) {
 		super({
 			arrayValues: false,

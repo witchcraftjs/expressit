@@ -2,7 +2,7 @@ import { unreachable } from "@alanscodelog/utils/unreachable"
 
 import { ConditionNode } from "../ast/classes/ConditionNode.js"
 import { VariableNode } from "../ast/classes/VariableNode.js"
-import type { Parser } from "../parser.js"
+import type { Parser } from "../Parser.js"
 import { type Completion, type Suggestion, SUGGESTION_TYPE } from "../types/autocomplete.js"
 import type { FullParserOptions } from "../types/parser.js"
 
@@ -30,9 +30,9 @@ export class AutocompleteMixin<T extends {}> {
 			"regexFlags" |
 			"expandedPropertyOperators" |
 			"customPropertyOperators", string[]>> & {
-			quote?: string
-			keywords?: FullParserOptions<T>["keywords"]
-		} = {}
+				quote?: string
+				keywords?: FullParserOptions<T>["keywords"]
+			} = {},
 	): Completion[] {
 		const self = (this as any as Parser<T>)
 		return suggestions.map(suggestion => {

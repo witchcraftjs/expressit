@@ -5,7 +5,10 @@ import { isDelimiter } from "./isDelimiter.js"
 import { isParen } from "./isParen.js"
 import { isQuote } from "./isQuote.js"
 
-import type { ArrayNode, ConditionNode, GroupNode, VariableNode } from "../ast/classes/index.js"
+import type { ArrayNode } from "../ast/classes/ArrayNode.js"
+import type { ConditionNode } from "../ast/classes/ConditionNode.js"
+import type { GroupNode } from "../ast/classes/GroupNode.js"
+import type { VariableNode } from "../ast/classes/VariableNode.js"
 import { type AnyToken, TOKEN_TYPE, type TokenDelimiterTypes } from "../types/ast.js"
 
 /**

@@ -18,7 +18,7 @@ export function variable(
 	prefix: ValidToken<TOKEN_TYPE.VALUE> | undefined,
 	value: string | AnyToken<TOKEN_TYPE.VALUE>,
 	quote?: { type: TokenQuoteTypes, left?: boolean, right?: boolean, flags?: string },
-	position?: Position | EmptyObj
+	position?: Position | EmptyObj,
 ): VariableNode {
 	if (typeof value === "string") {
 		value = token(TOKEN_TYPE.VALUE, value, position)

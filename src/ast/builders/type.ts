@@ -3,7 +3,7 @@ import { type ExtractTokenType, TOKEN_TYPE } from "../../types/ast.js"
  * Given a the string value of an operator or single delimiter token, returns the corresponding @see ValidToken_TYPE .
  */
 export function type<T extends string>(
-	operatorSymbol: T
+	operatorSymbol: T,
 ): ExtractTokenType<T> {
 	switch (operatorSymbol) {
 		case "`": return TOKEN_TYPE.BACKTICK as any

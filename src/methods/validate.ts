@@ -11,7 +11,7 @@ import { ValidToken } from "../ast/classes/ValidToken.js"
 import { VariableNode } from "../ast/classes/VariableNode.js"
 import { applyBoolean } from "../helpers/general/applyBoolean.js"
 import { applyPrefix } from "../helpers/general/applyPrefix.js"
-import type { Parser } from "../parser.js"
+import type { Parser } from "../Parser.js"
 import { type ParserResults, type Position, TOKEN_TYPE } from "../types/ast.js"
 import type { ValidationQuery } from "../types/parser.js"
 
