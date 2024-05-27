@@ -1,3 +1,7 @@
+---
+title: Development
+group: Guides
+---
 ## File Structure
 
 This library makes use of a custom index file manager I wrote, called [indexit](https://github.com/alanscodelog/indexit).
