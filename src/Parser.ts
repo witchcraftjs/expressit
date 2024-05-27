@@ -1,6 +1,5 @@
 import { isArray } from "@alanscodelog/utils/isArray"
 import { isWhitespace } from "@alanscodelog/utils/isWhitespace"
-import { last } from "@alanscodelog/utils/last"
 import { mixin } from "@alanscodelog/utils/mixin"
 import { setReadOnly } from "@alanscodelog/utils/setReadOnly"
 import type { AddParameters, Mixin } from "@alanscodelog/utils/types"
@@ -345,12 +344,12 @@ export class Parser<T extends {} = {}> {
 		const pairs: any[][] = [] as any
 		let next = this.peek(1)
 
-		while (true) {
+		while (pairs.length < 1 || pairs[pairs.length - 1]?.[1] !== undefined) {
 			const exp = type === "AND" ? this.ruleCondition() : this.ruleBool("AND")
 			next = this.peek(1)
 			const canAttemptErrorRecovery = type === "AND"
-						? ["error", "and"].includes(this.options.onMissingBooleanOperator)
-						: this.options.onMissingBooleanOperator === "or"
+				? ["error", "and"].includes(this.options.onMissingBooleanOperator)
+				: this.options.onMissingBooleanOperator === "or"
 			const extras: any[] = []
 			if (
 				canAttemptErrorRecovery
@@ -403,9 +402,6 @@ export class Parser<T extends {} = {}> {
 			for (const extra of extras) {
 				pairs[pairs.length - 1].splice(1, 1, extra[0])
 				pairs.push([extra[1]])
-			}
-			if (last(pairs)[1] === undefined) {
-				break
 			}
 		}
 
