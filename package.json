@@ -4,6 +4,7 @@
 	"version": "0.0.0-semantically-released",
 	"types": "./dist/index.d.ts",
 	"type": "module",
+	"module": "./dist/index.js",
 	"exports": {
 		".": {
 			"types": "./dist/index.d.ts",
