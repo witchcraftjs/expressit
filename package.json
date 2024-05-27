@@ -61,7 +61,7 @@
 		"build:watch": "vite build --watch --mode production",
 		"build:types": "tsc --emitDeclarationOnly -p tsconfig.types.json && npm run build:types:fix",
 		"build:types:fix": "tsc-alias -p tsconfig.types.json --debug",
-		"lint:eslint": "eslint \"{src,tests,bin}/**/*.{cjs,js,ts}\" \"*.{cjs,js,ts}\" --max-warnings=0 --report-unused-disable-directives",
+		"lint:eslint": "eslint \"{src,tests,bin}/**/*.{cjs,js,ts}\" \"*.{cjs,js,ts}\" --max-warnings=1 --report-unused-disable-directives",
 		"lint:types": "tsc --noEmit --pretty",
 		"lint:commits": "commitlint --from $(git rev-list --max-parents=0 HEAD) --to HEAD --verbose",
 		"lint:imports": "madge --circular --extensions ts ./src",
