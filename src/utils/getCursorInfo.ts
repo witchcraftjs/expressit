@@ -1,5 +1,5 @@
-import { isArray } from "@alanscodelog/utils/isArray"
-import { unreachable } from "@alanscodelog/utils/unreachable"
+import { isArray } from "@alanscodelog/utils/isArray.js"
+import { unreachable } from "@alanscodelog/utils/unreachable.js"
 
 import { extractTokens } from "./extractTokens.js"
 

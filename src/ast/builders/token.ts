@@ -1,4 +1,4 @@
-import { isArray } from "@alanscodelog/utils/isArray"
+import { isArray } from "@alanscodelog/utils/isArray.js"
 
 import { pos } from "./pos.js"
 

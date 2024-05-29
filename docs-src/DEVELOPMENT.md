@@ -24,7 +24,6 @@ src
  ┃ ┣ general - ...various internal helper functions not related to parsing + default functions for the default parser options
  ┃ ┣ parser - ...various internal helper functions used before/during parsing
  ┃ ┗ errors.ts - the main error handling class (error types are defined in types/errors)
- ┣ methods - all the main methods of the main parser class
  ┣ types - all the types and enums are stored here in their respective categories
  ┣ utils - exported utility functions
  ┣ global.d.ts - additional global types

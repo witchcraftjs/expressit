@@ -1,6 +1,6 @@
 /* eslint-disable max-lines */
 import type { DeepPartial } from "@alanscodelog/utils"
-import { catchError } from "@alanscodelog/utils/catchError"
+import { catchError } from "@alanscodelog/utils/catchError.js"
 import { describe, expect, it } from "vitest"
 
 import { findPos } from "./utils.js"

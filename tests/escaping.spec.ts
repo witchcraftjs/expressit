@@ -1,4 +1,4 @@
-import { multisplice } from "@alanscodelog/utils/multisplice"
+import { multisplice } from "@alanscodelog/utils/multisplice.js"
 import { describe, expect, it } from "vitest"
 
 import { checkVariables, e, t, unquoted, v } from "./utils.js"

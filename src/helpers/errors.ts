@@ -1,6 +1,6 @@
-import { crop } from "@alanscodelog/utils/crop"
-import { indent } from "@alanscodelog/utils/indent"
-import { pretty } from "@alanscodelog/utils/pretty"
+import { crop } from "@alanscodelog/utils/crop.js"
+import { indent } from "@alanscodelog/utils/indent.js"
+import { pretty } from "@alanscodelog/utils/pretty.js"
 import type { Keys } from "@alanscodelog/utils/types"
 
 // @ts-expect-error todo

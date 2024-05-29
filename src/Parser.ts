@@ -1,9 +1,11 @@
-import { isArray } from "@alanscodelog/utils/isArray"
-import { isWhitespace } from "@alanscodelog/utils/isWhitespace"
-import { mixin } from "@alanscodelog/utils/mixin"
-import { setReadOnly } from "@alanscodelog/utils/setReadOnly"
-import type { AddParameters, Mixin } from "@alanscodelog/utils/types"
-import { unreachable } from "@alanscodelog/utils/unreachable"
+/* eslint-disable max-lines */
+import { get } from "@alanscodelog/utils/get.js"
+import { insert } from "@alanscodelog/utils/insert.js"
+import { isArray } from "@alanscodelog/utils/isArray.js"
+import { isWhitespace } from "@alanscodelog/utils/isWhitespace.js"
+import { setReadOnly } from "@alanscodelog/utils/setReadOnly.js"
+import type { AddParameters , DeepPartial } from "@alanscodelog/utils/types"
+import { unreachable } from "@alanscodelog/utils/unreachable.js"
 
 import { pos } from "./ast/builders/pos.js"
 import { ArrayNode } from "./ast/classes/ArrayNode.js"
@@ -11,59 +13,59 @@ import { ConditionNode } from "./ast/classes/ConditionNode.js"
 import { ErrorToken } from "./ast/classes/ErrorToken.js"
 import { ExpressionNode } from "./ast/classes/ExpressionNode.js"
 import { GroupNode } from "./ast/classes/GroupNode.js"
-import type { ValidToken } from "./ast/classes/ValidToken.js"
+import { Condition, Expression } from "./ast/classes/index.js"
+import { ValidToken } from "./ast/classes/ValidToken.js"
 import { VariableNode } from "./ast/classes/VariableNode.js"
 import * as handle from "./ast/handlers.js"
+import { applyBoolean } from "./helpers/general/applyBoolean.js"
+import { applyPrefix } from "./helpers/general/applyPrefix.js"
 import { checkParserOpts } from "./helpers/parser/checkParserOpts.js"
 import { extractPosition } from "./helpers/parser/extractPosition.js"
 import { getUnclosedRightParenCount } from "./helpers/parser/getUnclosedRightParenCount.js"
 import { parseParserOptions } from "./helpers/parser/parseParserOptions.js"
 import { seal } from "./helpers/parser/seal.js"
 import { $C, $T, Lexer,type RealTokenType, type Token, type TokenCategoryType, type TokenType } from "./Lexer.js"
-import { AutocompleteMixin } from "./methods/autocomplete.js"
-import { AutoreplaceMixin } from "./methods/autoreplace.js"
-import { Autosuggest } from "./methods/autosuggest.js"
-import { EvaluateMixin } from "./methods/evaluate.js"
-import { GetBestIndexesMixin } from "./methods/getBestIndex.js"
-import { GetIndexMixin } from "./methods/getIndexes.js"
-import { NormalizeMixin } from "./methods/normalize.js"
-import { ValidateMixin } from "./methods/validate.js"
-import type { ParserResults } from "./types/ast.js"
-import { type AnyToken, type Position, TOKEN_TYPE } from "./types/index.js"
-import type { FullParserOptions, ParserOptions } from "./types/parser.js"
+import type { ParserResults, TokenBooleanTypes } from "./types/ast.js"
+import { type AnyToken, type Completion, type Position, type Suggestion,SUGGESTION_TYPE, TOKEN_TYPE } from "./types/index.js"
+import type { FullParserOptions, KeywordEntry, ParserOptions, ValidationQuery, ValueQuery } from "./types/parser.js"
+import { extractTokens } from "./utils/extractTokens.js"
+import { getCursorInfo } from "./utils/getCursorInfo.js"
+import { getSurroundingErrors } from "./utils/getSurroundingErrors.js"
 
-/**
- * The parser's methods are often long and have a lot of documentation per method, so it's methods have been split into mixins. They can be found in the `./methods` folder.
- *
- * Writing from within any of these methods is like writing a method from here except:
- * - `this` calls are wrapped in `(this as any as Parser<T>)`
- * - private method/property access requires `// @ts-expect-error`.
- * - recursion with hidden parameters requires re-typing this (see evaluate/validate for examples) since otherwise if we only retyped the function it would become unbound from `this`.
- *
- * Docs work like normal (on methods). From the outside, users of the library cannot even tell the class is composed of mixins.
- */
+const OPPOSITE = {
+	[TOKEN_TYPE.AND]: TOKEN_TYPE.OR,
+	[TOKEN_TYPE.OR]: TOKEN_TYPE.AND,
+}
+function isEqualSet(setA: Set<any>, setB: Set<any>): boolean {
+	if (setA.size !== setB.size) return false
+	for (const key of setA) {
+		if (!setB.has(key)) return false
+	}
+	return true
+}
 
+const defaultNodeDirs = {
+	before: false,
+	after: false,
+}
 
-export interface Parser<T extends {} = {}> extends Mixin<
-	| AutocompleteMixin<T>
-	| AutoreplaceMixin
-	| Autosuggest<T>
-	| EvaluateMixin<T>
-	| ValidateMixin<T>
-	| NormalizeMixin<T>
-	| GetIndexMixin<T>
-	| GetBestIndexesMixin
->,
-	AutocompleteMixin<T>,
-	AutoreplaceMixin,
-	Autosuggest<T>,
-	EvaluateMixin<T>,
-	ValidateMixin < T >,
-	NormalizeMixin<T>,
-	GetIndexMixin<T>,
-	GetBestIndexesMixin
-{}
+const createDefaultRequires = (partial: DeepPartial<Suggestion["requires"]> = {}): Suggestion["requires"] => ({
+	whitespace: {
+		...defaultNodeDirs,
+		...(partial.whitespace ? partial.whitespace : {}),
+	},
+	group: partial.group ?? false,
+	prefix: partial.prefix ?? false,
+})
 
+/** Returns if valid token requires whitespace if none between cursor and token. */
+const tokenRequiresWhitespace = (validToken: ValidToken | undefined, whitespace: boolean, wordOps: KeywordEntry[]): boolean => {
+	if (whitespace || validToken === undefined) return false
+	return validToken.type === TOKEN_TYPE.VALUE ||
+		([TOKEN_TYPE.AND, TOKEN_TYPE.OR, TOKEN_TYPE.NOT].includes(validToken.type) &&
+			wordOps.find(_ => _.value === validToken.value) !== undefined)
+}
+const tokenVariable = [TOKEN_TYPE.BACKTICK, TOKEN_TYPE.DOUBLEQUOTE, TOKEN_TYPE.SINGLEQUOTE, TOKEN_TYPE.VALUE, TOKEN_TYPE.REGEX]
 
 /**
  * Creates the main parser class which handles all functionality (evaluation, validation, etc).
@@ -957,16 +959,1056 @@ export class Parser<T extends {} = {}> {
 		}
 		return undefined
 	}
-}
 
-mixin(Parser, [
-	AutocompleteMixin,
-	AutoreplaceMixin,
-	Autosuggest,
-	EvaluateMixin,
-	ValidateMixin,
-	NormalizeMixin,
-	GetIndexMixin,
-	GetBestIndexesMixin,
-])
+	/**
+	 * Given a list of @see Suggestion entries, the parser options, and a list of variables, prefixes, operators, etc, and the preferred quote type, returns a list of @see Completion entries.
+	 *
+	 * It takes care of suggesting the correct delimiters for fixes, quoting variables/prefixes if it would not be possible to parse them unquoted, and separating symbol from non-symbol (word) operators.
+	 *
+	 * Does not add whitespace or group requirements. The suggestion information is still in the completion if you wish to show these. But they should not be added to the completion value if using @see autoreplace which will take care of it.
+	 *
+	 * Is not aware of existing values. You will have to use @see getCursorInfo to understand the context in which the suggestion was made, so that, for example, you could filter out used regex flags.
+	 */
+	autocomplete(
+		suggestions: Suggestion[],
+		{
+			values = [], arrayValues = [], variables = [], prefixes = [], properties = [], expandedPropertyOperators = [], customPropertyOperators = (this as any as Parser<T>).options.customPropertyOperators ?? [], keywords = (this as any as Parser<T>).options.keywords, regexFlags = ["i", "m", "u"], quote = "\"",
+		}: Partial<Record<
+			"variables" |
+			"values" |
+			"arrayValues" |
+			"prefixes" |
+			"properties" |
+			"regexFlags" |
+			"expandedPropertyOperators" |
+			"customPropertyOperators", string[]>> & {
+				quote?: string
+				keywords?: FullParserOptions<T>["keywords"]
+			} = {},
+	): Completion[] {
+		const self = (this as any as Parser<T>)
+		return suggestions.map(suggestion => {
+			const type = suggestion.type
+			switch (type) {
+				case SUGGESTION_TYPE.BACKTICK: return [{ suggestion, value: "`" }]
+				case SUGGESTION_TYPE.DOUBLEQUOTE: return [{ suggestion, value: "\"" }]
+				case SUGGESTION_TYPE.SINGLEQUOTE: return [{ suggestion, value: "'" }]
+				case SUGGESTION_TYPE.PARENL: return [{ suggestion, value: "(" }]
+				case SUGGESTION_TYPE.PARENR: return [{ suggestion, value: ")" }]
+				case SUGGESTION_TYPE.BRAKCETR: return [{ suggestion, value: "]" }] // L not needed
+				case SUGGESTION_TYPE.REGEX: return [{ suggestion, value: "/" }]
+				case SUGGESTION_TYPE.REGEX_FLAGS:
+					return regexFlags
+						.map(value => ({ suggestion, value }))
+						// remove existing flags from suggestions
+						.filter(completion => {
+							// eslint-disable-next-line @typescript-eslint/no-shadow
+							const { suggestion, value } = completion
+							if (suggestion.type !== SUGGESTION_TYPE.REGEX_FLAGS) {return true}
+
+							const token = suggestion.cursorInfo
+							const flags = token.at && (token.at.parent as VariableNode)?.quote?.flags === suggestion.cursorInfo.at
+								? token.at
+								: token.next && (token.next.parent as VariableNode)?.quote?.flags === suggestion.cursorInfo.next
+									? token.next
+									: token.prev && (token.prev.parent as VariableNode)?.quote?.flags === suggestion.cursorInfo.prev
+										? token.prev
+										: undefined
+
+							if (flags?.value?.includes(value)) {return false}
+							return true
+						})
+				case SUGGESTION_TYPE.PROPERTY: {
+					return properties.map(value => ({ suggestion, value }))
+				}
+				case SUGGESTION_TYPE.PROPERTY_SEP: {
+					return [{ suggestion, value: self.options.expandedPropertySeparator! }]
+				}
+				case SUGGESTION_TYPE.EXPANDED_PROPERTY_OPERATOR: {
+					return expandedPropertyOperators.map(value => ({ suggestion, value }))
+				}
+				case SUGGESTION_TYPE.CUSTOM_PROPERTY_OPERATOR: {
+					return customPropertyOperators.map(value => ({ suggestion, value }))
+				}
+				case SUGGESTION_TYPE.BOOLEAN_SYMBOL_OP: {
+					const keywordsList = [...keywords.and, ...keywords.or]
+					const symOpts = keywordsList.filter(_ => _.isSymbol)
+					return symOpts.map(({ value }) => ({ suggestion, value }))
+				}
+				case SUGGESTION_TYPE.BOOLEAN_WORD_OP: {
+					const keywordsList = [...keywords.and, ...keywords.or]
+					const wordOpts = keywordsList.filter(_ => !_.isSymbol)
+					return wordOpts.map(({ value }) => ({ suggestion, value }))
+				}
+				case SUGGESTION_TYPE.VALUE:
+				case SUGGESTION_TYPE.ARRAY_VALUE:
+				case SUGGESTION_TYPE.VARIABLE: {
+					const arr = type === SUGGESTION_TYPE.VARIABLE
+						? variables
+						: type === SUGGESTION_TYPE.ARRAY_VALUE
+							? arrayValues
+							: type === SUGGESTION_TYPE.VALUE
+								? values
+								: unreachable()
+					return arr.map(variable => {
+						// we don't need to alter options since we can just check there are no quotes (also tells us no prefixes are used) and no operators are defined
+						const res = self.parse(variable)
+						if (res instanceof ConditionNode &&
+							res.operator === undefined &&
+							res.value instanceof VariableNode &&
+							res.value.quote === undefined) {
+							return { suggestion, value: res.value.value.value }
+						} else {
+							return { suggestion, value: quote + variable.replace(new RegExp(quote, "g"), `\\${quote}`) + quote }
+						}
+					})
+				}
+				case SUGGESTION_TYPE.PREFIX: return prefixes.map(prefix => {
+					const res = self.parse(prefix)
+					if (res instanceof ConditionNode &&
+						res.operator === undefined &&
+						res.value instanceof VariableNode &&
+						res.value.quote === undefined) {
+						return { suggestion, value: res.value.value.value }
+					} else {
+						return { suggestion, value: quote + prefix.replace(new RegExp(quote, "g"), `\\${quote}`) + quote }
+					}
+				})
+			}
+		}).flat()
+	}
+
+	/**
+	 * Given the input string and a @see Completion consisting of the value of the replacement and a @see Suggestion entry, returns the replacement string and the new position of the cursor.
+	 *
+	 * The value passed should be escaped if it's needed (or quoted). @see autocomplete already takes care of quoting variables if you're using it.
+	 */
+	autoreplace(
+		input: string,
+		{ value, suggestion }: Completion,
+	): { replacement: string, cursor: number } {
+		const isQuotedLeft = ["\"", "'", "`"].includes(value[0])
+		const isQuotedRight = ["\"", "'", "`"].includes(value[value.length - 1])
+		if ((isQuotedLeft && !isQuotedRight) || (!isQuotedLeft && isQuotedRight)) {
+			throw new Error(`Completion value must either be entirely quoted or entirely unquoted. But the left side is ${isQuotedLeft ? "quoted" : "unquoted"} and the right side is ${isQuotedRight ? "quoted" : "unquoted"}.`)
+		}
+		let cursor = suggestion.range.start + value.length
+
+		if (suggestion.requires.prefix) {
+			value = suggestion.requires.prefix + (isQuotedLeft ? "" : "\"") + value + (isQuotedRight ? "" : "\"")
+
+			cursor += suggestion.requires.prefix.length + Number(!isQuotedLeft) + Number(!isQuotedRight)
+		}
+		if (suggestion.requires.group) {
+			value += "()"
+			cursor++
+		}
+
+		if (suggestion.requires.whitespace.before // &&
+		) {
+			value = ` ${value}`
+			cursor++
+		}
+		if (suggestion.requires.whitespace.after // &&
+		) {
+			value = `${value} `
+		}
+
+		const replacement = insert(value, input, [suggestion.range.start, suggestion.range.end])
+		return { replacement, cursor }
+	}
+
+	/**
+	 * Returns a list of suggestions ( @see Suggestion ). These are not a list of autocomplete entries (with values), but more a list of entries describing possible suggestions. This list can then be passed to @see Parser["autocomplete"] to build a list to show users, from which you can then pick an entry to pass to @see Parser["autoreplace"] .
+	 *
+	 * The list returned is "unsorted", but there is still some logic to the order. Fixes for errors are suggested first, in the order returned by @see getSurroundingErrors. Regular suggestions come after in the following order: prefixes if enabled, variables, boolean symbol operators, then boolean word operators.
+	 *
+	 * When the cursor is between two tokens that have possible suggestions, only suggestion types for the token before are returned. For example:
+	 *
+	 * ```js
+	 * prop="val"
+	 * prop|="val" //returns a property suggestions to replace `prop`
+	 * prop=|"val" //returns a custom operator suggestion to replace `=`
+	 * prop="|val" //returns a value suggestion
+	 * ```
+	 *
+	 * And if there are no suggestions for the previous token but there are for the next ones, they are suggested:
+	 * ```js
+	 * prop:op:"val"
+	 * prop:op|:"val" // returns an operator suggestion
+	 * prop:op:|"val" // returns a value suggestion
+	 * prop:op|"val" // returns a suggestion for the missing separator
+	 * ```
+	 */
+	autosuggest(input: string, ast: ParserResults, index: number): Suggestion[] {
+		// wrapped like this because the function is HUGE
+		const opts = (this as any as Parser<T>).options
+		const tokens = extractTokens(ast)
+		const token = getCursorInfo(input, tokens, index)
+
+		const wordOps = [...opts.keywords.and, ...opts.keywords.or, ...opts.keywords.not].filter(op => !op.isSymbol)
+
+		const canSuggestOpAfterPrev = (
+			token.valid.prev && tokenVariable.includes(token.valid.prev?.type) &&
+			(token.whitespace.prev || token.valid.prev.type === TOKEN_TYPE.PARENR) &&
+			!token.at && token.valid.next === undefined
+		)
+		const canSuggestOpBeforeNext =
+			(
+				token.valid.next && tokenVariable.includes(token.valid.next?.type) &&
+				token.whitespace.next && // no parenL allowed since check since there will already be prefix suggestions
+				!token.at && token.valid.prev === undefined
+			)
+
+		const requiresWhitespacePrev = tokenRequiresWhitespace(token.valid.prev, token.whitespace.prev, wordOps)
+		const requiresWhitespaceNext = tokenRequiresWhitespace(token.valid.next, token.whitespace.next, wordOps)
+
+		const requiresWhitespacePrevOp = canSuggestOpAfterPrev
+			? false
+			: requiresWhitespacePrev
+		const requireWhitespaceNextOp = !canSuggestOpAfterPrev && canSuggestOpBeforeNext
+			? false
+			: requiresWhitespaceNext
+
+		const suggestions: Suggestion[] = []
+		if (ast instanceof ErrorToken) {
+			suggestions.push({
+				type: SUGGESTION_TYPE.PREFIX,
+				requires: createDefaultRequires({ group: true }),
+				range: pos({ start: index }, { fill: true }),
+				isError: true,
+				cursorInfo: token,
+			})
+			suggestions.push({
+				type: SUGGESTION_TYPE.VARIABLE,
+				requires: createDefaultRequires(),
+				range: pos({ start: index }, { fill: true }),
+				isError: true,
+				cursorInfo: token,
+			})
+		} else {
+			const surroundingErrors = getSurroundingErrors(tokens, token)
+
+			const errorTypesHandled: TOKEN_TYPE[] = []
+			const errorSuggestion = {
+				isError: true,
+				cursorInfo: token,
+			}
+			const baseSuggestion = {
+				isError: false,
+				cursorInfo: token,
+			}
+			for (const error of surroundingErrors) {
+				for (const type of error.expected) {
+					if (errorTypesHandled.includes(type)) continue
+					errorTypesHandled.push(type)
+
+					switch (type) {
+						case TOKEN_TYPE.DOUBLEQUOTE:
+						case TOKEN_TYPE.SINGLEQUOTE:
+						case TOKEN_TYPE.BACKTICK: {
+							const isLeft = (error.parent as VariableNode).quote!.left === error
+							const isRight = (error.parent as VariableNode).quote!.right === error
+							suggestions.push({
+								...errorSuggestion,
+								type: type as any as SUGGESTION_TYPE,
+								requires: createDefaultRequires({
+									whitespace: {
+										before: isRight ? false : requiresWhitespacePrev,
+										after: isLeft ? false : requiresWhitespaceNext,
+									},
+								}),
+								range: pos({ start: index }, { fill: true }),
+							})
+						} break
+						case TOKEN_TYPE.AND:
+						case TOKEN_TYPE.OR:
+							suggestions.push({
+								...errorSuggestion,
+								type: SUGGESTION_TYPE.BOOLEAN_SYMBOL_OP,
+								requires: createDefaultRequires(),
+								range: pos({ start: index }, { fill: true }),
+							})
+							suggestions.push({
+								...errorSuggestion,
+								type: SUGGESTION_TYPE.BOOLEAN_WORD_OP,
+								requires: createDefaultRequires({
+									whitespace: {
+										before: requiresWhitespacePrevOp,
+										after: requireWhitespaceNextOp,
+									},
+								}),
+								range: pos({ start: index }, { fill: true }),
+							})
+							if (type === TOKEN_TYPE.AND) errorTypesHandled.push(TOKEN_TYPE.OR)
+							if (type === TOKEN_TYPE.OR) errorTypesHandled.push(TOKEN_TYPE.AND)
+
+							break
+						case TOKEN_TYPE.PARENL:
+						case TOKEN_TYPE.PARENR:
+							suggestions.push({
+								...errorSuggestion,
+								type: type as any as SUGGESTION_TYPE,
+								requires: createDefaultRequires(),
+								range: pos({ start: index }, { fill: true }),
+							})
+							break
+						case TOKEN_TYPE.VALUE: {
+							const prefixedValue = error.parent instanceof VariableNode ? error.parent?.prefix?.value : false
+							const isRegexValue = error.parent instanceof VariableNode && (
+								error.parent.quote?.left.type === TOKEN_TYPE.REGEX ||
+								error.parent.quote?.right.type === TOKEN_TYPE.REGEX
+							)
+							if (!isRegexValue) {
+								// both are always suggested since missing value tokens only happen for variables
+								if (!prefixedValue && opts.prefixableGroups) {
+									suggestions.push({
+										...errorSuggestion,
+										type: SUGGESTION_TYPE.PREFIX,
+										requires: createDefaultRequires({
+											whitespace: {
+												before: requiresWhitespacePrev,
+												after: false, /* parens get inserted */
+											},
+											group: true, // is always needed
+										}),
+										range: pos({ start: index }, { fill: true }),
+									})
+								}
+								suggestions.push({
+									...errorSuggestion,
+									type: SUGGESTION_TYPE.VARIABLE,
+									requires: createDefaultRequires({
+										whitespace: {
+											before: requiresWhitespacePrev,
+											after: requiresWhitespaceNext,
+										},
+										prefix: prefixedValue,
+									}),
+									range: pos({ start: index }, { fill: true }),
+								})
+							}
+							break
+						}
+						case TOKEN_TYPE.BRACKETR: {
+							suggestions.push({
+								...errorSuggestion,
+								type: SUGGESTION_TYPE.BRAKCETR,
+								requires: createDefaultRequires(),
+								range: pos({ start: index }, { fill: true }),
+							})
+							break
+						}
+						case TOKEN_TYPE.OP_EXPANDED_SEP:
+							suggestions.push({
+								...errorSuggestion,
+								type: SUGGESTION_TYPE.PROPERTY_SEP,
+								requires: createDefaultRequires(),
+								range: pos({ start: index }, { fill: true }),
+							})
+							break
+						case TOKEN_TYPE.REGEX:
+							suggestions.push({
+								...errorSuggestion,
+								type: SUGGESTION_TYPE.REGEX,
+								requires: createDefaultRequires(),
+								range: pos({ start: index }, { fill: true }),
+							})
+							break
+						case TOKEN_TYPE.OP_CUSTOM:
+						case TOKEN_TYPE.BRACKETL:
+						case TOKEN_TYPE.NOT:
+							unreachable()
+					}
+				}
+			}
+
+			/** The quotes are checked because of situations like `prefix|"var"`.*/
+			const prevVar = token.valid.prev?.parent
+			const nextVar = token.valid.next?.parent
+			const prevCondition = prevVar?.parent
+			const nextCondition = nextVar?.parent
+			const atVar = token.at?.parent
+			const atCondition = atVar?.parent
+
+			const isVarPrev =
+				!token.whitespace.prev &&
+				token.valid.prev?.type !== TOKEN_TYPE.REGEX &&
+				prevVar instanceof VariableNode &&
+				(
+					(
+						prevCondition instanceof ConditionNode &&
+						prevCondition.value === prevVar &&
+						(
+							prevVar.quote?.right === token.valid.prev ||
+							prevVar.value === token.valid.prev
+						)
+					) ||
+					(
+						prevCondition instanceof ArrayNode
+					)
+				)
+
+			const isVarNext =
+				!token.whitespace.next &&
+				token.valid.next?.type !== TOKEN_TYPE.REGEX &&
+				nextVar instanceof VariableNode &&
+				(
+					(
+						nextCondition instanceof ConditionNode &&
+						nextCondition.value === nextVar &&
+						(
+							nextVar.quote?.left === token.valid.next ||
+							nextVar.value === token.valid.next
+						)
+					) ||
+					(
+						nextCondition instanceof ArrayNode
+					)
+				)
+
+			const isVarAt = (
+				(
+					atVar instanceof VariableNode &&
+					atCondition instanceof ConditionNode
+				) ||
+				(
+					prevVar instanceof VariableNode &&
+					token.valid.prev === prevVar?.quote?.left) ||
+
+				(
+					nextVar instanceof VariableNode &&
+					token.valid.next === nextVar?.quote?.right
+				)
+			)
+
+			const isPropertyPrev =
+				prevCondition instanceof ConditionNode &&
+				prevVar !== undefined &&
+				prevVar === prevCondition?.property
+			const isPropertyNext =
+				nextCondition instanceof ConditionNode &&
+				nextVar !== undefined &&
+				nextVar === nextCondition?.property
+			const isPropertyAt =
+				atCondition instanceof ConditionNode &&
+				atVar !== undefined &&
+				atVar === atCondition?.property
+
+			const isPropertyOperatorPrev = prevVar instanceof ConditionNode && token.valid.prev === prevVar?.propertyOperator
+			const isPropertyOperatorNext = nextVar instanceof ConditionNode && token.valid.next === nextVar?.propertyOperator
+			const isPropertyOperatorAt = atVar instanceof ConditionNode && token.at === atVar?.propertyOperator
+
+			/** Situations like `[|]` and `[|` */
+			const noArrayValuesTarget = token.valid.prev?.type === TOKEN_TYPE.BRACKETL &&
+				(
+					token.valid.next === undefined ||
+					token.valid.next?.type === TOKEN_TYPE.BRACKETR
+				)
+
+			/** For the following, prev tokens always have priority, next suggestions are only allowed if there are not other prev suggestions. Then lastly, only one at suggestion can exist at a time so no checks needed for those. */
+			const target = isVarPrev
+				? token.valid.prev
+				: !noArrayValuesTarget && !isPropertyPrev && !isPropertyOperatorPrev && isVarNext
+					? token.valid.next
+					: isVarAt
+						? token.at
+						: undefined
+
+
+			const propertyTarget = isPropertyPrev
+				? token.valid.prev
+				: !noArrayValuesTarget && !isVarPrev && !isPropertyOperatorPrev && isPropertyNext
+					? token.valid.next
+					: isPropertyAt
+						? token.at
+						: undefined
+
+			const propOpTarget = isPropertyOperatorPrev
+				? token.valid.prev
+				: !noArrayValuesTarget && !isVarPrev && !isPropertyPrev && isPropertyOperatorNext
+					? token.valid.next
+					: isPropertyOperatorAt
+						? token.at
+						: undefined
+
+
+			if (target) {
+				const parent = target.parent
+				if (parent instanceof VariableNode) {
+					const range = pos(parent)
+					const condition = parent?.parent as ConditionNode
+					const isValue = condition.propertyOperator !== undefined && condition.value === parent
+					const maybeGroup = parent?.parent?.parent
+					const isPrefix = maybeGroup instanceof GroupNode && maybeGroup.prefix === condition
+
+					// look at whitespace before/after the entire variable
+					const varStart = getCursorInfo(input, ast, parent.start)
+					const varEnd = getCursorInfo(input, ast, parent.end)
+					const targetRequiresWhitespacePrev = tokenRequiresWhitespace(varStart.valid.prev, varStart.whitespace.prev, wordOps)
+					const targetRequiresWhitespaceNext = tokenRequiresWhitespace(varEnd.valid.next, varEnd.whitespace.next, wordOps)
+					const prefixedValue = target.parent instanceof VariableNode ? target.parent?.prefix?.value : false
+
+					// most of these require additional handling below
+					const isSepPrev = token.prev?.type === TOKEN_TYPE.OP_EXPANDED_SEP
+					const arrayValue = target.parent?.parent instanceof ArrayNode
+					const isRegexFlag = target === parent.quote?.flags
+
+					if (!isRegexFlag && !isSepPrev && !isValue && !arrayValue && !prefixedValue && opts.prefixableGroups) {
+						suggestions.push({
+							...baseSuggestion,
+							type: SUGGESTION_TYPE.PREFIX,
+							requires: createDefaultRequires({
+								group: !isPrefix,
+								whitespace: {
+									before: targetRequiresWhitespacePrev && !isPrefix,
+									after: false, // parens exist or get inserted
+								},
+							}),
+							range,
+						})
+					}
+
+					if (!isRegexFlag && !isPrefix) {
+						suggestions.push({
+							...baseSuggestion,
+							type: arrayValue
+								? SUGGESTION_TYPE.ARRAY_VALUE
+								: isValue
+									? SUGGESTION_TYPE.VALUE
+									: SUGGESTION_TYPE.VARIABLE,
+							requires: createDefaultRequires({
+								whitespace: {
+									before: targetRequiresWhitespacePrev,
+									after: targetRequiresWhitespaceNext,
+								},
+								prefix: prefixedValue,
+							}),
+							range,
+						})
+					}
+				}
+			}
+
+			if (noArrayValuesTarget) {
+				suggestions.push({
+					...baseSuggestion,
+					type: SUGGESTION_TYPE.ARRAY_VALUE,
+					requires: createDefaultRequires(),
+					range: pos({ start: index }, { fill: true }),
+				})
+			}
+
+			if (propertyTarget) {
+				suggestions.push({
+					...baseSuggestion,
+					type: SUGGESTION_TYPE.PROPERTY,
+					requires: createDefaultRequires(),
+					range: pos(propertyTarget),
+				})
+			}
+			if (propOpTarget) {
+				suggestions.push({
+					...baseSuggestion,
+					type: (propOpTarget.parent as ConditionNode).sep
+						? SUGGESTION_TYPE.EXPANDED_PROPERTY_OPERATOR
+						: SUGGESTION_TYPE.CUSTOM_PROPERTY_OPERATOR
+					,
+					requires: createDefaultRequires(),
+					range: pos(propOpTarget),
+				})
+			}
+
+			const canSuggestValue =
+				(
+					(
+						token.whitespace.next &&
+						(
+							token.whitespace.prev ||
+							token.prev?.type === TOKEN_TYPE.BRACKETL ||
+							token.prev?.type === TOKEN_TYPE.PARENL
+						)
+					) ||
+					(
+						token.whitespace.prev &&
+						(
+							token.whitespace.next ||
+							token.next?.type === TOKEN_TYPE.BRACKETR ||
+							token.next?.type === TOKEN_TYPE.PARENR
+						)
+					)
+				)
+
+			if (canSuggestValue) {
+				const inArrayNode = [nextCondition, prevCondition, nextVar, prevVar].find(_ => _ instanceof ArrayNode) !== undefined
+				const opsNotNeeded = ["and", "or"].includes(opts.onMissingBooleanOperator)
+
+
+				if (inArrayNode || opsNotNeeded) {
+					suggestions.push({
+						type: inArrayNode ? SUGGESTION_TYPE.ARRAY_VALUE : SUGGESTION_TYPE.VARIABLE,
+						requires: createDefaultRequires({}),
+						range: pos({ start: index }, { fill: true }),
+						...baseSuggestion,
+					})
+				}
+				// if we're not an in array node we can also suggest prefixes
+				if (!inArrayNode && opsNotNeeded) {
+					suggestions.push({
+						...baseSuggestion,
+						type: SUGGESTION_TYPE.PREFIX,
+						requires: createDefaultRequires({
+							group: true,
+						}),
+						range: pos({ start: index }, { fill: true }),
+					})
+				}
+			}
+
+			const canSuggestRegexFlags =
+				// has existing flags before/after
+				(
+					token.at &&
+					token.at === (token.at?.parent as VariableNode)?.quote?.flags
+				) ||
+				(
+					token.valid.prev &&
+					token.valid.prev === (token.valid.prev?.parent as VariableNode)?.quote?.flags
+				) ||
+				(
+					token.valid.next &&
+					token.valid.next === (token.valid.next?.parent as VariableNode)?.quote?.flags
+				) ||
+				( // no flags
+					token.valid.prev?.type === TOKEN_TYPE.REGEX &&
+					token.valid.prev === (token.valid.prev.parent as VariableNode).quote?.right
+				)
+
+			if (canSuggestRegexFlags) {
+				suggestions.push({
+					...baseSuggestion,
+					type: SUGGESTION_TYPE.REGEX_FLAGS,
+					requires: createDefaultRequires(),
+					range: pos({ start: index }, { fill: true }),
+				})
+			}
+
+			if (canSuggestOpAfterPrev || canSuggestOpBeforeNext) {
+				const range = pos({ start: index }, { fill: true })
+				suggestions.push({
+					...baseSuggestion,
+					type: SUGGESTION_TYPE.BOOLEAN_SYMBOL_OP,
+					requires: createDefaultRequires(),
+					range,
+				})
+				suggestions.push({
+					...baseSuggestion,
+					type: SUGGESTION_TYPE.BOOLEAN_WORD_OP,
+					requires: createDefaultRequires({
+						whitespace: {
+							before: requiresWhitespacePrevOp,
+							after: requireWhitespaceNextOp,
+						},
+					}),
+					range,
+				})
+			}
+		}
+		return suggestions
+	}
+
+	/**
+	 * Evaluates a {@link Parser.normalize normalized} ast.
+	 *
+	 * How the ast is evaluated for different operators can be controlled by the {@link ParserOptions.valueComparer valueComparer} option.
+	 */
+	evaluate(ast: Expression<any, any> | Condition<any, any>, context: Record<string, any>): boolean {
+		this._checkEvaluationOptions()
+		const opts = (this as any as Parser<T>).options
+
+		if (ast instanceof Condition) {
+			const contextValue = get(context, ast.property)
+			const res = opts.valueComparer({ property: ast.property, value: ast.value, operator: ast.operator }, contextValue, context)
+			return ast.negate ? !res : res
+		}
+		if (ast instanceof Expression) {
+			const left = this.evaluate(ast.left, context)
+			const right = this.evaluate(ast.right, context)
+
+			return ast.operator === TOKEN_TYPE.AND
+				? (left && right)
+				: (left || right)
+		}
+
+		return unreachable()
+	}
+
+	/**
+	 * Given the set of indexes returned by {@link getBestIndex}, the set of existing indexes in a database, and the index to sort by\*, will return a list of the best/shortest sets of indexes.
+	 *
+	 * For example, given the query `a && b && c`, `getBestIndex` will return `[Set(a), Set(b)]`.
+	 *
+	 * Suppose we have indexes on all the variables and that the user wants to sort by `c`, this function will return [`Set(c)`].
+	 *
+	 * Suppose instead we have indexes only on `a` and `b` and that the user wants to sort by `c`, this function will return [`Set(a), Set(b)`]. Either can be picked by some other criteria (e.g. size of the indexes). Sort should then be done in memory.
+	 *
+	 * And then finally, if we have no existing indexes on any of the variables, the function will return `[]`.
+	 *
+	 * Note: This is a simple algorithm and is not designed to take into account instances where entries are indexed by two or more properties as their keys (i.e. multicolumn indexes).
+	 *
+	 * \* If the sort index is not in the list of existing indexes it is not taken into account.
+	 */
+	getBestIndexes(indexes: Set<string>[], existing: Set<string> | Map<string, number>, sortIndex: string = ""): Set<string>[] {
+		indexes = indexes.filter(set => {
+			for (const key of set) {
+				if (!existing.has(key)) return false
+			}
+			return true
+		})
+
+		let finalIndexes = indexes
+
+		if (existing.has(sortIndex)) {
+			const indexesWithSortIndex = indexes.filter(set => set.has(sortIndex))
+			if (indexesWithSortIndex.length > 0) finalIndexes = indexesWithSortIndex
+		}
+
+
+		let smallest = Infinity
+		if (existing instanceof Map) {
+			const scores = new Map<Set<string>, number>()
+			for (const set of finalIndexes) {
+				let score = 0
+				for (const key of set) {
+					score += existing.get(key) ?? 0
+				}
+				scores.set(set, score)
+				smallest = score < smallest ? score : smallest
+			}
+			return indexes.filter(set => smallest === Infinity || scores.get(set) === smallest)
+		} else {
+			for (const set of finalIndexes) {
+				smallest = set.size < smallest ? set.size : smallest
+			}
+			return indexes.filter(set => smallest === Infinity || set.size === smallest)
+		}
+	}
+
+	/**
+	 * Returns a list of the different sets of keys that need to be indexed to run a normalized query on a database and hit an existing index.
+	 *
+	 * For example, the expression `a || b` requires both `a` AND `b` be indexed to use an index. The function would return `[Set(a, b)]`.
+	 *
+	 * On the otherhand, the expression `a && b` only requires `a` OR `b` to be indexed (`[Set(a), Set(b)]`) If at least one is indexed, the rest of the filtering can be done in memory. There is no need to in memory filter the entire database.
+	 *
+	 * Now take a more complicated query like `(a && b) || (a && c)`. This only requires `a` be indexed, or both `b` AND `c`. (`[Set(a)], [Set(b), Set(c)]`).
+	 *
+	 * Queries like `(a || b) && (a || c)` would require all the variables to be indexed `[Set(a), Set(b), Set(c)]`.
+	 */
+	getIndexes(ast: Condition | Expression): Set<string>[] {
+		if (ast instanceof Condition) {
+			return [new Set(ast.property.join("."))]
+		}
+		if (ast instanceof Expression) {
+			const left = this.getIndexes(ast.left)
+			const right = this.getIndexes(ast.right)
+
+			if (ast.operator === TOKEN_TYPE.AND) {
+				const sets: Set<string>[] = []
+				const allKeys: Set<string> = new Set()
+
+				for (const leftSet of left) {
+					const exists = sets.find(set => isEqualSet(set, leftSet))
+					if (exists) continue
+					sets.push(leftSet)
+					for (const key of leftSet) {
+						allKeys.add(key)
+					}
+				}
+				for (const rightSet of right) {
+					const exists = sets.find(set => isEqualSet(set, rightSet))
+					if (exists) continue
+					sets.push(rightSet)
+					for (const key of rightSet) {
+						allKeys.add(key)
+					}
+				}
+
+				const commonKeys: Set<string> = new Set()
+
+				// eslint-disable-next-line no-labels
+				outerCheck: for (const key of allKeys) {
+					for (const set of sets) {
+						// eslint-disable-next-line no-labels
+						if (!set.has(key)) continue outerCheck
+					}
+					commonKeys.add(key)
+				}
+				if (commonKeys.size > 0) {
+					return [commonKeys, allKeys]
+				} else {
+					return sets
+				}
+			}
+			if (ast.operator === TOKEN_TYPE.OR) {
+				for (const rightSet of right) {
+					for (const leftSet of left) {
+						if (isEqualSet(leftSet, rightSet)) {
+							return [rightSet]
+						}
+					}
+				}
+				const res = new Set<string>()
+				for (const leftSet of left) {
+					for (const key of leftSet) {
+						res.add(key)
+					}
+				}
+				for (const rightSet of right) {
+					for (const key of rightSet) {
+						res.add(key)
+					}
+				}
+				return [res]
+			}
+		}
+
+		return unreachable()
+	}
+
+	/**
+	 * Normalizes the ast by applying {@link GroupNode GroupNodes} and converting {@link ConditionNode ConditionNodes} to {@link NormalizedConditionNode NormalizedConditionNodes}.
+	 */
+	normalize<TType extends string, TValue>(ast: ParserResults): Condition<TType, TValue> | Expression<TType, TValue> {
+		this._checkEvaluationOptions()
+		const opts = (this as any as Parser<T>).options
+		if (ast instanceof ErrorToken || !ast.valid) {
+			throw new Error("AST node must be valid.")
+		}
+		// eslint-disable-next-line prefer-rest-params
+		const prefix: string | undefined = arguments[1]
+		// eslint-disable-next-line prefer-rest-params
+		const groupValue: boolean | undefined = arguments[2]
+		// eslint-disable-next-line prefer-rest-params
+		let operator: string | undefined = arguments[3]
+
+		const self_ = this as any as Parser & { normalize: AddParameters<Parser["normalize"], [typeof prefix, typeof groupValue, typeof operator]> }
+
+		if (ast instanceof ConditionNode) {
+			if (!(ast.value instanceof GroupNode)) {
+				const isValue = ast.value instanceof ArrayNode || (ast.value as VariableNode)?.quote?.left.type === TOKEN_TYPE.REGEX
+				let name = ast.property
+					? unescape(ast.property.value.value)
+					: isValue
+						// the property might be missing, whether this is valid or not is up to the user
+						// e.g. if prefix is defined this would make some sense
+						? undefined
+						: unescape((ast.value as VariableNode)?.value.value)
+				// some ancestor node went through the else block because it was a group node (e.g. prop:op(val))
+				// so the "prefix" we passed is actually the name of the property (e.g. prop) and the value is the name we're getting here (e.g. val)
+				const isNested = operator !== undefined
+				if (prefix !== undefined && !isNested) {
+					name = name ? applyPrefix(prefix, name, opts.prefixApplier) : prefix
+				}
+				let value: any
+				if (isNested) {
+					value = name ?? true
+					name = prefix
+				} else {
+					value = ast.value instanceof ArrayNode
+						? ast.value.values.map(val => unescape(val.value.value))
+						: (ast.value as VariableNode)?.quote?.left.type === TOKEN_TYPE.REGEX
+							? ast.value.value.value
+							: ast.property && ast.value instanceof VariableNode
+								? unescape(ast.value.value.value)
+								: true
+				}
+				const propertyKeys = name ? opts.keyParser(name) : []
+
+				const boolValue = applyBoolean(groupValue, ast.operator === undefined)
+				const valuePrefix = ast.value instanceof VariableNode && ast.value.prefix
+					? unescape(ast.value.prefix.value)
+					: undefined
+				// one or the other might be defined, but never both since nested properties (e.g. `prop:op(prop:op(...))`) are not allowed
+				operator ??= ast.propertyOperator?.value
+				const isRegex = (ast.value as VariableNode)?.quote?.left.type === TOKEN_TYPE.REGEX
+				const isQuoted = (ast.value as VariableNode)?.quote !== undefined
+				const isExpanded = ast.sep !== undefined
+				const regexFlags = (ast.value as VariableNode)?.quote?.flags?.value
+				const query: ValueQuery = {
+					value,
+					operator,
+					prefix: valuePrefix,
+					regexFlags,
+					property: propertyKeys,
+					isRegex,
+					isQuoted,
+					isExpanded,
+					isNegated: !boolValue,
+					condition: ast,
+				}
+				const res = opts.conditionNormalizer(query)
+				return new Condition({ property: propertyKeys, ...res })
+			} else {
+				let name = unescape((ast.property as VariableNode).value.value) // this is always a variable node
+				if (prefix !== undefined) {
+					name = applyPrefix(prefix, name, opts.prefixApplier)
+				}
+				const boolValue = applyBoolean(groupValue, ast.operator === undefined)
+				// other operator is never defined see comments in other block above
+				// eslint-disable-next-line @typescript-eslint/no-shadow
+				const operator = ast.propertyOperator?.value
+				// this call will at some point lead us to the above block with isNested = true
+				return self_.normalize(ast.value, name, boolValue, operator) as any
+			}
+		}
+
+		if (ast instanceof GroupNode) {
+			const _prefix = ast.prefix instanceof ConditionNode && ast.prefix.value instanceof VariableNode
+				? unescape(ast.prefix.value.value.value)
+				: undefined // we do not want to apply not tokens
+			const _groupValue = ast.prefix instanceof ConditionNode
+				? ast.prefix.operator === undefined
+				: !(ast.prefix instanceof ValidToken)
+
+			const applied = applyPrefix(prefix, _prefix ?? "", opts.prefixApplier)
+
+			return self_.normalize(ast.expression as any, applied, applyBoolean(groupValue, _groupValue), operator) as any
+		}
+		if (ast instanceof ExpressionNode) {
+			const left = self_.normalize(ast.left, prefix, groupValue, operator)
+			const right = self_.normalize(ast.right, prefix, groupValue, operator)
+
+			// apply De Morgan's laws if group prefix was negative
+			// the values are already flipped, we just have to flip the operator
+			const type: TokenBooleanTypes = (groupValue === false ? OPPOSITE[ast.operator.type] : ast.operator.type) as TokenBooleanTypes
+			return new Expression<TType, TValue>({ operator: type, left: left as any, right: right as any })
+		}
+		return unreachable()
+	}
+
+	/**
+	 * Allows pre-validating ASTs for syntax highlighting purposes.
+	 * Works similar to evaluate. Internally it will use the prefixApplier, keyParser, and valueValidator (instead of comparer).
+	 *
+	 * The context does not need to be passed. If it's not passed, the function will not attempt to get the values (so it will not error) and the contextValue param of the valueValidator will be undefined.
+	 */
+	validate(ast: ParserResults, context?: Record<string, any>): (Position & T)[] {
+		const self = (this as any as Parser<T>)
+		self._checkValidationOptions()
+		const opts = self.options
+		// see evaluate function, this method is practically identical, except we don't keep track of the real value (since we are not evaluating) and the actual nodes/tokens are passed to the valueValidator, not just the string values.
+		if (ast instanceof ErrorToken || !ast.valid) {
+			throw new Error("AST node must be valid.")
+		}
+		/** Handle hidden recursive version of the function. */
+		// eslint-disable-next-line prefer-rest-params
+		const prefix: string | undefined = arguments[2]
+		// eslint-disable-next-line prefer-rest-params
+		const groupValue: boolean | undefined = arguments[3]
+		// eslint-disable-next-line prefer-rest-params
+		const results: (Position & T)[] = arguments[4] ?? []
+		// eslint-disable-next-line prefer-rest-params
+		const prefixes: VariableNode[] = arguments[5] ?? []
+		// eslint-disable-next-line prefer-rest-params
+		let operator: ValidToken<TOKEN_TYPE.VALUE | TOKEN_TYPE.OP_CUSTOM> | undefined = arguments[6]
+
+		const self_ = this as any as Parser & { validate: AddParameters<Parser["validate"], [typeof prefix, typeof groupValue, typeof results, typeof prefixes, typeof operator]> }
+
+		if (ast instanceof ConditionNode) {
+			if (!(ast.value instanceof GroupNode)) {
+				const isValue = ast.value instanceof ArrayNode || (ast.value as VariableNode)?.quote?.left.type === TOKEN_TYPE.REGEX
+				const nameNode = ast.property
+					? ast.property as VariableNode
+					: isValue
+					? undefined
+					: ast.value as VariableNode
+
+				let name = nameNode ? unescape(nameNode.value.value) : undefined
+				const isNested = operator !== undefined
+				if (prefix !== undefined && !isNested) {
+					name = name ? applyPrefix(prefix, name, opts.prefixApplier) : prefix
+				}
+				let value: any
+				let propertyNodes: VariableNode[] = []
+
+				if (isNested) {
+					value = name
+					name = prefix
+					propertyNodes = [...prefixes]
+				} else {
+					propertyNodes = [...prefixes, ...(nameNode ? [nameNode] : [])]
+					value = ast.value instanceof ArrayNode
+						? ast.value.values
+						: (ast.value as VariableNode)?.quote?.left.type === TOKEN_TYPE.REGEX
+						? ast.value
+						: ast.property && ast.value instanceof VariableNode
+						? ast.value
+						: true
+				}
+				const propertyKeys = name ? opts.keyParser(name) : []
+				const contextValue = context !== undefined ? get(context, propertyKeys) : undefined
+
+				const boolValue = applyBoolean(groupValue, ast.operator === undefined)
+				const valuePrefix = ast.value instanceof VariableNode && ast.value.prefix
+					? ast.value.prefix
+					: undefined
+				operator ??= ast.propertyOperator as ValidToken<TOKEN_TYPE.VALUE | TOKEN_TYPE.OP_CUSTOM>
+				const isRegex = (ast.value as VariableNode)?.quote?.left.type === TOKEN_TYPE.REGEX
+				const isQuoted = (ast.value as VariableNode)?.quote !== undefined
+				const isExpanded = ast.sep !== undefined
+				const regexFlags = (ast.value as VariableNode)?.quote?.flags
+				const query: ValidationQuery = {
+					value,
+					operator,
+					prefix: valuePrefix,
+					prefixes,
+					property: propertyNodes,
+					propertyKeys,
+					propertyName: name,
+					regexFlags,
+					isRegex,
+					isNegated: !boolValue,
+					isQuoted,
+					isExpanded,
+					condition: ast,
+				}
+				const res = opts.valueValidator(contextValue, query, context)
+				if (res && !isArray(res)) throw new Error("The valueValidator must return an array or nothing/undefined")
+				if (res) { for (const entry of res) results.push(entry) }
+			} else {
+				let name = unescape((ast.property as VariableNode).value.value) // this is always a variable node
+				if (prefix !== undefined) {
+					name = applyPrefix(prefix, name, opts.prefixApplier)
+				}
+
+				const boolValue = applyBoolean(groupValue, ast.operator === undefined)
+
+				if (ast.property) prefixes.push((ast.property as any))
+				// eslint-disable-next-line @typescript-eslint/no-shadow
+				const operator = ast.propertyOperator as ValidToken<TOKEN_TYPE.VALUE | TOKEN_TYPE.OP_CUSTOM>
+				self_.validate(ast.value, context, name, boolValue, results, prefixes, operator)
+			}
+		}
+
+		if (ast instanceof GroupNode) {
+			const _prefix = ast.prefix instanceof ConditionNode && ast.prefix.value instanceof VariableNode
+				? ast.prefix.value
+				: undefined // we do not want to apply not tokens
+			if (_prefix) prefixes.push(_prefix)
+
+			const _groupValue = ast.prefix instanceof ConditionNode
+				? ast.prefix.operator === undefined
+				: !(ast.prefix instanceof ValidToken)
+
+			self_.validate(ast.expression as any, context, applyPrefix(prefix, _prefix?.value.value ?? "", opts.prefixApplier), applyBoolean(groupValue, _groupValue), results, prefixes, operator)
+		}
+		if (ast instanceof ExpressionNode) {
+			// prefixes must be spread because we don't want the left branch (if it goes deeper) to affect the right
+			self_.validate(ast.left, context, prefix, groupValue, results, [...prefixes], operator)
+			self_.validate(ast.right, context, prefix, groupValue, results, [...prefixes], operator)
+		}
+		return results
+	}
+}
 
