@@ -13,9 +13,6 @@
 		// preserve documentation
 		"removeComments": false
 	},
-	"exclude": [
-		"tests/**"
-	],
 	"tsc-alias": {
 		"resolveFullPaths": true // for esm compatibility
 	}

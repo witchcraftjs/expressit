@@ -4,8 +4,6 @@
 	// https://github.com/AlansCodeLog/tsconfigs
 	"extends": "@alanscodelog/tsconfigs",
 	"compilerOptions": {
-		// todo, temp
-		"noUncheckedIndexedAccess": false,
 		"outDir": "dist",
 		// "types": [
 		/* "node" */
@@ -19,7 +17,6 @@
 	"include": [
 		"src/**/*.ts",
 		"src/**/*.js",
-		"tests/**/*.ts"
 	],
 	"exclude": []
 }
