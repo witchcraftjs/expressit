@@ -1,8 +1,6 @@
-
 ### 🚧 WORK IN PROGRESS 🚧
-
-![Docs](https://github.com/witchcraftjs/expressit/actions/workflows/docs.yml/badge.svg)
-![Build](https://github.com/witchcraftjs/expressit/actions/workflows/build.yml/badge.svg)
+[![Build](https://github.com/witchcraftjs/expressit/actions/workflows/build.yml/badge.svg)](https://github.com/witchcraftjs/expressit/actions/workflows/build.yml)
+[![Docs](https://github.com/witchcraftjs/expressit/workflows/Docs/badge.svg)](https://github.com/witchcraftjs/expressit/actions/workflows/docs.yml)
 [![Release](https://github.com/witchcraftjs/expressit/actions/workflows/release.yml/badge.svg)](https://www.npmjs.com/@witchcraft/expressit)
 
 Expressit is a blazing fast, customizable, error-tolerant expression parser that creates safe to eval expressions + a few other goodies.
