@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { getUnclosedRightParenCount } from "../src/helpers/parser/getUnclosedRightParenCount.js"
+import { getUnclosedRightParenCount } from "../src/internal/getUnclosedRightParenCount.js"
 import { Lexer } from "../src/Lexer.js"
 import { Parser } from "../src/Parser.js"
 

@@ -1,18 +1,14 @@
 import { token } from "./token.js"
 
-import { type Position, TOKEN_TYPE } from "../../types/ast.js"
-import type { ConditionNode } from "../classes/ConditionNode.js"
-import type { ErrorToken } from "../classes/ErrorToken.js"
-import type { ExpressionNode } from "../classes/ExpressionNode.js"
-import { GroupNode } from "../classes/GroupNode.js"
-import type { ValidToken } from "../classes/ValidToken.js"
+import { type ConditionNode, type ErrorToken, type ExpressionNode, type FirstParam,type GroupNode, type Position, TOKEN_TYPE, type ValidToken } from "../../types/ast.js"
+import { createGroupNode } from "../createGroupNode.js"
 
 /**
  * Creates a group.
  *
  * Automatically creates error tokens if missing condition or parens (not prefix because it is optional). Will look at the position of prefix if available.
  *
- * @param paren Use to add parens to group, usually by using @see delim . If either `right` or `left` are false or undefined, error tokens will be created. Unlike @see variable, if undefined is passed for parens, parens are created by default.
+ * @param paren Use to add parens to group, usually by using {@link delim} . If either `right` or `left` are false or undefined, error tokens will be created. Unlike {@link variable}, if undefined is passed for parens, parens are created by default.
  *
  * The positions of the parens can be adjusted with the last two parameters by passing positions.
  */
@@ -27,7 +23,7 @@ export function group(
 	| ConditionNode
 	| ExpressionNode
 	| GroupNode
-	| ErrorToken<TOKEN_TYPE.VALUE>
+	| ErrorToken
 	| undefined,
 
 	paren: { left?: boolean, right?: boolean } = { right: true, left: true },
@@ -38,7 +34,8 @@ export function group(
 		expression = token(TOKEN_TYPE.VALUE, undefined, prefix?.end !== undefined ? { start: prefix.end } : undefined)
 	}
 
-	const node: Partial<ConstructorParameters<typeof GroupNode>[0]> = {
+	const node: Partial<FirstParam<typeof createGroupNode>> = {
+		prefix: undefined,
 		expression,
 	}
 	if (prefix) {
@@ -74,6 +71,5 @@ export function group(
 	node.start = node.prefix?.start ?? node.paren?.left?.start ?? node.expression?.start ?? node.paren?.right.start
 	node.end = node.paren?.right?.end ?? node.expression?.end ?? node.paren?.left.end ?? node.prefix?.end
 
-	const instance = new GroupNode(node as any)
-	return instance
+	return createGroupNode(node as any)
 }

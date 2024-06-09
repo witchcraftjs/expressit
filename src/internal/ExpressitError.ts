@@ -7,8 +7,8 @@ import type { Keys } from "@alanscodelog/utils/types"
 import { repository, version } from "../package.js"
 import type { ERROR_CODES, ErrorInfo } from "../types/errors.js"
 
-
-export class BooleanParserLibraryError<T extends ERROR_CODES> extends Error {
+/** @internal */
+export class ExpressitError<T extends ERROR_CODES> extends Error {
 	version: string = version
 
 	repo: string = repository

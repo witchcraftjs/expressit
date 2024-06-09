@@ -4,8 +4,9 @@ import { isBlank } from "@alanscodelog/utils/isBlank.js"
 import { type AddParameters } from "@alanscodelog/utils/types"
 import { unreachable } from "@alanscodelog/utils/unreachable.js"
 
-import { ArrayNode, ConditionNode, ErrorToken, ExpressionNode, GroupNode, ValidToken, VariableNode } from "../ast/classes/index.js"
-import { type AnyToken, type ParserResults, TOKEN_TYPE } from "../types/ast.js"
+import { isToken } from "./isToken.js"
+
+import { type AnyToken, type ArrayNode, AST_TYPE,type ConditionNode,type GroupNode, type ParserResults, TOKEN_TYPE, type VariableNode } from "../types/ast.js"
 
 
 type Colors = {
@@ -80,30 +81,32 @@ export function prettyAst(
 		typeof __,
 		typeof extra,
 	]>
-	if (ast instanceof ValidToken) {
-		const value = `${ast.value}`
-		return `TOKEN ${pos} ${c.values}${quote}${value}${quote}${c.reset}${extra}`
+	if (isToken(ast)) {
+		if (ast.valid) {
+			const value = `${ast.value}`
+			return `TOKEN ${pos} ${c.values}${quote}${value}${quote}${c.reset}${extra}`
+		}
+		if (!ast.valid) {
+			const value = `[${ast.expected.join(", ")}]`
+			return `ERROR ${pos} ${c.error}${value}${c.reset}${extra}`
+		}
 	}
-	if (ast instanceof ErrorToken) {
-		const value = `[${ast.expected.join(", ")}]`
-		return `ERROR ${pos} ${c.error}${value}${c.reset}${extra}`
-	}
-	if (ast instanceof ConditionNode) {
+	if (ast.type === AST_TYPE.CONDITION) {
 		const header = `${c.info}${ast.operator === undefined}${c.reset}`
 		const not = ast.operator ? prettyAst_(ast.operator, opts, c, ___, `(negation)`) : ""
 		const property = ast.property ? prettyAst_(ast.property, opts, c, ___, `(property)`) : ""
 		const sepL = ast.sep?.left ? prettyAst_(ast.sep.left, opts, c, ___, `(separator)`) : ""
 		const op = ast.propertyOperator ? prettyAst_(ast.propertyOperator, opts, c, ___, `(property operator)`) : ""
 		const sepR = ast.sep?.right ? prettyAst_(ast.sep.right, opts, c, ___, `(separator)`) : ""
-		const isRegex = ast.value instanceof VariableNode && ast.value.quote?.left.type === TOKEN_TYPE.REGEX
-		const isArray = ast.value instanceof ArrayNode
+		const isRegex = ast.value.type === AST_TYPE.VARIABLE && ast.value.quote?.left.type === TOKEN_TYPE.REGEX
+		const isArray = ast.value.type === AST_TYPE.ARRAY
 		const variable = prettyAst_(ast.value, opts, c, __L, `(${property ? "value" : "variable/alone"}${isRegex ? " - regex" : isArray ? "- array" : ""})`)
 		return [
 			`CONDITION ${pos} ${header}${extra}`,
 			...toRows([not, property, sepL, op, sepR, variable], opts),
 		].join(`\n${__}`)
 	}
-	if (ast instanceof VariableNode) {
+	if (ast.type === AST_TYPE.VARIABLE) {
 		const prefix = ast.prefix ? prettyAst_(ast.prefix, opts, c, ___, `(value prefix)`) : ""
 		const left = ast.quote?.left ? prettyAst_(ast.quote.left, opts, c, ___, "") : ""
 		const value = prettyAst_(ast.value, opts, c, !ast.quote ? __L : !ast.quote?.right ? __L : ___, "")
@@ -115,7 +118,7 @@ export function prettyAst(
 			...toRows([prefix, left, value, right, flags], opts),
 		].join(`\n${__}`)
 	}
-	if (ast instanceof GroupNode) {
+	if (ast.type === AST_TYPE.GROUP) {
 		const header = `${c.info}${ast.prefix === undefined || (ast.prefix as ConditionNode).operator === undefined}${c.reset}`
 		const prefix = ast.prefix ? prettyAst_(ast.prefix, opts, c, ___, `(group prefix)`) : ""
 		const expression = prettyAst_(ast.expression, opts, c, __L, "")
@@ -124,7 +127,7 @@ export function prettyAst(
 			...toRows([prefix, expression], opts),
 		].join(`\n${__}`)
 	}
-	if (ast instanceof ArrayNode) {
+	if (ast.type === AST_TYPE.ARRAY) {
 		const bracketL = ast.bracket.left ? prettyAst_(ast.bracket.left, opts, c, ast.values.length === 0 && !ast.bracket.right ? __L : ___, "") : ""
 		const values = ast.values.length > 0
 			? ast.values.map((node, i) =>
@@ -137,12 +140,12 @@ export function prettyAst(
 			...toRows([bracketL, ...values, bracketR], opts),
 		].join(`\n${__}`)
 	}
-	if (ast instanceof ExpressionNode) {
+	if (ast.type === AST_TYPE.EXPRESSION) {
 		const left = prettyAst_(ast.left, opts, c, ___, "")
 		const operator = prettyAst_(ast.operator, opts, c, ___, `(boolean operator)`)
 		const right = prettyAst_(ast.right, opts, c, __L, "")
 
-		const header = ast.operator instanceof ErrorToken
+		const header = !ast.operator.valid
 			? `${c.info}[${ast.operator.expected.join(",")}]${c.reset}`
 			: `${c.info}"${ast.operator.value}"${c.reset}`
 		return [

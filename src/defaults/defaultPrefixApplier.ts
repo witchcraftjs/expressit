@@ -1,4 +1,4 @@
-import type { PrefixApplier } from "../../types/parser.js"
+import type { PrefixApplier } from "../types/parser.js"
 
 
 export const defaultPrefixApplier: PrefixApplier =

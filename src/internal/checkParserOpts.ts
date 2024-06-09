@@ -1,13 +1,14 @@
 import { isBlank } from "@alanscodelog/utils/isBlank.js"
 import { pushIfNotIn } from "@alanscodelog/utils/pushIfNotIn.js"
 
-import { ERROR_CODES } from "../../types/errors.js"
-import type { FullParserOptions, ParserOptions } from "../../types/parser.js"
-import { BooleanParserLibraryError } from "../errors.js"
-import { defaultConditionNormalizer } from "../general/defaultConditionNormalizer.js"
-import { defaultValueComparer } from "../general/defaultValueComparer.js"
+import { ExpressitError } from "./ExpressitError.js"
 
+import { defaultConditionNormalizer } from "../defaults/defaultConditionNormalizer.js"
+import { defaultValueComparer } from "../defaults/defaultValueComparer.js"
+import { ERROR_CODES } from "../types/errors.js"
+import type { FullParserOptions, ParserOptions } from "../types/parser.js"
 
+/** @internal */
 export function checkParserOpts<T extends {}>(opts: FullParserOptions<T>, evaluatorChecks: boolean = false, validatorChecks: boolean = false): void {
 	if (!evaluatorChecks) {
 		const keywordsList = [...opts.keywords.and, ...opts.keywords.or, ...opts.keywords.not].map(keyword => keyword.value)
@@ -25,7 +26,7 @@ export function checkParserOpts<T extends {}>(opts: FullParserOptions<T>, evalua
 
 		/* #region Blank Operator Checks */
 		if (opts.expandedPropertySeparator && isBlank(opts.expandedPropertySeparator)) {
-			throw new BooleanParserLibraryError(
+			throw new ExpressitError(
 				ERROR_CODES.PARSER_CONFLICTING_OPTIONS_ERROR,
 				{ prohibited: [""], invalid: opts.expandedPropertySeparator },
 			`expandedPropertySeparator cannot be blank`,
@@ -33,7 +34,7 @@ export function checkParserOpts<T extends {}>(opts: FullParserOptions<T>, evalua
 		}
 		const customInvalid = opts.customPropertyOperators?.find(_ => isBlank(_))
 		if (customInvalid !== undefined) {
-			throw new BooleanParserLibraryError(
+			throw new ExpressitError(
 				ERROR_CODES.PARSER_CONFLICTING_OPTIONS_ERROR,
 				{ prohibited: [""], invalid: customInvalid },
 			`customPropertyOperators cannot contain blank entries`,
@@ -41,7 +42,7 @@ export function checkParserOpts<T extends {}>(opts: FullParserOptions<T>, evalua
 		}
 		const prefixInvalid = opts.prefixableStrings?.find(_ => isBlank(_))
 		if (prefixInvalid !== undefined) {
-			throw new BooleanParserLibraryError(
+			throw new ExpressitError(
 				ERROR_CODES.PARSER_CONFLICTING_OPTIONS_ERROR,
 				{ prohibited: [""], invalid: prefixInvalid },
 			`prefixableStrings cannot contain blank entries`,
@@ -52,7 +53,7 @@ export function checkParserOpts<T extends {}>(opts: FullParserOptions<T>, evalua
 				?.find(_ => isBlank(_.value))
 				?.value
 			if (invalid !== undefined) {
-				throw new BooleanParserLibraryError(
+				throw new ExpressitError(
 					ERROR_CODES.PARSER_CONFLICTING_OPTIONS_ERROR,
 					{ prohibited: [""], invalid },
 				`keywords.${key} cannot contain entries with blank values`,
@@ -75,7 +76,7 @@ export function checkParserOpts<T extends {}>(opts: FullParserOptions<T>, evalua
 
 		const invalidPrefixableString = opts.prefixableStrings?.find(val => all.includes(val))
 		if (invalidPrefixableString) {
-			throw new BooleanParserLibraryError(
+			throw new ExpressitError(
 				ERROR_CODES.PARSER_CONFLICTING_OPTIONS_ERROR,
 				{ prohibited: all, invalid: invalidPrefixableString },
 			`prefixableStrings ${messageInvalidAny} "${invalidPrefixableString}"`,
@@ -85,7 +86,7 @@ export function checkParserOpts<T extends {}>(opts: FullParserOptions<T>, evalua
 		const invalidExpandedPropertySeparator = allKeywords
 			.find(_ => _ === opts.expandedPropertySeparator as any)
 		if (invalidExpandedPropertySeparator) {
-			throw new BooleanParserLibraryError(
+			throw new ExpressitError(
 				ERROR_CODES.PARSER_CONFLICTING_OPTIONS_ERROR,
 				{ prohibited: allKeywords, invalid: invalidExpandedPropertySeparator },
 			`expandedPropertySeparator ${messageInvalidBool} "${invalidExpandedPropertySeparator}"`,
@@ -96,7 +97,7 @@ export function checkParserOpts<T extends {}>(opts: FullParserOptions<T>, evalua
 		? opts.expandedPropertySeparator
 		: undefined
 		if (invalidCustomPropertyOperator) {
-			throw new BooleanParserLibraryError(
+			throw new ExpressitError(
 				ERROR_CODES.PARSER_CONFLICTING_OPTIONS_ERROR,
 				{ prohibited: keywords, invalid: invalidCustomPropertyOperator },
 			`customPropertyOperator ${messageInvalidBool} "${invalidCustomPropertyOperator}"`,
@@ -113,7 +114,7 @@ export function checkParserOpts<T extends {}>(opts: FullParserOptions<T>, evalua
 		if (opts.regexValues) requireCustomNormalizer.push("regexValues")
 
 		if (requireCustomNormalizer.length > 0 && opts.conditionNormalizer === defaultConditionNormalizer) {
-			throw new BooleanParserLibraryError(
+			throw new ExpressitError(
 				ERROR_CODES.PARSER_OPTION_REQUIRED_ERROR,
 				{ options: requireCustomNormalizer, requires: "conditionNormalizer" },
 				`A custom conditionNormalizer function must be specified when using the following options: ${requireCustomNormalizer.join(", ")}`,
@@ -124,7 +125,7 @@ export function checkParserOpts<T extends {}>(opts: FullParserOptions<T>, evalua
 		if (opts.regexValues) requireCustomComparer.push("arrayValues")
 
 		if (requireCustomComparer.length > 0 && opts.valueComparer === defaultValueComparer) {
-			throw new BooleanParserLibraryError(
+			throw new ExpressitError(
 				ERROR_CODES.PARSER_OPTION_REQUIRED_ERROR,
 				{ options: requireCustomComparer, requires: "valueComparer" },
 					`A custom valueComparer function must be specified when using the following options: ${requireCustomComparer.join(", ")}`,
@@ -133,7 +134,7 @@ export function checkParserOpts<T extends {}>(opts: FullParserOptions<T>, evalua
 	}
 	if (validatorChecks) {
 		if (opts.valueValidator === undefined) {
-			throw new BooleanParserLibraryError(
+			throw new ExpressitError(
 				ERROR_CODES.PARSER_OPTION_REQUIRED_ERROR,
 				{ requires: "valueValidator" },
 				`A custom valueValidator function must be specified when using the validate method.`,

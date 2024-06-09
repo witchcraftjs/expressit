@@ -14,16 +14,13 @@ The only exception is the handlers for the parser rules. These are internal, sho
 
 ```text
 src
- ┣ ast
- ┃ ┣ builders - used to quickly build ast classes for testing
- ┃ ┃ - instances returned are unsealed, i.e. their parents are not assigned
- ┃ ┣ classes - the actual ast node classes
- ┃ ┣ handlers.ts - used inside grammar/ParserBase.ts to handle the creation of tokens / ast node classes
+ ┣ ast - contains the base ast node creators 
+ ┃ ┣ builders - used to quickly build ast nodes for testing
+ ┃ ┣ handlers.ts - used inside grammar/ParserBase.ts to handle the creation of tokens / ast nodes 
  ┣ examples - contains fully implemented parser examples
- ┣ helpers
- ┃ ┣ general - ...various internal helper functions not related to parsing + default functions for the default parser options
- ┃ ┣ parser - ...various internal helper functions used before/during parsing
- ┃ ┗ errors.ts - the main error handling class (error types are defined in types/errors)
+ ┣ defaults - contains the default implementations of some parser options
+ ┣ internal - various internal helper functions used before/during parsing
+ ┃ ┗ ExpressitError.ts - the main error handling class (error types are defined in types/errors)
  ┣ types - all the types and enums are stored here in their respective categories
  ┣ utils - exported utility functions
  ┣ global.d.ts - additional global types

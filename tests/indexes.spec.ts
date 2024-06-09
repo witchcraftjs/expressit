@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 
-import { defaultConditionNormalizer } from "../src/helpers/general/defaultConditionNormalizer.js"
-import { defaultValueComparer } from "../src/helpers/general/defaultValueComparer.js"
+import { defaultConditionNormalizer } from "../src/defaults/defaultConditionNormalizer.js"
+import { defaultValueComparer } from "../src/defaults/defaultValueComparer.js"
 import { Parser } from "../src/Parser.js"
 
 

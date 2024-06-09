@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* eslint-disable no-eval */
  
 import "./style.css"
@@ -141,7 +142,7 @@ function onKeyboardInput(e, force = false) {
 		els.suggestion.innerHTML = str
 		els.pos.innerHTML = ` (${index})`
 
-		const autocompletions = parser.autocomplete(suggestions, {
+		const autocompletions = parser.autocomplete(ast,suggestions, {
 			variables: ["variable", "variable requires quoting", "variable requires escaping \""],
 			prefixes: ["prefix", "prefix requires quoting", "prefix requires escaping \""],
 			properties: ["property", "property requires quoting", "property requires escaping \""],

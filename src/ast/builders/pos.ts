@@ -1,7 +1,6 @@
 import { isFullPos } from "./isFullPos.js"
 
-import type { AnyToken, AST_TYPE, EmptyObj, Position, TOKEN_TYPE } from "../../types/ast.js"
-import type { Node } from "../classes/Node.js"
+import type { AnyToken, AST_TYPE, EmptyObj, Node, Position, TOKEN_TYPE } from "../../types/ast.js"
 
 /**
  * Can either:
@@ -20,7 +19,7 @@ export function pos<TItem extends Position | Partial<Position> | EmptyObj>(
 	item: TItem,
 	opts?: undefined | { fill: false }
 ):
-	// not sure why this needs the AnyToken check, prob something to do with using classes
+	// not sure why this needs the AnyToken check
 	TItem extends Position
 	? Position
 	: TItem extends AnyToken<TOKEN_TYPE> | Position | EmptyObj

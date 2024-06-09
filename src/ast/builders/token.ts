@@ -2,13 +2,12 @@ import { isArray } from "@alanscodelog/utils/isArray.js"
 
 import { pos } from "./pos.js"
 
-import type { AnyToken, EmptyObj, Position, TOKEN_TYPE } from "../../types/ast.js"
-import { ErrorToken } from "../classes/ErrorToken.js"
-import { ValidToken } from "../classes/ValidToken.js"
+import type { AnyToken, EmptyObj, ErrorToken, Position, TOKEN_TYPE, ValidToken } from "../../types/ast.js"
+import { createToken } from "../createToken.js"
 
 
 /**
- * Creates a @see ValidToken or of the given type with the given value. If no value is given, creates an @see ErrorToken instead.
+ * Creates a {@link ValidToken} or of the given type with the given value. If no value is given, creates an {@link ErrorToken} instead.
  *
  * Can be passed multiple types when creating an error token to set the expected field.
  *
@@ -23,20 +22,20 @@ export function token<
 	value: TValue,
 	position: Position | Partial<Position> | EmptyObj = {},
 ): TValue extends undefined
-	? ErrorToken<TType>
+	? ErrorToken
 	: ValidToken<TType> {
 	position = pos(position, { fill: true })
 	// eslint-disable-next-line @typescript-eslint/no-shadow
 	let token: AnyToken<TType>
 	if (value !== undefined) {
-		token = new ValidToken<TType>({
+		token = createToken({
 			type: type as TType,
 			value,
 			start: position.start!,
 			end: position.end!,
 		})
 	} else {
-		token = new ErrorToken<TType>({
+		token = createToken({
 			expected: (isArray(type) ? type : [type]) as TType[],
 			start: position.start!,
 			end: position.end!,

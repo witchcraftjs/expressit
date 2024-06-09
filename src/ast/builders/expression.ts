@@ -1,34 +1,31 @@
 import { pos } from "./pos.js"
 import { token } from "./token.js"
 
-import { type AnyToken, type Position, TOKEN_TYPE, type TokenBooleanTypes } from "../../types/ast.js"
-import type { ConditionNode } from "../classes/ConditionNode.js"
-import type { ErrorToken } from "../classes/ErrorToken.js"
-import { ExpressionNode } from "../classes/ExpressionNode.js"
-import type { GroupNode } from "../classes/GroupNode.js"
+import { type AnyToken, type ConditionNode, type ErrorToken, type ExpressionNode,type GroupNode, type Position, TOKEN_TYPE, type TokenBooleanTypes } from "../../types/ast.js"
+import { createExpressionNode } from "../createExpressionNode.js"
 
 
 /**
- * Creates an @see ExpressionNode, can be passed nothing for any of the tokens to automatically create error tokens.
+ * Creates an {@link ExpressionNode}, can be passed nothing for any of the tokens to automatically create error tokens.
  *
  * Also automatically sets the correct start/end positions from valid tokens (e.g. for start, searching left to right for a valid token and vice versa) assuming at least one is defined.
  */
 export function expression(
 	left:
-	ConditionNode |
-	ExpressionNode |
-	GroupNode |
-	ErrorToken<TOKEN_TYPE.VALUE> |
-	undefined,
+		ConditionNode |
+		ExpressionNode |
+		GroupNode |
+		ErrorToken |
+		undefined,
 	operator:
-	AnyToken<TokenBooleanTypes> |
-	undefined,
+		AnyToken<TokenBooleanTypes> |
+		undefined,
 	right:
-	ConditionNode |
-	ExpressionNode |
-	GroupNode |
-	ErrorToken<TOKEN_TYPE.VALUE> |
-	undefined,
+		ConditionNode |
+		ExpressionNode |
+		GroupNode |
+		ErrorToken |
+		undefined,
 ): ExpressionNode {
 	const start =
 		left?.start ??
@@ -54,13 +51,10 @@ export function expression(
 		right = token(TOKEN_TYPE.VALUE, undefined, { start: op.end })
 	}
 
-	const node: ConstructorParameters<typeof ExpressionNode>[0] = {
+	return createExpressionNode({
 		left,
 		operator: op,
 		right,
 		...position,
-	}
-
-	const instance = new ExpressionNode(node)
-	return instance
+	})
 }

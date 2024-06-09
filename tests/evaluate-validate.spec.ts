@@ -5,13 +5,11 @@ import { describe, expect, it, vi } from "vitest"
 
 import { nCondition, nExpression } from "./utils.js"
 
-import type { GroupNode } from "../src/ast/classes/GroupNode.js"
-import { ValidToken } from "../src/ast/classes/ValidToken.js"
-import { VariableNode } from "../src/ast/classes/VariableNode.js"
-import { applyBoolean } from "../src/helpers/general/applyBoolean.js"
-import { defaultConditionNormalizer } from "../src/helpers/general/defaultConditionNormalizer.js"
-import { defaultValueComparer } from "../src/helpers/general/defaultValueComparer.js"
+import { defaultConditionNormalizer } from "../src/defaults/defaultConditionNormalizer.js"
+import { defaultValueComparer } from "../src/defaults/defaultValueComparer.js"
+import { applyBoolean } from "../src/internal/applyBoolean.js"
 import { Parser } from "../src/Parser.js"
+import { AST_TYPE, type GroupNode, TOKEN_TYPE, type VariableNode } from "../src/types/ast.js"
 import type { FullParserOptions, ValidationQuery, ValueValidator } from "../src/types/parser.js"
 
 
@@ -193,13 +191,13 @@ describe("evaluate", () => {
 		it("a(b:val)", () => {
 			const input = "a(b:val)"
 			const valueValidator = vi.fn((_contextValue: string, query: ValidationQuery) => {
-				expect(query.value).to.be.instanceof(VariableNode)
-				expect(query.property[0]).to.be.instanceof(VariableNode)
-				expect(query.property[1]).to.be.instanceof(VariableNode)
+				expect(query.value?.type).to.equal(AST_TYPE.VARIABLE)
+				expect(query.property[0].type).to.equal(AST_TYPE.VARIABLE)
+				expect(query.property[1].type).to.equal(AST_TYPE.VARIABLE)
 				expect(query.property[0].value.value).to.equal("a")
 				expect(query.property[1].value.value).to.equal("b")
 				expect((query.value as VariableNode).value.value).to.equal("val")
-				expect(query.operator).to.be.instanceof(ValidToken)
+				expect(query.operator?.valid).to.equal(true)
 				expect(query.prefix).to.equal(undefined)
 			})
 			const parser = new Parser({
@@ -216,8 +214,8 @@ describe("evaluate", () => {
 			const input = "a(b)"
 			
 			const valueValidator = vi.fn((_contextValue: string, query: ValidationQuery) => {
-				expect(query.property[0]).to.be.instanceof(VariableNode)
-				expect(query.property[1]).to.be.instanceof(VariableNode)
+				expect(query.property[0].type).to.equal(AST_TYPE.VARIABLE)
+				expect(query.property[1].type).to.equal(AST_TYPE.VARIABLE)
 				expect(query.property[0].value.value).to.equal("a")
 				expect(query.property[1].value.value).to.equal("b")
 				expect(query.value).to.equal(true)
@@ -238,13 +236,13 @@ describe("evaluate", () => {
 			const input = `a(prefix"b")`
 
 			const valueValidator = vi.fn((_contextValue: string | undefined, query: ValidationQuery) => {
-				expect(query.property[0]).to.be.instanceof(VariableNode)
-				expect(query.property[1]).to.be.instanceof(VariableNode)
+				expect(query.property[0].type).to.equal(AST_TYPE.VARIABLE)
+				expect(query.property[1].type).to.equal(AST_TYPE.VARIABLE)
 				expect(query.property[0].value.value).to.equal("a")
 				expect(query.property[1].value.value).to.equal("b")
 				expect(query.value).to.equal(true)
 				expect(query.operator).to.equal(undefined)
-				expect(query.prefix).to.be.instanceof(ValidToken)
+				expect(query.prefix?.valid).to.equal(true)
 				expect(query.prefix!.value).to.equal("prefix")
 				return [{
 					start: query.property[0].start,
@@ -286,7 +284,7 @@ describe("evaluate", () => {
 		it(`a(c(d)) || e - partial prefix "highlighting"`, () => {
 			const input = `a(c(d)) || e`
 			const valueValidator = vi.fn((_contextValue: string | undefined, query: ValidationQuery, context: any): any => {
-				const values = query.property.map(node => node.value.value)
+				const values = query.property.map(node => node.value.value).filter(_ => _ !== undefined) as string[]
 				let i = 1
 				while (i < query.property.length && get(context, values.slice(0, i)) !== undefined) {
 					i++

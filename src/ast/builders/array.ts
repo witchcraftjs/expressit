@@ -1,10 +1,7 @@
-import type { Mutable } from "@alanscodelog/utils/types"
-
 import { token } from "./token.js"
 
-import { AST_TYPE, type Position, TOKEN_TYPE } from "../../types/ast.js"
-import { ArrayNode } from "../classes/ArrayNode.js"
-import type { VariableNode } from "../classes/VariableNode.js"
+import { type ArrayNode, type FirstParam,type Position, TOKEN_TYPE, type VariableNode } from "../../types/ast.js"
+import { createArrayNode } from "../createArrayNode.js"
 
 
 export function array(
@@ -13,8 +10,7 @@ export function array(
 	parenLeftPos?: Position,
 	parenRightPos?: Position,
 ): ArrayNode {
-	const node: Mutable<Partial<ArrayNode>> = {
-		type: AST_TYPE.ARRAY,
+	const node: Partial<FirstParam<typeof createArrayNode>> = {
 		values,
 	}
 
@@ -40,6 +36,5 @@ export function array(
 	node.start = node.bracket!.left?.start ?? start ?? node.bracket?.right.start
 	node.end = node.bracket?.right?.end ?? end ?? node.bracket!.left.end
 
-	const instance = new ArrayNode(node as any)
-	return instance
+	return createArrayNode(node as any)
 }

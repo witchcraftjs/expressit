@@ -90,7 +90,8 @@ const genExpectedArrayValues = (suggestion: Suggestion) => arrayValues.map(value
 const rawValues = ["value", `quoted value`, `value"requires"escape`]
 const values = ["value", `"quoted value"`, `"value\\"requires\\"escape"`]
 const genExpectedValues = (suggestion: Suggestion) => values.map(value => ({ suggestion, value }))
-const completionOpts: Parameters<Parser["autocomplete"]>[1] = {
+
+const completionOpts: Parameters<Parser["autocomplete"]>[2] = {
 	prefixes: rawPrefixes,
 	variables: rawVariables,
 	arrayValues: rawArrayValues,
@@ -122,7 +123,7 @@ describe("basic edge cases", () => {
 			suggest(`ERROR.${SUGGESTION_TYPE.VARIABLE}`, findPos(input, "")),
 		])
 
-		const completions = parser.autocomplete(suggestions, completionOpts)
+		const completions = parser.autocomplete(ast, suggestions, completionOpts)
 		expect(completions).to.deep.equal([
 			...genExpectedPrefixes(suggestions[0]),
 			...genExpectedVariables(suggestions[1]),
@@ -161,7 +162,7 @@ describe("basic edge cases", () => {
 		])
 
 
-		const completions = parser.autocomplete(suggestions, completionOpts)
+		const completions = parser.autocomplete(ast, suggestions, completionOpts)
 
 		expect(completions).to.deep.equal([
 			...genExpectedSymbolOperators(suggestions[0]),
@@ -202,7 +203,7 @@ describe("basic edge cases", () => {
 			suggest(SUGGESTION_TYPE.BOOLEAN_WORD_OP, { start: index, end: index }),
 		])
 
-		const completions = parser.autocomplete(suggestions, completionOpts)
+		const completions = parser.autocomplete(ast, suggestions, completionOpts)
 
 		expect(completions).to.deep.equal([
 			...genExpectedVariables(suggestions[0]),
@@ -254,7 +255,7 @@ describe("basic", () => {
 			suggest(SUGGESTION_TYPE.VARIABLE, findPos(input, "a")),
 		])
 
-		const completions = parser.autocomplete(suggestions, completionOpts)
+		const completions = parser.autocomplete(ast, suggestions, completionOpts)
 		expect(completions).to.deep.equal([
 			...genExpectedPrefixes(suggestions[0]),
 			...genExpectedVariables(suggestions[1]),
@@ -285,7 +286,7 @@ describe("basic", () => {
 			suggest(SUGGESTION_TYPE.PREFIX, findPos(input, "a"), false, false, true),
 			suggest(SUGGESTION_TYPE.VARIABLE, findPos(input, "a")),
 		])
-		const completions = parser.autocomplete(suggestions, completionOpts)
+		const completions = parser.autocomplete(ast, suggestions, completionOpts)
 		expect(completions).to.deep.equal([
 			...genExpectedPrefixes(suggestions[0]),
 			...genExpectedVariables(suggestions[1]),
@@ -320,7 +321,7 @@ describe("basic", () => {
 			suggest(SUGGESTION_TYPE.PREFIX, findPos(input, "a")),
 		])
 
-		const completions = parser.autocomplete(suggestions, completionOpts)
+		const completions = parser.autocomplete(ast, suggestions, completionOpts)
 		expect(completions).to.deep.equal([
 			...genExpectedPrefixes(suggestions[0]),
 		])
@@ -353,7 +354,7 @@ describe("basic", () => {
 			suggest(`ERROR.${SUGGESTION_TYPE.VARIABLE}`, { start: index, end: index }),
 		])
 
-		const completions = parser.autocomplete(suggestions, completionOpts)
+		const completions = parser.autocomplete(ast, suggestions, completionOpts)
 		expect(completions).to.deep.equal([
 			...genExpectedPrefixes(suggestions[0]),
 			...genExpectedVariables(suggestions[1]),
@@ -392,7 +393,7 @@ describe("basic", () => {
 			suggest(SUGGESTION_TYPE.VARIABLE, findPos(input, "a")),
 		])
 
-		const completions = parser.autocomplete(suggestions, completionOpts)
+		const completions = parser.autocomplete(ast, suggestions, completionOpts)
 		expect(completions).to.deep.equal([
 			...genExpectedSymbolOperators(suggestions[0]),
 			...genExpectedWordOperators(suggestions[1]),
@@ -436,7 +437,7 @@ describe("basic", () => {
 			suggest(SUGGESTION_TYPE.VARIABLE, findPos(input, "b")),
 		])
 
-		const completions = parser.autocomplete(suggestions, completionOpts)
+		const completions = parser.autocomplete(ast, suggestions, completionOpts)
 		expect(completions).to.deep.equal([
 			...genExpectedSymbolOperators(suggestions[0]),
 			...genExpectedWordOperators(suggestions[1]),
@@ -472,7 +473,7 @@ describe("basic", () => {
 			suggest(SUGGESTION_TYPE.PREFIX, findPos(input, "b"), false, false, true),
 			suggest(SUGGESTION_TYPE.VARIABLE, findPos(input, "b")),
 		])
-		const completions = parser.autocomplete(suggestions, completionOpts)
+		const completions = parser.autocomplete(ast, suggestions, completionOpts)
 		expect(completions).to.deep.equal([
 			...genExpectedPrefixes(suggestions[0]),
 			...genExpectedVariables(suggestions[1]),
@@ -508,7 +509,7 @@ describe("basic", () => {
 
 		const suggestions = parser.autosuggest(input, ast, index)
 		expect(simplify(suggestions)).to.deep.equal([])
-		const completions = parser.autocomplete(suggestions, completionOpts)
+		const completions = parser.autocomplete(ast, suggestions, completionOpts)
 		expect(completions).to.deep.equal([])
 	})
 
@@ -534,7 +535,7 @@ describe("basic", () => {
 
 		const suggestions = parser.autosuggest(input, ast, index)
 		expect(simplify(suggestions)).to.deep.equal([])
-		const completions = parser.autocomplete(suggestions, completionOpts)
+		const completions = parser.autocomplete(ast, suggestions, completionOpts)
 		expect(completions).to.deep.equal([])
 	})
 
@@ -560,7 +561,7 @@ describe("basic", () => {
 			suggest(`ERROR.${SUGGESTION_TYPE.PREFIX}`, { start: index, end: index }, true, false, true),
 			suggest(`ERROR.${SUGGESTION_TYPE.VARIABLE}`, { start: index, end: index }, true),
 		])
-		const completions = parser.autocomplete(suggestions, completionOpts)
+		const completions = parser.autocomplete(ast, suggestions, completionOpts)
 		expect(completions).to.deep.equal([
 			...genExpectedPrefixes(suggestions[0]),
 			...genExpectedVariables(suggestions[1]),
@@ -598,7 +599,7 @@ describe("basic", () => {
 			suggest(`ERROR.${SUGGESTION_TYPE.PREFIX}`, { start: index, end: index }, false, false, true),
 			suggest(`ERROR.${SUGGESTION_TYPE.VARIABLE}`, { start: index, end: index }),
 		])
-		const completions = parser.autocomplete(suggestions, completionOpts)
+		const completions = parser.autocomplete(ast, suggestions, completionOpts)
 		expect(completions).to.deep.equal([
 			...genExpectedPrefixes(suggestions[0]),
 			...genExpectedVariables(suggestions[1]),
@@ -633,7 +634,7 @@ describe("basic", () => {
 
 		const suggestions = parser.autosuggest(input, ast, index)
 		expect(simplify(suggestions)).to.deep.equal([])
-		const completions = parser.autocomplete(suggestions, completionOpts)
+		const completions = parser.autocomplete(ast, suggestions, completionOpts)
 		expect(completions).to.deep.equal([])
 	})
 	it("a &&| b", () => {
@@ -659,7 +660,7 @@ describe("basic", () => {
 
 		const suggestions = parser.autosuggest(input, ast, index)
 		expect(simplify(suggestions)).to.deep.equal([])
-		const completions = parser.autocomplete(suggestions, completionOpts)
+		const completions = parser.autocomplete(ast, suggestions, completionOpts)
 		expect(completions).to.deep.equal([])
 	})
 
@@ -688,7 +689,7 @@ describe("basic", () => {
 			suggest(SUGGESTION_TYPE.PREFIX, findPos(input, "b"), false, false, true),
 			suggest(SUGGESTION_TYPE.VARIABLE, findPos(input, "b")),
 		])
-		const completions = parser.autocomplete(suggestions, completionOpts)
+		const completions = parser.autocomplete(ast, suggestions, completionOpts)
 		expect(completions).to.deep.equal([
 			...genExpectedPrefixes(suggestions[0]),
 			...genExpectedVariables(suggestions[1]),
@@ -727,7 +728,7 @@ describe("groups and related", () => {
 			suggest(SUGGESTION_TYPE.PREFIX, findPos(input, "b")),
 		])
 
-		const completions = parser.autocomplete(suggestions, completionOpts)
+		const completions = parser.autocomplete(ast, suggestions, completionOpts)
 		expect(completions).to.deep.equal([
 			...genExpectedPrefixes(suggestions[0]),
 		])
@@ -759,7 +760,7 @@ describe("groups and related", () => {
 		expect(simplify(suggestions)).to.deep.equal([
 			suggest(SUGGESTION_TYPE.PREFIX, findPos(input, "b")),
 		])
-		const completions = parser.autocomplete(suggestions, completionOpts)
+		const completions = parser.autocomplete(ast, suggestions, completionOpts)
 		expect(completions).to.deep.equal([
 			...genExpectedPrefixes(suggestions[0]),
 		])
@@ -795,7 +796,7 @@ describe("groups and related", () => {
 			suggest(SUGGESTION_TYPE.VARIABLE, { start: index - 1, end: index }, false, false), // next whitespace not needed if prefixableGroups off
 		])
 
-		const completions = parser.autocomplete(suggestions, completionOpts)
+		const completions = parser.autocomplete(ast, suggestions, completionOpts)
 		expect(completions).to.deep.equal([
 			...genExpectedSymbolOperators(suggestions[0]),
 			...genExpectedWordOperators(suggestions[1]),
@@ -832,7 +833,7 @@ describe("groups and related", () => {
 			suggest(SUGGESTION_TYPE.VARIABLE, { start: index, end: index + 1 }, false, false),
 		])
 
-		const completions = parser.autocomplete(suggestions, completionOpts)
+		const completions = parser.autocomplete(ast, suggestions, completionOpts)
 		expect(completions).to.deep.equal([
 			...genExpectedPrefixes(suggestions[0]),
 			...genExpectedVariables(suggestions[1]),
@@ -866,7 +867,7 @@ describe("groups and related", () => {
 			suggest(SUGGESTION_TYPE.PREFIX, { start: index - 1, end: index }, false, false, true),
 			suggest(SUGGESTION_TYPE.VARIABLE, { start: index - 1, end: index }, false, false),
 		])
-		const completions = parser.autocomplete(suggestions, completionOpts)
+		const completions = parser.autocomplete(ast, suggestions, completionOpts)
 		expect(completions).to.deep.equal([
 			...genExpectedPrefixes(suggestions[0]),
 			...genExpectedVariables(suggestions[1]),
@@ -910,7 +911,7 @@ describe("missing quotes or boolean operators", () => {
 			suggest(SUGGESTION_TYPE.PREFIX, { start: index, end: index + 2 }, false, false, true),
 			suggest(SUGGESTION_TYPE.VARIABLE, { start: index, end: index + 2 }, false, false),
 		])
-		const completions = parser.autocomplete(suggestions, completionOpts)
+		const completions = parser.autocomplete(ast, suggestions, completionOpts)
 		expect(completions).to.deep.equal([
 			{ suggestion: suggestions[0], value: "\"" },
 			...genExpectedSymbolOperators(suggestions[1]),
@@ -954,7 +955,7 @@ describe("missing quotes or boolean operators", () => {
 			suggest(SUGGESTION_TYPE.VARIABLE, findPos(input, `"a"`), false, true),
 		])
 
-		const completions = parser.autocomplete(suggestions, completionOpts)
+		const completions = parser.autocomplete(ast, suggestions, completionOpts)
 		expect(completions).to.deep.equal([
 			...genExpectedSymbolOperators(suggestions[0]),
 			...genExpectedWordOperators(suggestions[1]),
@@ -996,7 +997,7 @@ describe("missing parens", () => {
 			suggest(`ERROR.${SUGGESTION_TYPE.VARIABLE}`, { start: index, end: index }),
 		])
 
-		const completions = parser.autocomplete(suggestions, completionOpts)
+		const completions = parser.autocomplete(ast, suggestions, completionOpts)
 		expect(completions).to.deep.equal([
 			{ suggestion: suggestions[0], value: ")" },
 			...genExpectedPrefixes(suggestions[1]),
@@ -1033,7 +1034,7 @@ describe("missing parens", () => {
 			suggest(`ERROR.${SUGGESTION_TYPE.PREFIX}`, { start: index, end: index }, false, false, true),
 			suggest(`ERROR.${SUGGESTION_TYPE.VARIABLE}`, { start: index, end: index }),
 		])
-		const completions = parser.autocomplete(suggestions, completionOpts)
+		const completions = parser.autocomplete(ast, suggestions, completionOpts)
 		expect(completions).to.deep.equal([
 			{ suggestion: suggestions[0], value: "(" },
 			...genExpectedPrefixes(suggestions[1]),
@@ -1070,7 +1071,7 @@ describe("missing parens", () => {
 			suggest(SUGGESTION_TYPE.PREFIX, { start: index - 1, end: index }, false, false, true),
 			suggest(SUGGESTION_TYPE.VARIABLE, { start: index - 1, end: index }),
 		])
-		const completions = parser.autocomplete(suggestions, completionOpts)
+		const completions = parser.autocomplete(ast, suggestions, completionOpts)
 		expect(completions).to.deep.equal([
 			{ suggestion: suggestions[0], value: ")" },
 			...genExpectedPrefixes(suggestions[1]),
@@ -1106,7 +1107,7 @@ describe("missing parens", () => {
 			suggest(SUGGESTION_TYPE.PREFIX, { start: index, end: index + 1 }, false, false, true),
 			suggest(SUGGESTION_TYPE.VARIABLE, { start: index, end: index + 1 }),
 		])
-		const completions = parser.autocomplete(suggestions, completionOpts)
+		const completions = parser.autocomplete(ast, suggestions, completionOpts)
 		expect(completions).to.deep.equal([
 			{ suggestion: suggestions[0], value: "(" },
 			...genExpectedPrefixes(suggestions[1]),
@@ -1144,7 +1145,7 @@ describe("prefixed values", () => {
 		expect(simplify(suggestions)).to.deep.equal([
 			suggest(SUGGESTION_TYPE.VARIABLE, { start: 0, end: input.length }, false, false, false, "prefix"),
 		])
-		const completions = parser.autocomplete(suggestions, completionOpts)
+		const completions = parser.autocomplete(ast, suggestions, completionOpts)
 		expect(completions).to.deep.equal([
 			...genExpectedVariables(suggestions[0]),
 		])
@@ -1181,7 +1182,7 @@ describe("property conditions", () => {
 		expect(simplify(suggestions)).to.deep.equal([
 			suggest(SUGGESTION_TYPE.PROPERTY, { start: 0, end: 4 }),
 		])
-		const completions = parser.autocomplete(suggestions, completionOpts)
+		const completions = parser.autocomplete(ast, suggestions, completionOpts)
 		expect(completions).to.deep.equal([
 			...genExpectedProps(suggestions[0]),
 		])
@@ -1217,7 +1218,7 @@ describe("property conditions", () => {
 			suggest(SUGGESTION_TYPE.CUSTOM_PROPERTY_OPERATOR, { start: 4, end: 5 }),
 		])
 
-		const completions = parser.autocomplete(suggestions, completionOpts)
+		const completions = parser.autocomplete(ast, suggestions, completionOpts)
 		expect(completions).to.deep.equal([
 			...genExpectedCustomOps(suggestions[0]),
 		])
@@ -1245,7 +1246,7 @@ describe("property conditions", () => {
 		expect(simplify(suggestions)).to.deep.equal(expected)
 		expect(simplify(suggestions2)).to.deep.equal(expected)
 
-		const completions = parser.autocomplete(suggestions, completionOpts)
+		const completions = parser.autocomplete(ast, suggestions, completionOpts)
 		expect(completions).to.deep.equal([
 			...genExpectedValues(suggestions[0]),
 		])
@@ -1280,7 +1281,7 @@ describe("property conditions", () => {
 		expect(simplify(suggestions)).to.deep.equal([
 			suggest(SUGGESTION_TYPE.PROPERTY, { start: 0, end: 4 }),
 		])
-		const completions = parser.autocomplete(suggestions, completionOpts)
+		const completions = parser.autocomplete(ast, suggestions, completionOpts)
 		expect(completions).to.deep.equal([
 			...genExpectedProps(suggestions[0]),
 		])
@@ -1316,7 +1317,7 @@ describe("property conditions", () => {
 		expect(simplify(suggestions)).to.deep.equal([
 			suggest(SUGGESTION_TYPE.EXPANDED_PROPERTY_OPERATOR, { start: 5, end: 7 }),
 		])
-		const completions = parser.autocomplete(suggestions, completionOpts)
+		const completions = parser.autocomplete(ast, suggestions, completionOpts)
 		expect(completions).to.deep.equal([
 			...genExpectedExpOps(suggestions[0]),
 		])
@@ -1358,7 +1359,7 @@ describe("property conditions", () => {
 			suggest(SUGGESTION_TYPE.VALUE, { start: 8, end: 11 }),
 		])
 
-		const completions = parser.autocomplete(suggestions2, completionOpts)
+		const completions = parser.autocomplete(ast, suggestions2, completionOpts)
 		expect(completions).to.deep.equal([
 			...genExpectedValues(suggestions2[0]),
 		])
@@ -1395,7 +1396,7 @@ describe("property conditions", () => {
 			suggest(`ERROR.${SUGGESTION_TYPE.PROPERTY_SEP}`, { start: index, end: index }),
 			suggest(SUGGESTION_TYPE.EXPANDED_PROPERTY_OPERATOR, { start: 5, end: 7 }),
 		])
-		const completions = parser.autocomplete(suggestions, completionOpts)
+		const completions = parser.autocomplete(ast, suggestions, completionOpts)
 		expect(completions).to.deep.equal([
 			{ value: ":", suggestion: suggestions[0] },
 			...genExpectedExpOps(suggestions[1]),
@@ -1456,7 +1457,7 @@ describe("array values", () => {
 			suggest(SUGGESTION_TYPE.ARRAY_VALUE, { start: 1, end: 6 }),
 		])
 
-		const completions = parser.autocomplete(suggestions, completionOpts)
+		const completions = parser.autocomplete(ast, suggestions, completionOpts)
 
 		expect(completions).to.deep.equal([
 			...genExpectedArrayValues(suggestions[0]),
@@ -1496,7 +1497,7 @@ describe("array values", () => {
 			suggest(SUGGESTION_TYPE.ARRAY_VALUE, { start: index, end: index }),
 		])
 
-		const completions = parser.autocomplete(suggestions, completionOpts)
+		const completions = parser.autocomplete(ast, suggestions, completionOpts)
 
 		expect(completions).to.deep.equal([
 			...genExpectedArrayValues(suggestions[0]),
@@ -1532,7 +1533,7 @@ describe("array values", () => {
 			suggest(`ERROR.${SUGGESTION_TYPE.BRAKCETR}`, { start: 1, end: 1 }),
 			suggest(SUGGESTION_TYPE.ARRAY_VALUE, { start: 1, end: 1 }),
 		])
-		const completions = parser.autocomplete(suggestions, completionOpts)
+		const completions = parser.autocomplete(ast, suggestions, completionOpts)
 
 		expect(completions).to.deep.equal([
 			{ value: "]", suggestion: suggestions[0] },
@@ -1615,7 +1616,7 @@ describe("regex values", () => {
 		expect(simplify(suggestions)).to.deep.equal([
 			suggest(`ERROR.${SUGGESTION_TYPE.REGEX}`, { start: index, end: index }),
 		])
-		const completions = parser.autocomplete(suggestions, completionOpts)
+		const completions = parser.autocomplete(ast, suggestions, completionOpts)
 
 		expect(completions).to.deep.equal([
 			{ value: "/", suggestion: suggestions[0] },
@@ -1648,7 +1649,7 @@ describe("regex values", () => {
 			suggest(SUGGESTION_TYPE.REGEX_FLAGS, { start: index, end: index }),
 		])
 
-		const completions = parser.autocomplete(suggestions, completionOpts)
+		const completions = parser.autocomplete(ast, suggestions, completionOpts)
 
 		expect(completions).to.deep.equal([
 			...genExpectedRegexFlags(suggestions[0]),
@@ -1685,7 +1686,7 @@ describe("regex values", () => {
 			suggest(SUGGESTION_TYPE.REGEX_FLAGS, { start: index, end: index }),
 		])
 
-		const completions = parser.autocomplete(suggestions, completionOpts)
+		const completions = parser.autocomplete(ast, suggestions, completionOpts)
 
 
 		expect(completions).to.deep.equal([
@@ -1727,7 +1728,7 @@ describe("regex values", () => {
 			suggest(SUGGESTION_TYPE.REGEX_FLAGS, { start: index, end: index }),
 		])
 
-		const completions = parser.autocomplete(suggestions, completionOpts)
+		const completions = parser.autocomplete(ast, suggestions, completionOpts)
 
 		expect(completions).to.deep.equal([
 			...genExpectedRegexFlags(suggestions[0])

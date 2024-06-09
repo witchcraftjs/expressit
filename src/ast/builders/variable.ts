@@ -1,15 +1,14 @@
 import { pos } from "./pos.js"
 import { token } from "./token.js"
 
-import { type AnyToken, type EmptyObj, type Position, TOKEN_TYPE, type TokenQuoteTypes } from "../../types/ast.js"
-import type { ValidToken } from "../classes/ValidToken.js"
-import { VariableNode } from "../classes/VariableNode.js"
+import { type AnyToken, type EmptyObj,type FirstParam, type Position, TOKEN_TYPE, type TokenQuoteTypes, type ValidToken, type VariableNode } from "../../types/ast.js"
+import { createVariableNode } from "../createVariableNode.js"
 
 
 /**
- * Creates an @see VariableNode .
+ * Creates an {@link VariableNode} .
  *
- * @param quote Use to add quotes to the variable, usually by using @see delim . If false or undefined, no quotes are added. Otherwise at least `type` must be passed.  If one side is defined but not the other, error tokens will be created with the given type.
+ * @param quote Use to add quotes to the variable, usually by using {@link delim} . If false or undefined, no quotes are added. Otherwise at least `type` must be passed.  If one side is defined but not the other, error tokens will be created with the given type.
  *
  * @param position Refers to position of the value (in case it needs to be created) not the node. Quote positions are automatically calculated from this if used. If value is already a token, there's no need to pass a position, it can be extracted from the token.
  */
@@ -26,7 +25,7 @@ export function variable(
 
 	position = pos(value)
 
-	const node: Partial<ConstructorParameters<typeof VariableNode>[0]> = {
+	const node: Partial<FirstParam<typeof createVariableNode>> = {
 		value,
 		prefix,
 	}
@@ -74,8 +73,7 @@ export function variable(
 		node.value?.end ??
 		node.quote?.left.end
 
-	const instance = new VariableNode(node as any)
-	return instance
+	return createVariableNode(node as any)
 }
 
 function quoteFromType(type: TokenQuoteTypes | undefined): string {

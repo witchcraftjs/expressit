@@ -1,39 +1,38 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 
-import { ArrayNode } from "./classes/ArrayNode.js"
-import { ConditionNode } from "./classes/ConditionNode.js"
-import { ErrorToken } from "./classes/ErrorToken.js"
-import { ExpressionNode } from "./classes/ExpressionNode.js"
-import { GroupNode } from "./classes/GroupNode.js"
-import { ValidToken } from "./classes/ValidToken.js"
-import { VariableNode } from "./classes/VariableNode.js"
+import { createArrayNode } from "./createArrayNode.js"
+import { createConditionNode } from "./createConditionNode.js"
+import { createExpressionNode } from "./createExpressionNode.js"
+import { createGroupNode } from "./createGroupNode.js"
+import { createToken } from "./createToken.js"
+import { createVariableNode } from "./createVariableNode.js"
 
-import { type AnyToken, type FirstConstructorParam, type Position, TOKEN_TYPE, type TokenBooleanTypes, type TokenDelimiterTypes, type TokenOperatorTypes, type TokenQuoteTypes } from "../types/ast.js"
+import { type AnyToken, type ArrayNode,AST_TYPE,type ConditionNode, type ErrorToken, type ExpressionNode,type FirstParam,type GroupNode, type Position, TOKEN_TYPE, type TokenBooleanTypes, type TokenDelimiterTypes, type TokenOperatorTypes, type TokenQuoteTypes, type ValidToken, type VariableNode } from "../types/ast.js"
 
 
 /* #region HELPERS */
-function error<T extends TOKEN_TYPE>(pos: number, expected: T[]): ErrorToken<T> {
+function error<T extends TOKEN_TYPE>(pos: number, expected: T[]): ErrorToken {
 	if (pos === undefined) throw new Error("should never happen, passed undefined position for error token")
-	return new ErrorToken({ expected, start: pos, end: pos })
+	return createToken({ expected, start: pos, end: pos })
 }
 /* #regionend */
 
 /* #region TOKENS */
 const operators = <T extends TokenOperatorTypes>
 (type: T) =>
-	(value: string, pos: Position): ValidToken<T> => new ValidToken({ value, type, ...pos })
+	(value: string, pos: Position): ValidToken<T> => createToken({ value, type, ...pos })
 
 const delimiters = <T extends TokenDelimiterTypes>
 (type: T) =>
 	(value: string | undefined, pos: Position): ValidToken<T> | undefined =>
 		// check must be falsy, we want to return undefined when given ""
-		value ? new ValidToken({ value, type, ...pos }) : undefined
+		value ? createToken({ value, type, ...pos }) : undefined
 
-const maybeToken = <T extends TOKEN_TYPE> (type: T) => <TVal extends string | undefined> (value: TVal, pos: Position): TVal extends string ? ValidToken<T> : ErrorToken<T> => {
+const maybeToken = <T extends TOKEN_TYPE> (type: T) => <TVal extends string | undefined> (value: TVal, pos: Position): TVal extends string ? ValidToken<T> : ErrorToken => {
 	if (value === undefined) {
 		return error(pos.end, [type]) as any
 	} else {
-		return new ValidToken({ value, type, ...pos }) as any
+		return createToken({ value, type, ...pos }) as any
 	}
 }
 
@@ -70,7 +69,7 @@ export function variable(
 	quoteR: AnyToken<TokenQuoteTypes> | null | undefined,
 	flags?: ValidToken<TOKEN_TYPE.VALUE>,
 ): VariableNode {
-	const node: FirstConstructorParam<typeof VariableNode> = {
+	const node: FirstParam<typeof createVariableNode> = {
 		prefix: prefix ?? undefined,
 		value: value ?? error((prefix?.end ?? quoteL?.end ?? quoteR?.start)!, [TOKEN_TYPE.VALUE]),
 		start: (prefix?.start ?? quoteL?.start ?? value?.start ?? quoteR?.start)!,
@@ -79,17 +78,16 @@ export function variable(
 
 	if (quoteL || quoteR) {
 		node.quote = {
-			left: quoteL ?? error(node.value.start, [(quoteR!.type)]),
-			right: quoteR ?? error(node.value.end, [(quoteL!.type)]),
+			left: quoteL ?? error(node.value.start, [(quoteR!.type!)]),
+			right: quoteR ?? error(node.value.end, [(quoteL!.type!)]),
 		}
 		if (flags) {
 			node.quote.flags = flags
-			node.end = node.quote?.flags.end
+			node.end = node.quote?.flags?.end ?? node.end
 		}
 	}
 
-	const instance = new VariableNode(node as any)
-	return instance
+	return createVariableNode(node)
 }
 
 
@@ -105,7 +103,7 @@ export function condition(
 ): ConditionNode {
 	const start = (not?.start ?? property?.start ?? sepL?.start ?? propertyOperator?.start ?? sepR?.start ?? value?.start)!
 	const end = (value?.end ?? sepR?.end ?? propertyOperator?.end ?? sepL?.end ?? property?.end ?? not?.end)!
-	const node: FirstConstructorParam<typeof ConditionNode> = {
+	const node: FirstParam<typeof createConditionNode> = {
 		value: value ? value : error(end, [TOKEN_TYPE.VALUE]),
 		start,
 		end,
@@ -121,15 +119,13 @@ export function condition(
 			node.propertyOperator ||= error(sepL?.end ?? sepR?.start, [TOKEN_TYPE.VALUE])
 		}
 		if (sepR) node.sep.right = sepR
-		else if (!node.value || node.value instanceof VariableNode) {
+		else if (!node.value || node.value.type === AST_TYPE.VARIABLE) {
 			node.sep.right = error(node.value?.start ?? end, [TOKEN_TYPE.OP_EXPANDED_SEP])
 		}
 	} else if (propertyOperator) {
 		node.property ||= error(propertyOperator.start, [TOKEN_TYPE.VALUE])
 	}
-
-	const instance = new ConditionNode(node as any)
-	return instance
+	return createConditionNode(node as ConditionNode)
 }
 
 export function expression(
@@ -137,14 +133,13 @@ export function expression(
 	operator: ValidToken<TokenBooleanTypes> | null | undefined,
 	right: ConditionNode | GroupNode | null | undefined,
 ): ExpressionNode {
-	const instance = new ExpressionNode({
+	return createExpressionNode({
 		left: left ?? error((operator?.start ?? right?.start)!, [TOKEN_TYPE.VALUE]),
 		operator: operator ?? error((left?.end ?? right?.start)!, [TOKEN_TYPE.AND, TOKEN_TYPE.OR]),
 		right: right ?? error((operator?.end ?? left?.end)!, [TOKEN_TYPE.VALUE]),
 		start: (left?.start ?? operator?.start ?? right?.start)!,
 		end: (right?.end ?? operator?.end ?? left?.end)!,
 	})
-	return instance
 }
 
 export function group(
@@ -154,7 +149,7 @@ export function group(
 	condition: GroupNode["expression"],
 	parenR: ValidToken<TOKEN_TYPE.PARENR> | null | undefined,
 ): GroupNode {
-	const node: FirstConstructorParam<typeof GroupNode> = {
+	return createGroupNode({
 		prefix: prefix ?? operator ?? undefined,
 		expression: condition ?? error((parenL?.end ?? parenR?.start)!, [TOKEN_TYPE.VALUE]),
 		paren: {
@@ -163,10 +158,7 @@ export function group(
 		},
 		start: (prefix?.start ?? operator?.start ?? parenL?.start ?? condition?.start ?? parenR?.start)!,
 		end: (parenR?.end ?? condition?.end ?? parenL?.end ?? operator?.end ?? prefix?.end)!,
-	}
-
-	const instance = new GroupNode(node as any)
-	return instance
+	})
 }
 
 export function array(
@@ -174,7 +166,7 @@ export function array(
 	values: VariableNode[],
 	bracketR: ValidToken<TOKEN_TYPE.BRACKETR> | null | undefined,
 ): ArrayNode {
-	const node: FirstConstructorParam<typeof ArrayNode> = {
+	return createArrayNode({
 		values,
 		bracket: {
 			left: bracketL, // always valid for now
@@ -182,9 +174,6 @@ export function array(
 		},
 		start: bracketL.start,
 		end: (bracketR?.end ?? values[values.length - 1]?.end ?? bracketL.end)!,
-	}
-
-	const instance = new ArrayNode(node as any)
-	return instance
+	})
 }
 /* #regionend */

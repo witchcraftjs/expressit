@@ -19,13 +19,13 @@
 			"types": "./dist/ast/*",
 			"import": "./dist/ast/*"
 		},
-		"./helpers": {
-			"types": "./dist/helpers/index.d.ts",
-			"import": "./dist/helpers/index.js"
+		"./internal": {
+			"types": "./dist/internal/index.d.ts",
+			"import": "./dist/internal/index.js"
 		},
-		"./helpers/*": {
-			"types": "./dist/helpers/*",
-			"import": "./dist/helpers/*"
+		"./internal/*": {
+			"types": "./dist/internal/*",
+			"import": "./dist/internal/*"
 		},
 		"./methods": {
 			"types": "./dist/methods/index.d.ts",

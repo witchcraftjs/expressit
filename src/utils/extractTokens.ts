@@ -1,31 +1,27 @@
 import { unreachable } from "@alanscodelog/utils/unreachable.js"
 
-import { ArrayNode } from "../ast/classes/ArrayNode.js"
-import { ConditionNode } from "../ast/classes/ConditionNode.js"
-import { ErrorToken } from "../ast/classes/ErrorToken.js"
-import { ExpressionNode } from "../ast/classes/ExpressionNode.js"
-import { GroupNode } from "../ast/classes/GroupNode.js"
-import { Node } from "../ast/classes/Node.js"
-import { VariableNode } from "../ast/classes/VariableNode.js"
-import type { AnyToken, AST_TYPE } from "../types/ast.js"
+import { isNode } from "./isNode.js"
+import { isToken } from "./isToken.js"
+
+import { type AnyToken, AST_TYPE, type ErrorToken, type Nodes } from "../types/ast.js"
 
 
 /**
  * Extract a list of all the tokens (which might or might not be valid).
  */
-export function extractTokens(ast: Node<AST_TYPE> | ErrorToken): AnyToken[] {
-	if (ast instanceof ErrorToken) {
+export function extractTokens(ast: ErrorToken | Nodes): AnyToken[] {
+	if (isToken(ast) && !ast.valid) {
 		return [ast]
 	}
-	if (ast instanceof VariableNode) {
+	if (ast.type === AST_TYPE.VARIABLE) {
 		const prefix = ast.prefix ? [ast.prefix] : []
 		const quoteR = ast.quote ? [ast.quote.right] : []
 		const quoteL = ast.quote ? [ast.quote.left] : []
 		const quoteFlags = ast.quote?.flags ? [ast.quote.flags] : []
 		return [...prefix, ...quoteL, ast.value, ...quoteR, ...quoteFlags]
 	}
-	if (ast instanceof ConditionNode) {
-		const value = ast.value instanceof Node
+	if (ast.type === AST_TYPE.CONDITION) {
+		const value = isNode(ast.value)
 			? extractTokens(ast.value)
 			: [ast.value]
 		const operator = ast.operator ? [ast.operator] : []
@@ -35,30 +31,30 @@ export function extractTokens(ast: Node<AST_TYPE> | ErrorToken): AnyToken[] {
 		const sepR = ast.sep?.right ? [ast.sep.right] : []
 		return [...operator, ...property, ...sepL, ...propertyOperator, ...sepR, ...value]
 	}
-	if (ast instanceof GroupNode) {
+	if (ast.type === AST_TYPE.GROUP) {
 		const prefix = ast.prefix ?
-			ast.prefix instanceof Node
+			isNode(ast.prefix)
 				? extractTokens(ast.prefix)
 				: [ast.prefix]
 			: []
 		const parenL = ast.paren ? [ast.paren.left] : []
 		const parenR = ast.paren ? [ast.paren.right] : []
-		const expression = ast.expression instanceof Node
+		const expression = isNode(ast.expression)
 				? extractTokens(ast.expression)
 				: [ast.expression]
 		return [...prefix, ...parenL, ...expression, ...parenR]
 	}
-	if (ast instanceof ArrayNode) {
+	if (ast.type === AST_TYPE.ARRAY) {
 		const values = ast.values.map(val => extractTokens(val))
 		return [ast.bracket.left, ...values.flat(), ast.bracket.right]
 	}
 
-	if (ast instanceof ExpressionNode) {
-		const right = ast.right instanceof Node
+	if (ast.type === AST_TYPE.EXPRESSION) {
+		const right = isNode(ast.right)
 			? extractTokens(ast.right)
 			: [ast.right] as AnyToken[]
 
-		const left = ast.left instanceof Node
+		const left = isNode(ast.left)
 			? extractTokens(ast.left)
 			: [ast.left] as AnyToken[]
 		return [...left, ast.operator, ...right]

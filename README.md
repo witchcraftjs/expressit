@@ -34,7 +34,7 @@ pnpm install @witchcraft/expressit
 - **Other Useful Utility Functions:**
 	- `extractTokens`, `getCursorInfo`, `getOppositeDelimiter`, `getSurroundingErrors` - useful for adding custom syntax highlighting.
 	- `prettyAst` - pretty prints a compact version of the ast for debugging
-	- other minor helpers - `isDelimiter`, `isQuote`, etc.
+	- other minor utilities - `isDelimiter`, `isQuote`, etc.
 - **Pre-Configured Parsers** - Includes a pre-configured boolean parser (intended for parsing shortcut contexts in a similar way to VS Code).
 - **Lots of Docs and Tests**
 
@@ -43,7 +43,6 @@ pnpm install @witchcraft/expressit
 ```ts
 // while you can import from "@witchcraft/expressit", if using something like vite, it's recommended you do not use barrel imports.
 import { Parser } from "@witchcraft/expressit/Parser.js"
-import { ErrorToken } from "@witchcraft/expressit/classes/ErrorToken.js"
 
 const parser = new Parser({/* opts */})
 	const context = {
@@ -57,8 +56,11 @@ const parser = new Parser({/* opts */})
 
 	const ast = parser.parse(input)
 
-	if (ast instanceof ErrorToken || !ast.valid) {
+	if (!ast.valid) {
 		// ...show regular errors (no input, missing tokens, etc)
+		if (ast.isToken) {
+			// empty input
+		}
 	} else {
 		// validation can be controlled by parser options
 		const errors = parser.validate(ast)
@@ -67,7 +69,7 @@ const parser = new Parser({/* opts */})
 
 	// ON AUTOCOMPLETE
 	const suggestions = parser.autosuggest(input, ast, cursor)
-	const completions = parser.autocomplete(suggestions, {
+	const completions = parser.autocomplete(ast,suggestions, {
 		// known possible suggestions
 		variables: ["c", "d", "e"],
 		// can also be values, prefixes, keywords, properties, etc

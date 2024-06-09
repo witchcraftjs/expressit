@@ -1,4 +1,4 @@
-import type { ConditionNormalizer, ValueQuery } from "../../types/parser.js"
+import type { ConditionNormalizer, ValueQuery } from "../types/parser.js"
 
 
 export const defaultConditionNormalizer: ConditionNormalizer =

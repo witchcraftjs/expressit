@@ -1,8 +1,7 @@
-import { $T, type Token } from "../../Lexer.js"
+import { $T, type Token } from "../Lexer.js"
 
 
 /** @internal */
-
 
 export function getUnclosedRightParenCount(tokens: Token[]): number {
 	let open = 0

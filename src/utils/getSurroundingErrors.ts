@@ -1,9 +1,9 @@
 /**
- * Mostly for internal use by @see autosuggest.
+ * Mostly for internal use by {@link autosuggest}.
  *
  * Returns all error tokens immediately before/after cursor (since there might be multiple error tokens one after the other).
  *
- * The errors are sorted by closeness to the given cursor (inside @see CursorInfo), with quote errors having priority, then paren errors, then any other errors. They can be sorted by closeness because although two errors might follow each other, their positions might be different because of whitespace, but they can still be fixed from any cursor position between their ends.
+ * The errors are sorted by closeness to the given cursor (inside {@link CursorInfo}), with quote errors having priority, then paren errors, then any other errors. They can be sorted by closeness because although two errors might follow each other, their positions might be different because of whitespace, but they can still be fixed from any cursor position between their ends.
  *
  * For example:
  * ```
@@ -19,8 +19,7 @@
  * ```
  */
 
-import { ErrorToken } from "../ast/classes/ErrorToken.js"
-import { type AnyToken, TOKEN_TYPE } from "../types/ast.js"
+import { type AnyToken,type ErrorToken,TOKEN_TYPE } from "../types/ast.js"
 import type { CursorInfo } from "../types/autocomplete.js"
 
 
@@ -31,13 +30,15 @@ export function getSurroundingErrors(tokens: AnyToken[], token: CursorInfo): Err
 	let iNext: number = tokens[i] === token.next ? i : i + 1
 	let iPrev: number = tokens[i] === token.next ? i - 1 : i
 
-	const errors = []
-	while (tokens[iNext] instanceof ErrorToken) {
-		errors.push(tokens[iNext])
+	const errors: ErrorToken[] = []
+	// eslint-disable-next-line @typescript-eslint/no-unnecessary-boolean-literal-compare
+	while (tokens[iNext]?.valid === false) {
+		errors.push(tokens[iNext] as ErrorToken)
 		iNext++
 	}
-	while (tokens[iPrev] instanceof ErrorToken) {
-		errors.push(tokens[iPrev])
+	// eslint-disable-next-line @typescript-eslint/no-unnecessary-boolean-literal-compare
+	while (tokens[iPrev]?.valid === false) {
+		errors.push(tokens[iPrev] as ErrorToken)
 		iPrev--
 	}
 

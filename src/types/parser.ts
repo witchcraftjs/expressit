@@ -1,12 +1,7 @@
 import type { DeepRequired, MakeRequired } from "@alanscodelog/utils/types"
 
-import type { Position, TOKEN_TYPE } from "./ast.js"
+import type { ArrayNode, ConditionNode, NormalizedCondition, Position, TOKEN_TYPE, ValidToken, VariableNode } from "./ast.js"
 
-import type { ArrayNode } from "../ast/classes/ArrayNode.js"
-import type { Condition } from "../ast/classes/Condition.js"
-import type { ConditionNode } from "../ast/classes/ConditionNode.js"
-import type { ValidToken } from "../ast/classes/ValidToken.js"
-import type { VariableNode } from "../ast/classes/VariableNode.js"
 
 // #partially-synced
 export type FullParserOptions<T extends {} = {}> = MakeRequired<
@@ -31,14 +26,14 @@ export type ParserOptions<T extends {} = {}> = {
 	 * ```js
 	 * category.subcategory.(variable1 || variable2 && !variable3)
 	 * ```
-	 * returns an @see GroupNode whose prefix is a value token with the value `category.subcategory.`
+	 * returns an {@link GroupNode} whose prefix is a value token with the value `category.subcategory.`
 	 *
-	 * This prefix can later be applied by utility functions when evaluating the expression or extracting information from it. The default @see PrefixApplier appends the prefix name to every variable inside the group, so the above would expand into something like:
+	 * This prefix can later be applied by utility functions when evaluating the expression or extracting information from it. The default {@link PrefixApplier} appends the prefix name to every variable inside the group, so the above would expand into something like:
 	 * ```js
 	 * category.subcategory.variable1 || category.subcategory.variable2 || !category.subcategory.variable3
 	 * ```
 	 *
-	 * @see UtilityOptions["prefixApplier"] for more examples and details on how to customize the behavior.
+	 * {@link UtilityOptions}["prefixApplier"] for more examples and details on how to customize the behavior.
 	 */
 	prefixableGroups?: boolean
 	/**
@@ -61,11 +56,11 @@ export type ParserOptions<T extends {} = {}> = {
 	 * title:contains(value)
 	 * ```
 	 *
-	 * The information for these types of conditions are stored in a @see ConditionNode 's `property`, `propertyOperator`, and `sep` properties.
+	 * The information for these types of conditions are stored in a {@link ConditionNode} 's `property`, `propertyOperator`, and `sep` properties.
 	 *
 	 * The separator can only be one character long and is added to the list of characters that need to be escaped.
 	 *
-	 * The property is always a @see VariableNode and can be a quoted variable, but it can never be a prefixed string (if using `prefixableStrings`).
+	 * The property is always a {@link VariableNode} and can be a quoted variable, but it can never be a prefixed string (if using `prefixableStrings`).
 	 * ```
 	 */
 	expandedPropertySeparator?: string
@@ -96,7 +91,7 @@ export type ParserOptions<T extends {} = {}> = {
 	 * title:(prefix(a OR B)) // title:prefix.a OR title:prefix.b
 	 * ```
 	 *
-	 * Like expanded property operators, these are stored in the @see ConditionNode 's `property`, `propertyOperator` properties. `sep` is not used, not even if the the same operator as the `expandedPropertySeparator` is used. This is what is meant by these types of operators taking priority. If used in this short style, it will always be interpreted as a `propertyOperator`.
+	 * Like expanded property operators, these are stored in the {@link ConditionNode} 's `property`, `propertyOperator` properties. `sep` is not used, not even if the the same operator as the `expandedPropertySeparator` is used. This is what is meant by these types of operators taking priority. If used in this short style, it will always be interpreted as a `propertyOperator`.
 	 *
 	 */
 	customPropertyOperators?: string[]
@@ -191,9 +186,9 @@ export type ParserOptions<T extends {} = {}> = {
 	 */
 	keywords?: KeywordOptions
 	/**
-	 * If prefixableGroups is true, this allows you to control how a prefix is applied for any methods that need to apply them (e.g. @see extractVariables @see evaluate).
+	 * If prefixableGroups is true, this allows you to control how a prefix is applied for any methods that need to apply them (e.g. {@link extractVariables} {@link evaluate}).
 	 *
-	 * The default @see PrefixApplier function just appends the prefix.
+	 * The default {@link PrefixApplier} function just appends the prefix.
 	 *
 	 * So for example:
 	 *
@@ -268,7 +263,7 @@ export type ParserOptions<T extends {} = {}> = {
 	/**
 	 * When evaluating an ast against a context, this function determines whether a context value satisfies a condition.
 	 *
-	 * Given a partial {@link Condition} instance (negate property is not passed) and the contextValue (as extracted using {@link Condition.property}), it should return whether the values are equal.
+	 * Given a partial {@link NormalizedCondition} instance (negate property is not passed) and the contextValue (as extracted using {@link NormalizedCondition.property}), it should return whether the values are equal.
 	 *
 	 * It is also passed the context itself for cases where there is no property and you might want to check the value against all properties of the context.
 	 *
@@ -293,7 +288,7 @@ export type ParserOptions<T extends {} = {}> = {
 	/**
 	 * When {@link Parser.normalize normalizing} an ast, this function is needed to determine what exactly the value and operator of the condition is and whether it should be negated when evaluating.
 	 *
-	 * Given a query object it should return the values of the `value`, `operator`, and `negate` properties that will be assigned to {@link Condition}.
+	 * Given a query object it should return the values of the `value`, `operator`, and `negate` properties that will be assigned to {@link NormalizedCondition}.
 	 *
 	 * You can think of the query object as a simplified version of the condition node. See {@link ValueQuery} for details on each property.
 	 *
@@ -348,7 +343,7 @@ export type ParserOptions<T extends {} = {}> = {
 	 */
 	conditionNormalizer?: ConditionNormalizer
 	/**
-	 * Similar to the valueComparer but for validating the ast before it's evaluated using @see Parser["validate"] (e.g. for syntax highlighting purposes). For the moment the ast must be valid (without syntax errors) to be validated.
+	 * Similar to the valueComparer but for validating the ast before it's evaluated using {@link Parser}["validate"] (e.g. for syntax highlighting purposes). For the moment the ast must be valid (without syntax errors) to be validated.
 	 *
 	 * The only difference is nothing is actually evaluated (even though the values are available to the function\*) and the query contains the actual nodes/tokens for certain properties to make extracting positions easier.
 	 *
@@ -445,23 +440,23 @@ export type ValueQuery
 		isExpanded: boolean
 	}
 
-/** @see ParserOptions["valueValidator"] */
+/** {@link ParserOptions}["valueValidator"] */
 export type ValidationQuery = Omit<ValueQuery, "value" | "operator" | "prefix" | "regexFlags" | "property"> & {
 	value?: VariableNode | ArrayNode
 	operator?: ValidToken<TOKEN_TYPE.VALUE | TOKEN_TYPE.OP_CUSTOM>
 	prefix?: ValidToken<TOKEN_TYPE.VALUE>
 	regexFlags?: ValidToken<TOKEN_TYPE.VALUE>
 	property: VariableNode[]
-	/** The property as would be passed to the @see ParserOptions["valueComparer"] function (i.e. joined as a string using the @see ParseOptions["prefixApplier"] ) */
+	/** The property as would be passed to the {@link ParserOptions}["valueComparer"] function (i.e. joined as a string using the {@link ParseOptions}["prefixApplier"] ) */
 	propertyName?: string
-	/** The property keys, as parsed by @see ParserOptions["keysParser"] */
+	/** The property keys, as parsed by {@link ParserOptions}["keysParser"] */
 	propertyKeys: string[]
 	/**
 	 * Contains a list of all the wrapping group prefix nodes.
 	 */
 	prefixes?: VariableNode[]
 }
-export type ValueComparer = (condition: Omit<Condition, "negate">, contextValue: any, context: any) => boolean
+export type ValueComparer = (condition: Omit<NormalizedCondition, "negate">, contextValue: any, context: any) => boolean
 export type ConditionNormalizer = (query: ValueQuery) => { value: any, operator: any, negate: boolean }
 export type ValueValidator<T = Record<string, any>> = (contextValue: any | undefined, query: ValidationQuery, context?: Record<string, any>) => (Position & T)[] | undefined | void
 // export type PrefixValidator<T> = (prefixes: VariableNode[], last: VariableNode) => (Position & T)[]
@@ -469,7 +464,7 @@ export type KeyParser = (key: string) => string[]
 export type PrefixApplier = (prefix: string, variable: string) => string
 
 export type KeywordEntry = {
-	/** See @see ParserOptions["KeywordOptions"] */
+	/** See {@link ParserOptions}["KeywordOptions"] */
 	isSymbol: boolean
 	value: string
 }

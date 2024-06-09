@@ -1,4 +1,4 @@
-import type { KeyParser } from "../../types/parser.js"
+import type { KeyParser } from "../types/parser.js"
 
 
 export const defaultKeyParser: KeyParser =

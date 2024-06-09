@@ -1,5 +1,5 @@
-import type { Token } from "../../Lexer.js"
-import type { Position } from "../../types/ast.js"
+import type { Token } from "../Lexer.js"
+import type { Position } from "../types/ast.js"
 
 
 /** @internal */

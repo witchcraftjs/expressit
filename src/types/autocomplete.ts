@@ -1,15 +1,13 @@
-import type { AnyToken, Position } from "./ast.js"
-
-import type { ValidToken } from "../ast/classes/ValidToken.js"
+import type { AnyToken, Position, ValidToken } from "./ast.js"
 
 
 /**
- * Contains information regarding the tokens around a cursor position. Mostly for internally use by @see autosuggest.
+ * Contains information regarding the tokens around a cursor position. Mostly for internally use by {@link autosuggest}.
  *
  * Notes:
  *
- * - There are no whitespace tokens because whitespace is not tokenized. `prev`, `at`, `next` properties that contain tokens are set looking only at the list of tokens extracted from the ast by @see extractTokens. This is why there is an extra `whitespace` property to tell us whether there is whitespace (i.e. a hole) between the cursor and the next/prev **valid** tokens or if it can't find any, the start/end of the input.
- * - If next/prev are invalid tokens, note that there are cases where more invalid tokens might follow them. To get them we can use @see getSurroundingErrors or we can just find their index in the tokens list and go forward/backward as needed:
+ * - There are no whitespace tokens because whitespace is not tokenized. `prev`, `at`, `next` properties that contain tokens are set looking only at the list of tokens extracted from the ast by {@link extractTokens}. This is why there is an extra `whitespace` property to tell us whether there is whitespace (i.e. a hole) between the cursor and the next/prev **valid** tokens or if it can't find any, the start/end of the input.
+ * - If next/prev are invalid tokens, note that there are cases where more invalid tokens might follow them. To get them we can use {@link getSurroundingErrors} or we can just find their index in the tokens list and go forward/backward as needed:
  * ```ts
  * let i =  tokens.findIndex(t => t === info.next)
  * while (tokens[i] instanceof ErrorToken) {...}
@@ -115,7 +113,7 @@ export type Suggestion = {
 	type: SUGGESTION_TYPE
 	/** The range the suggestion should replace / be inserted at. */
 	range: Position
-	/** @see CursorInfo */
+	/** {@link CursorInfo} */
 	cursorInfo: CursorInfo
 	/** Tells us any additional requirements for inserting the suggestion. */
 	requires: {

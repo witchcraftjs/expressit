@@ -3,14 +3,12 @@ import { unreachable } from "@alanscodelog/utils/unreachable.js"
 
 import { extractTokens } from "./extractTokens.js"
 
-import { ErrorToken } from "../ast/classes/ErrorToken.js"
-import { ValidToken } from "../ast/classes/ValidToken.js"
 import { type AnyToken, type ParserResults } from "../types/ast.js"
 import { type CursorInfo } from "../types/autocomplete.js"
 
 
 /**
- * Returns a @see CursorInfo object, see it for details.
+ * Returns a {@link CursorInfo} object, see it for details.
  */
 export function getCursorInfo(
 	input: string,
@@ -42,7 +40,7 @@ export function getCursorInfo(
 	for (const token of tokens) {
 		// assign valid tokens until maybe real previous token overwrites it
 		if (token.end <= index) {
-			if (token instanceof ValidToken) {
+			if (token.valid) {
 				info.prev = token
 				info.valid.prev = token
 			} else if (token.end !== index) {
@@ -51,7 +49,7 @@ export function getCursorInfo(
 			}
 		}
 		if (token.start < index && token.end > index) {
-			if (token instanceof ErrorToken) {
+			if (!token.valid) {
 				unreachable()
 			} else {
 				info.at = token
@@ -59,7 +57,7 @@ export function getCursorInfo(
 		}
 		if (token.start >= index) {
 			info.next ||= token
-			if (token instanceof ValidToken && !info.valid.next) {
+			if (token.valid && !info.valid.next) {
 				info.valid.next = token
 				break
 			}

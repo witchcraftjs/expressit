@@ -8,29 +8,27 @@ import type { AddParameters , DeepPartial } from "@alanscodelog/utils/types"
 import { unreachable } from "@alanscodelog/utils/unreachable.js"
 
 import { pos } from "./ast/builders/pos.js"
-import { ArrayNode } from "./ast/classes/ArrayNode.js"
-import { ConditionNode } from "./ast/classes/ConditionNode.js"
-import { ErrorToken } from "./ast/classes/ErrorToken.js"
-import { ExpressionNode } from "./ast/classes/ExpressionNode.js"
-import { GroupNode } from "./ast/classes/GroupNode.js"
-import { Condition, Expression } from "./ast/classes/index.js"
-import { ValidToken } from "./ast/classes/ValidToken.js"
-import { VariableNode } from "./ast/classes/VariableNode.js"
+import { createCondition } from "./ast/createNormalizedCondition.js"
+import { createExpression } from "./ast/createNormalizedExpression.js"
 import * as handle from "./ast/handlers.js"
-import { applyBoolean } from "./helpers/general/applyBoolean.js"
-import { applyPrefix } from "./helpers/general/applyPrefix.js"
-import { checkParserOpts } from "./helpers/parser/checkParserOpts.js"
-import { extractPosition } from "./helpers/parser/extractPosition.js"
-import { getUnclosedRightParenCount } from "./helpers/parser/getUnclosedRightParenCount.js"
-import { parseParserOptions } from "./helpers/parser/parseParserOptions.js"
-import { seal } from "./helpers/parser/seal.js"
+import { applyBoolean } from "./internal/applyBoolean.js"
+import { applyPrefix } from "./internal/applyPrefix.js"
+import { checkParserOpts } from "./internal/checkParserOpts.js"
+import { extractPosition } from "./internal/extractPosition.js"
+import { getUnclosedRightParenCount } from "./internal/getUnclosedRightParenCount.js"
+import { parseParserOptions } from "./internal/parseParserOptions.js"
+import { unescape } from "./internal/unescape.js"
 import { $C, $T, Lexer,type RealTokenType, type Token, type TokenCategoryType, type TokenType } from "./Lexer.js"
-import type { ParserResults, TokenBooleanTypes } from "./types/ast.js"
-import { type AnyToken, type Completion, type Position, type Suggestion,SUGGESTION_TYPE, TOKEN_TYPE } from "./types/index.js"
+import type { ArrayNode, ConditionNode, GroupNode, NormalizedCondition, NormalizedExpression, ParserResults, TokenBooleanTypes, ValidToken, VariableNode, } from "./types/ast.js"
+import { type AnyToken, AST_TYPE,type Completion, type Position, type Suggestion,SUGGESTION_TYPE, TOKEN_TYPE } from "./types/index.js"
 import type { FullParserOptions, KeywordEntry, ParserOptions, ValidationQuery, ValueQuery } from "./types/parser.js"
 import { extractTokens } from "./utils/extractTokens.js"
+import { generateParentsMap } from "./utils/generateParentsMap.js"
 import { getCursorInfo } from "./utils/getCursorInfo.js"
+import { getParent } from "./utils/getParent.js"
 import { getSurroundingErrors } from "./utils/getSurroundingErrors.js"
+import { isNode } from "./utils/isNode.js"
+import { isToken } from "./utils/isToken.js"
 
 const OPPOSITE = {
 	[TOKEN_TYPE.AND]: TOKEN_TYPE.OR,
@@ -59,11 +57,11 @@ const createDefaultRequires = (partial: DeepPartial<Suggestion["requires"]> = {}
 })
 
 /** Returns if valid token requires whitespace if none between cursor and token. */
-const tokenRequiresWhitespace = (validToken: ValidToken | undefined, whitespace: boolean, wordOps: KeywordEntry[]): boolean => {
-	if (whitespace || validToken === undefined) return false
-	return validToken.type === TOKEN_TYPE.VALUE ||
-		([TOKEN_TYPE.AND, TOKEN_TYPE.OR, TOKEN_TYPE.NOT].includes(validToken.type) &&
-			wordOps.find(_ => _.value === validToken.value) !== undefined)
+const tokenRequiresWhitespace = (valid: ValidToken | undefined, whitespace: boolean, wordOps: KeywordEntry[]): boolean => {
+	if (whitespace || valid === undefined) return false
+	return valid.type === TOKEN_TYPE.VALUE ||
+		([TOKEN_TYPE.AND, TOKEN_TYPE.OR, TOKEN_TYPE.NOT].includes(valid.type) &&
+			wordOps.find(_ => _.value === valid.value) !== undefined)
 }
 const tokenVariable = [TOKEN_TYPE.BACKTICK, TOKEN_TYPE.DOUBLEQUOTE, TOKEN_TYPE.SINGLEQUOTE, TOKEN_TYPE.VALUE, TOKEN_TYPE.REGEX]
 
@@ -173,8 +171,6 @@ export class Parser<T extends {} = {}> {
 			rawInput: string
 		},
 	): ParserResults {
-		// eslint-disable-next-line prefer-rest-params
-		const doSeal = arguments[1]?.seal ?? true
 		if (typeof input === "string" && isWhitespace(input)) {
 			return handle.token.value(undefined, { start: 0, end: 0 }) as any
 		}
@@ -187,9 +183,6 @@ export class Parser<T extends {} = {}> {
 			lexedTokens,
 		}
 		const res = this.ruleMain()
-		if (doSeal) {
-			seal(res)
-		}
 		this.state = {
 			rawInput: "",
 			shift: 0,
@@ -199,14 +192,9 @@ export class Parser<T extends {} = {}> {
 		return res
 	}
 
-	subParserOne?: Parser<T> & {
-		parse: AddParameters<Parser<T>["parse"], [{ seal: boolean }]>
-	}
-
-	subParserTwo?: Parser<T> & {
-		parse: AddParameters<Parser<T>["parse"], [{ seal: boolean }]>
-	}
-
+	subParserOne?: Parser<T>
+ 
+	subParserTwo?: Parser<T>
 
 	createSubParserIfNotExists(opts: ParserOptions<T>, which: "One" | "Two" = "One"): Parser["subParserOne"] {
 		if (this[`subParser${which}`] === undefined) {
@@ -444,13 +432,13 @@ export class Parser<T extends {} = {}> {
 		const property = this.ruleConditionProperty()
 		const propVal = property?.prop?.value === undefined
 			? undefined
-			: property.prop.value instanceof ErrorToken
+			: !property.prop.value.valid
 				? ""
 				: property.prop.value.value
 
 		const propOpVal = property?.rest?.propertyOperator === undefined
 			? undefined
-			: property.rest.propertyOperator instanceof ErrorToken
+			: !property.rest.propertyOperator?.valid
 				? ""
 				: property.rest.propertyOperator?.value
 
@@ -466,7 +454,9 @@ export class Parser<T extends {} = {}> {
 		let value = this.ruleConditionValue(property, { convertRegexValues, convertArrayValues })
 		
 		let group
-		if (!(value instanceof ArrayNode)
+		if (
+			isNode(value)
+			&& !(value.type === AST_TYPE.ARRAY)
 			&& !isArray(value)
 			&& (!value || this.options.prefixableGroups)
 			&& this.isType(this.peek(1), $T.PAREN_L) // is not already plain group
@@ -478,7 +468,11 @@ export class Parser<T extends {} = {}> {
 			group = value
 			value = undefined
 		}
-		if (convertRegexValues && value instanceof VariableNode && value.quote?.left.type === TOKEN_TYPE.REGEX) {
+		if (
+			convertRegexValues && isNode(value)
+			&& value.type === AST_TYPE.VARIABLE
+			&& value.quote?.left.type === TOKEN_TYPE.REGEX
+		) {
 			value = handle.variable(undefined, undefined, handle.token.value(
 				(value.quote?.left?.value ?? "") + (value.value.value ?? "") + (value.quote?.right?.value ?? ""),
 				pos(value),
@@ -607,7 +601,7 @@ export class Parser<T extends {} = {}> {
 				regexValues: convertRegexValues,
 				arrayValues: convertArrayValues,
 			}, "One")
-			const parsed = this.subParserOne!.parse(" ".repeat(start) + subInput, { seal: false })
+			const parsed = this.subParserOne!.parse(" ".repeat(start) + subInput)
 			return [parenL, parsed, parenR]
 		}
 		return [parenL, condition, parenR]
@@ -655,14 +649,16 @@ export class Parser<T extends {} = {}> {
 			expandedPropertySeparator: undefined,
 			arrayValues: false,
 		}, "Two")
-		const parsed = this.subParserTwo!.parse(" ".repeat(start) + subInput, { seal: false })
-		if (parsed instanceof ConditionNode) {
+		const parsed = this.subParserTwo!.parse(" ".repeat(start) + subInput)
+		if ("type" in parsed && parsed.type === AST_TYPE.CONDITION) {
 			return parsed.value as ArrayNode
 		}
-		if (parsed instanceof ErrorToken || parsed instanceof ExpressionNode || parsed instanceof GroupNode) {
+		if (("valid" in parsed && !parsed.valid)
+			|| ("type" in parsed && (parsed.type === AST_TYPE.EXPRESSION || parsed.type === AST_TYPE.GROUP))
+		) {
 			unreachable("parsed.value should not be an ErrorToken, ExpressionNode, or GroupNode.")
 		}
-		return parsed
+		return parsed as any as VariableNode
 	}
 
 	ruleConditionProperty(): {
@@ -961,15 +957,16 @@ export class Parser<T extends {} = {}> {
 	}
 
 	/**
-	 * Given a list of @see Suggestion entries, the parser options, and a list of variables, prefixes, operators, etc, and the preferred quote type, returns a list of @see Completion entries.
+	 * Given the ast, a list of {@link Suggestion} entries, the parser options, and a list of variables, prefixes, operators, etc, and the preferred quote type, returns a list of {@link Completion} entries.
 	 *
 	 * It takes care of suggesting the correct delimiters for fixes, quoting variables/prefixes if it would not be possible to parse them unquoted, and separating symbol from non-symbol (word) operators.
 	 *
-	 * Does not add whitespace or group requirements. The suggestion information is still in the completion if you wish to show these. But they should not be added to the completion value if using @see autoreplace which will take care of it.
+	 * Does not add whitespace or group requirements. The suggestion information is still in the completion if you wish to show these. But they should not be added to the completion value if using {@link autoreplace} which will take care of it.
 	 *
-	 * Is not aware of existing values. You will have to use @see getCursorInfo to understand the context in which the suggestion was made, so that, for example, you could filter out used regex flags.
+	 * Is not aware of existing values. You will have to use {@link getCursorInfo} to understand the context in which the suggestion was made, so that, for example, you could filter out used regex flags.
 	 */
 	autocomplete(
+		ast: ParserResults,
 		suggestions: Suggestion[],
 		{
 			values = [], arrayValues = [], variables = [], prefixes = [], properties = [], expandedPropertyOperators = [], customPropertyOperators = (this as any as Parser<T>).options.customPropertyOperators ?? [], keywords = (this as any as Parser<T>).options.keywords, regexFlags = ["i", "m", "u"], quote = "\"",
@@ -986,6 +983,7 @@ export class Parser<T extends {} = {}> {
 				keywords?: FullParserOptions<T>["keywords"]
 			} = {},
 	): Completion[] {
+		const parentMap = generateParentsMap(ast)
 		const self = (this as any as Parser<T>)
 		return suggestions.map(suggestion => {
 			const type = suggestion.type
@@ -1007,11 +1005,11 @@ export class Parser<T extends {} = {}> {
 							if (suggestion.type !== SUGGESTION_TYPE.REGEX_FLAGS) {return true}
 
 							const token = suggestion.cursorInfo
-							const flags = token.at && (token.at.parent as VariableNode)?.quote?.flags === suggestion.cursorInfo.at
+							const flags = token.at && (getParent(token.at, parentMap) as VariableNode)?.quote?.flags === suggestion.cursorInfo.at
 								? token.at
-								: token.next && (token.next.parent as VariableNode)?.quote?.flags === suggestion.cursorInfo.next
+								: token.next && (getParent(token.next, parentMap) as VariableNode)?.quote?.flags === suggestion.cursorInfo.next
 									? token.next
-									: token.prev && (token.prev.parent as VariableNode)?.quote?.flags === suggestion.cursorInfo.prev
+									: token.prev && (getParent(token.prev, parentMap) as VariableNode)?.quote?.flags === suggestion.cursorInfo.prev
 										? token.prev
 										: undefined
 
@@ -1053,11 +1051,11 @@ export class Parser<T extends {} = {}> {
 					return arr.map(variable => {
 						// we don't need to alter options since we can just check there are no quotes (also tells us no prefixes are used) and no operators are defined
 						const res = self.parse(variable)
-						if (res instanceof ConditionNode &&
+						if (isNode(res) && res.type === AST_TYPE.CONDITION &&
 							res.operator === undefined &&
-							res.value instanceof VariableNode &&
+							isNode(res.value) && res.value.type === AST_TYPE.VARIABLE &&
 							res.value.quote === undefined) {
-							return { suggestion, value: res.value.value.value }
+							return { suggestion, value: res.value.value.value! }
 						} else {
 							return { suggestion, value: quote + variable.replace(new RegExp(quote, "g"), `\\${quote}`) + quote }
 						}
@@ -1065,11 +1063,12 @@ export class Parser<T extends {} = {}> {
 				}
 				case SUGGESTION_TYPE.PREFIX: return prefixes.map(prefix => {
 					const res = self.parse(prefix)
-					if (res instanceof ConditionNode &&
+					if (isNode(res) &&
+						res.type === AST_TYPE.CONDITION &&
 						res.operator === undefined &&
-						res.value instanceof VariableNode &&
+						isNode(res.value) && res.value.type === AST_TYPE.VARIABLE &&
 						res.value.quote === undefined) {
-						return { suggestion, value: res.value.value.value }
+						return { suggestion, value: res.value.value.value! }
 					} else {
 						return { suggestion, value: quote + prefix.replace(new RegExp(quote, "g"), `\\${quote}`) + quote }
 					}
@@ -1079,9 +1078,9 @@ export class Parser<T extends {} = {}> {
 	}
 
 	/**
-	 * Given the input string and a @see Completion consisting of the value of the replacement and a @see Suggestion entry, returns the replacement string and the new position of the cursor.
+	 * Given the input string and a {@link Completion} consisting of the value of the replacement and a {@link Suggestion} entry, returns the replacement string and the new position of the cursor.
 	 *
-	 * The value passed should be escaped if it's needed (or quoted). @see autocomplete already takes care of quoting variables if you're using it.
+	 * The value passed should be escaped if it's needed (or quoted). {@link autocomplete} already takes care of quoting variables if you're using it.
 	 */
 	autoreplace(
 		input: string,
@@ -1119,9 +1118,9 @@ export class Parser<T extends {} = {}> {
 	}
 
 	/**
-	 * Returns a list of suggestions ( @see Suggestion ). These are not a list of autocomplete entries (with values), but more a list of entries describing possible suggestions. This list can then be passed to @see Parser["autocomplete"] to build a list to show users, from which you can then pick an entry to pass to @see Parser["autoreplace"] .
+	 * Returns a list of suggestions ( {@link Suggestion} ). These are not a list of autocomplete entries (with values), but more a list of entries describing possible suggestions. This list can then be passed to {@link Parser}["autocomplete"] to build a list to show users, from which you can then pick an entry to pass to {@link Parser}["autoreplace"] .
 	 *
-	 * The list returned is "unsorted", but there is still some logic to the order. Fixes for errors are suggested first, in the order returned by @see getSurroundingErrors. Regular suggestions come after in the following order: prefixes if enabled, variables, boolean symbol operators, then boolean word operators.
+	 * The list returned is "unsorted", but there is still some logic to the order. Fixes for errors are suggested first, in the order returned by {@link getSurroundingErrors}. Regular suggestions come after in the following order: prefixes if enabled, variables, boolean symbol operators, then boolean word operators.
 	 *
 	 * When the cursor is between two tokens that have possible suggestions, only suggestion types for the token before are returned. For example:
 	 *
@@ -1141,6 +1140,7 @@ export class Parser<T extends {} = {}> {
 	 * ```
 	 */
 	autosuggest(input: string, ast: ParserResults, index: number): Suggestion[] {
+		const parentMap = generateParentsMap(ast)
 		// wrapped like this because the function is HUGE
 		const opts = (this as any as Parser<T>).options
 		const tokens = extractTokens(ast)
@@ -1171,7 +1171,7 @@ export class Parser<T extends {} = {}> {
 			: requiresWhitespaceNext
 
 		const suggestions: Suggestion[] = []
-		if (ast instanceof ErrorToken) {
+		if (isToken(ast) && !ast.valid) {
 			suggestions.push({
 				type: SUGGESTION_TYPE.PREFIX,
 				requires: createDefaultRequires({ group: true }),
@@ -1207,8 +1207,9 @@ export class Parser<T extends {} = {}> {
 						case TOKEN_TYPE.DOUBLEQUOTE:
 						case TOKEN_TYPE.SINGLEQUOTE:
 						case TOKEN_TYPE.BACKTICK: {
-							const isLeft = (error.parent as VariableNode).quote!.left === error
-							const isRight = (error.parent as VariableNode).quote!.right === error
+							const errorParent = getParent(error, parentMap)
+							const isLeft = (errorParent as VariableNode).quote!.left === error
+							const isRight = (errorParent as VariableNode).quote!.right === error
 							suggestions.push({
 								...errorSuggestion,
 								type: type as any as SUGGESTION_TYPE,
@@ -1254,10 +1255,13 @@ export class Parser<T extends {} = {}> {
 							})
 							break
 						case TOKEN_TYPE.VALUE: {
-							const prefixedValue = error.parent instanceof VariableNode ? error.parent?.prefix?.value : false
-							const isRegexValue = error.parent instanceof VariableNode && (
-								error.parent.quote?.left.type === TOKEN_TYPE.REGEX ||
-								error.parent.quote?.right.type === TOKEN_TYPE.REGEX
+							const errorParent = getParent(error, parentMap)
+							const prefixedValue = errorParent?.type === AST_TYPE.VARIABLE
+							? (getParent(error, parentMap) as VariableNode)?.prefix?.value
+							: false
+							const isRegexValue = errorParent?.type === AST_TYPE.VARIABLE && (
+								errorParent.quote?.left.type === TOKEN_TYPE.REGEX ||
+								errorParent.quote?.right.type === TOKEN_TYPE.REGEX
 							)
 							if (!isRegexValue) {
 								// both are always suggested since missing value tokens only happen for variables
@@ -1322,22 +1326,23 @@ export class Parser<T extends {} = {}> {
 					}
 				}
 			}
+			
 
 			/** The quotes are checked because of situations like `prefix|"var"`.*/
-			const prevVar = token.valid.prev?.parent
-			const nextVar = token.valid.next?.parent
-			const prevCondition = prevVar?.parent
-			const nextCondition = nextVar?.parent
-			const atVar = token.at?.parent
-			const atCondition = atVar?.parent
+			const prevVar = getParent(token.valid.prev, parentMap)
+			const nextVar = getParent(token.valid.next, parentMap)
+			const prevCondition = getParent(prevVar, parentMap)
+			const nextCondition = getParent(nextVar, parentMap)
+			const atVar = getParent(token.at, parentMap)
+			const atCondition = getParent(atVar, parentMap)
 
 			const isVarPrev =
 				!token.whitespace.prev &&
 				token.valid.prev?.type !== TOKEN_TYPE.REGEX &&
-				prevVar instanceof VariableNode &&
+				prevVar?.type === AST_TYPE.VARIABLE &&
 				(
 					(
-						prevCondition instanceof ConditionNode &&
+						prevCondition?.type === AST_TYPE.CONDITION &&
 						prevCondition.value === prevVar &&
 						(
 							prevVar.quote?.right === token.valid.prev ||
@@ -1345,17 +1350,17 @@ export class Parser<T extends {} = {}> {
 						)
 					) ||
 					(
-						prevCondition instanceof ArrayNode
+						prevCondition?.type === AST_TYPE.ARRAY
 					)
 				)
 
 			const isVarNext =
 				!token.whitespace.next &&
 				token.valid.next?.type !== TOKEN_TYPE.REGEX &&
-				nextVar instanceof VariableNode &&
-				(
+				nextVar?.type === AST_TYPE.VARIABLE
+				&& (
 					(
-						nextCondition instanceof ConditionNode &&
+						nextCondition?.type === AST_TYPE.CONDITION &&
 						nextCondition.value === nextVar &&
 						(
 							nextVar.quote?.left === token.valid.next ||
@@ -1363,41 +1368,44 @@ export class Parser<T extends {} = {}> {
 						)
 					) ||
 					(
-						nextCondition instanceof ArrayNode
+						nextCondition?.type === AST_TYPE.ARRAY
 					)
 				)
 
 			const isVarAt = (
 				(
-					atVar instanceof VariableNode &&
-					atCondition instanceof ConditionNode
+					atVar?.type === AST_TYPE.VARIABLE &&
+					atCondition?.type === AST_TYPE.CONDITION
 				) ||
 				(
-					prevVar instanceof VariableNode &&
+					prevVar?.type === AST_TYPE.VARIABLE &&
 					token.valid.prev === prevVar?.quote?.left) ||
 
 				(
-					nextVar instanceof VariableNode &&
+					nextVar?.type === AST_TYPE.VARIABLE &&
 					token.valid.next === nextVar?.quote?.right
 				)
 			)
 
 			const isPropertyPrev =
-				prevCondition instanceof ConditionNode &&
+				prevCondition?.type === AST_TYPE.CONDITION &&
 				prevVar !== undefined &&
 				prevVar === prevCondition?.property
 			const isPropertyNext =
-				nextCondition instanceof ConditionNode &&
+				nextCondition?.type === AST_TYPE.CONDITION &&
 				nextVar !== undefined &&
 				nextVar === nextCondition?.property
 			const isPropertyAt =
-				atCondition instanceof ConditionNode &&
+				atCondition?.type === AST_TYPE.CONDITION &&
 				atVar !== undefined &&
 				atVar === atCondition?.property
 
-			const isPropertyOperatorPrev = prevVar instanceof ConditionNode && token.valid.prev === prevVar?.propertyOperator
-			const isPropertyOperatorNext = nextVar instanceof ConditionNode && token.valid.next === nextVar?.propertyOperator
-			const isPropertyOperatorAt = atVar instanceof ConditionNode && token.at === atVar?.propertyOperator
+			const isPropertyOperatorPrev = prevVar?.type === AST_TYPE.CONDITION
+			&& token.valid.prev === prevVar?.propertyOperator
+			const isPropertyOperatorNext = nextVar?.type === AST_TYPE.CONDITION
+			&& token.valid.next === nextVar?.propertyOperator
+			const isPropertyOperatorAt = atVar?.type === AST_TYPE.CONDITION
+			&& token.at === atVar?.propertyOperator
 
 			/** Situations like `[|]` and `[|` */
 			const noArrayValuesTarget = token.valid.prev?.type === TOKEN_TYPE.BRACKETL &&
@@ -1434,24 +1442,26 @@ export class Parser<T extends {} = {}> {
 
 
 			if (target) {
-				const parent = target.parent
-				if (parent instanceof VariableNode) {
+				const parent = getParent(target, parentMap)
+				if (parent && parent.type === AST_TYPE.VARIABLE) {
 					const range = pos(parent)
-					const condition = parent?.parent as ConditionNode
+					const parentParent = getParent(parent, parentMap)
+					const condition = parentParent as ConditionNode
 					const isValue = condition.propertyOperator !== undefined && condition.value === parent
-					const maybeGroup = parent?.parent?.parent
-					const isPrefix = maybeGroup instanceof GroupNode && maybeGroup.prefix === condition
+					const maybeGroup = getParent(parentParent, parentMap)
+					const isPrefix = maybeGroup?.type === AST_TYPE.GROUP
+					&& maybeGroup.prefix === condition
 
 					// look at whitespace before/after the entire variable
 					const varStart = getCursorInfo(input, ast, parent.start)
 					const varEnd = getCursorInfo(input, ast, parent.end)
 					const targetRequiresWhitespacePrev = tokenRequiresWhitespace(varStart.valid.prev, varStart.whitespace.prev, wordOps)
 					const targetRequiresWhitespaceNext = tokenRequiresWhitespace(varEnd.valid.next, varEnd.whitespace.next, wordOps)
-					const prefixedValue = target.parent instanceof VariableNode ? target.parent?.prefix?.value : false
+					const prefixedValue = parent.type === AST_TYPE.VARIABLE ? parent?.prefix?.value : false
 
 					// most of these require additional handling below
 					const isSepPrev = token.prev?.type === TOKEN_TYPE.OP_EXPANDED_SEP
-					const arrayValue = target.parent?.parent instanceof ArrayNode
+					const arrayValue = parentParent?.type === AST_TYPE.ARRAY
 					const isRegexFlag = target === parent.quote?.flags
 
 					if (!isRegexFlag && !isSepPrev && !isValue && !arrayValue && !prefixedValue && opts.prefixableGroups) {
@@ -1508,9 +1518,10 @@ export class Parser<T extends {} = {}> {
 				})
 			}
 			if (propOpTarget) {
+				const propOpTargetParent = getParent(propOpTarget, parentMap)
 				suggestions.push({
 					...baseSuggestion,
-					type: (propOpTarget.parent as ConditionNode).sep
+					type: (propOpTargetParent as ConditionNode).sep
 						? SUGGESTION_TYPE.EXPANDED_PROPERTY_OPERATOR
 						: SUGGESTION_TYPE.CUSTOM_PROPERTY_OPERATOR
 					,
@@ -1540,7 +1551,7 @@ export class Parser<T extends {} = {}> {
 				)
 
 			if (canSuggestValue) {
-				const inArrayNode = [nextCondition, prevCondition, nextVar, prevVar].find(_ => _ instanceof ArrayNode) !== undefined
+				const inArrayNode = [nextCondition, prevCondition, nextVar, prevVar].find(_ => _?.type === AST_TYPE.ARRAY) !== undefined
 				const opsNotNeeded = ["and", "or"].includes(opts.onMissingBooleanOperator)
 
 
@@ -1564,24 +1575,26 @@ export class Parser<T extends {} = {}> {
 					})
 				}
 			}
-
+			const tokenAtParent = getParent(token.at, parentMap)
+			const tokenValidPrevParent = getParent(token.valid.prev, parentMap)
+			const tokenValidNextParent = getParent(token.valid.next, parentMap)
 			const canSuggestRegexFlags =
 				// has existing flags before/after
 				(
 					token.at &&
-					token.at === (token.at?.parent as VariableNode)?.quote?.flags
+					token.at === (tokenAtParent as VariableNode)?.quote?.flags
 				) ||
 				(
 					token.valid.prev &&
-					token.valid.prev === (token.valid.prev?.parent as VariableNode)?.quote?.flags
+					token.valid.prev === (tokenValidPrevParent as VariableNode)?.quote?.flags
 				) ||
 				(
 					token.valid.next &&
-					token.valid.next === (token.valid.next?.parent as VariableNode)?.quote?.flags
+					token.valid.next === (tokenValidNextParent as VariableNode)?.quote?.flags
 				) ||
 				( // no flags
 					token.valid.prev?.type === TOKEN_TYPE.REGEX &&
-					token.valid.prev === (token.valid.prev.parent as VariableNode).quote?.right
+					token.valid.prev === (tokenValidPrevParent as VariableNode).quote?.right
 				)
 
 			if (canSuggestRegexFlags) {
@@ -1622,16 +1635,16 @@ export class Parser<T extends {} = {}> {
 	 *
 	 * How the ast is evaluated for different operators can be controlled by the {@link ParserOptions.valueComparer valueComparer} option.
 	 */
-	evaluate(ast: Expression<any, any> | Condition<any, any>, context: Record<string, any>): boolean {
+	evaluate(ast: NormalizedExpression<any, any> | NormalizedCondition<any, any>, context: Record<string, any>): boolean {
 		this._checkEvaluationOptions()
 		const opts = (this as any as Parser<T>).options
 
-		if (ast instanceof Condition) {
+		if (ast.type === AST_TYPE.NORMALIZED_CONDITION) {
 			const contextValue = get(context, ast.property)
-			const res = opts.valueComparer({ property: ast.property, value: ast.value, operator: ast.operator }, contextValue, context)
+			const res = opts.valueComparer(ast, contextValue, context)
 			return ast.negate ? !res : res
 		}
-		if (ast instanceof Expression) {
+		if (ast.type === AST_TYPE.NORMALIZED_EXPRESSION) {
 			const left = this.evaluate(ast.left, context)
 			const right = this.evaluate(ast.right, context)
 
@@ -1705,11 +1718,11 @@ export class Parser<T extends {} = {}> {
 	 *
 	 * Queries like `(a || b) && (a || c)` would require all the variables to be indexed `[Set(a), Set(b), Set(c)]`.
 	 */
-	getIndexes(ast: Condition | Expression): Set<string>[] {
-		if (ast instanceof Condition) {
+	getIndexes(ast: NormalizedCondition | NormalizedExpression): Set<string>[] {
+		if (ast.type === AST_TYPE.NORMALIZED_CONDITION) {
 			return [new Set(ast.property.join("."))]
 		}
-		if (ast instanceof Expression) {
+		if (ast.type === AST_TYPE.NORMALIZED_EXPRESSION) {
 			const left = this.getIndexes(ast.left)
 			const right = this.getIndexes(ast.right)
 
@@ -1779,10 +1792,10 @@ export class Parser<T extends {} = {}> {
 	/**
 	 * Normalizes the ast by applying {@link GroupNode GroupNodes} and converting {@link ConditionNode ConditionNodes} to {@link NormalizedConditionNode NormalizedConditionNodes}.
 	 */
-	normalize<TType extends string, TValue>(ast: ParserResults): Condition<TType, TValue> | Expression<TType, TValue> {
+	normalize<TType extends string, TValue>(ast: ParserResults): NormalizedCondition<TType, TValue> | NormalizedExpression<TType, TValue> {
 		this._checkEvaluationOptions()
 		const opts = (this as any as Parser<T>).options
-		if (ast instanceof ErrorToken || !ast.valid) {
+		if (!ast.valid) {
 			throw new Error("AST node must be valid.")
 		}
 		// eslint-disable-next-line prefer-rest-params
@@ -1794,16 +1807,16 @@ export class Parser<T extends {} = {}> {
 
 		const self_ = this as any as Parser & { normalize: AddParameters<Parser["normalize"], [typeof prefix, typeof groupValue, typeof operator]> }
 
-		if (ast instanceof ConditionNode) {
-			if (!(ast.value instanceof GroupNode)) {
-				const isValue = ast.value instanceof ArrayNode || (ast.value as VariableNode)?.quote?.left.type === TOKEN_TYPE.REGEX
-				let name = ast.property
+		if (ast.type === AST_TYPE.CONDITION) {
+			if (!(ast.value.type === AST_TYPE.GROUP)) {
+				const isValue = ast.value.type === AST_TYPE.ARRAY || (ast.value as VariableNode)?.quote?.left.type === TOKEN_TYPE.REGEX
+				let name = ast.property?.value?.value
 					? unescape(ast.property.value.value)
 					: isValue
 						// the property might be missing, whether this is valid or not is up to the user
 						// e.g. if prefix is defined this would make some sense
 						? undefined
-						: unescape((ast.value as VariableNode)?.value.value)
+						: unescape((ast.value as VariableNode)!.value!.value!)
 				// some ancestor node went through the else block because it was a group node (e.g. prop:op(val))
 				// so the "prefix" we passed is actually the name of the property (e.g. prop) and the value is the name we're getting here (e.g. val)
 				const isNested = operator !== undefined
@@ -1815,18 +1828,18 @@ export class Parser<T extends {} = {}> {
 					value = name ?? true
 					name = prefix
 				} else {
-					value = ast.value instanceof ArrayNode
-						? ast.value.values.map(val => unescape(val.value.value))
+					value = ast.value.type === AST_TYPE.ARRAY
+						? ast.value.values.map(val => unescape(val.value.value!))
 						: (ast.value as VariableNode)?.quote?.left.type === TOKEN_TYPE.REGEX
-							? ast.value.value.value
-							: ast.property && ast.value instanceof VariableNode
-								? unescape(ast.value.value.value)
+							? ast.value.value?.value
+							: ast.property && ast.value.type === AST_TYPE.VARIABLE
+								? unescape(ast.value.value.value!)
 								: true
 				}
 				const propertyKeys = name ? opts.keyParser(name) : []
 
 				const boolValue = applyBoolean(groupValue, ast.operator === undefined)
-				const valuePrefix = ast.value instanceof VariableNode && ast.value.prefix
+				const valuePrefix = ast.value.type === AST_TYPE.VARIABLE && ast.value.prefix
 					? unescape(ast.value.prefix.value)
 					: undefined
 				// one or the other might be defined, but never both since nested properties (e.g. `prop:op(prop:op(...))`) are not allowed
@@ -1848,9 +1861,9 @@ export class Parser<T extends {} = {}> {
 					condition: ast,
 				}
 				const res = opts.conditionNormalizer(query)
-				return new Condition({ property: propertyKeys, ...res })
+				return createCondition({ property: propertyKeys, ...res })
 			} else {
-				let name = unescape((ast.property as VariableNode).value.value) // this is always a variable node
+				let name = unescape((ast.property as VariableNode).value.value!) // this is always a variable node
 				if (prefix !== undefined) {
 					name = applyPrefix(prefix, name, opts.prefixApplier)
 				}
@@ -1863,26 +1876,26 @@ export class Parser<T extends {} = {}> {
 			}
 		}
 
-		if (ast instanceof GroupNode) {
-			const _prefix = ast.prefix instanceof ConditionNode && ast.prefix.value instanceof VariableNode
-				? unescape(ast.prefix.value.value.value)
+		if (ast.type === AST_TYPE.GROUP) {
+			const _prefix = ast.prefix?.type === AST_TYPE.CONDITION && ast.prefix?.value.type === AST_TYPE.VARIABLE
+				? unescape(ast.prefix.value.value.value!)
 				: undefined // we do not want to apply not tokens
-			const _groupValue = ast.prefix instanceof ConditionNode
+			const _groupValue = ast.prefix?.type === AST_TYPE.CONDITION
 				? ast.prefix.operator === undefined
-				: !(ast.prefix instanceof ValidToken)
+				: !(ast.prefix?.valid === true)
 
 			const applied = applyPrefix(prefix, _prefix ?? "", opts.prefixApplier)
 
 			return self_.normalize(ast.expression as any, applied, applyBoolean(groupValue, _groupValue), operator) as any
 		}
-		if (ast instanceof ExpressionNode) {
+		if (ast.type === AST_TYPE.EXPRESSION) {
 			const left = self_.normalize(ast.left, prefix, groupValue, operator)
 			const right = self_.normalize(ast.right, prefix, groupValue, operator)
 
 			// apply De Morgan's laws if group prefix was negative
 			// the values are already flipped, we just have to flip the operator
-			const type: TokenBooleanTypes = (groupValue === false ? OPPOSITE[ast.operator.type] : ast.operator.type) as TokenBooleanTypes
-			return new Expression<TType, TValue>({ operator: type, left: left as any, right: right as any })
+			const type: TokenBooleanTypes = (groupValue === false ? OPPOSITE[ast.operator!.type!] : ast.operator.type) as TokenBooleanTypes
+			return createExpression<TType, TValue>({ operator: type, left: left as any, right: right as any })
 		}
 		return unreachable()
 	}
@@ -1898,7 +1911,7 @@ export class Parser<T extends {} = {}> {
 		self._checkValidationOptions()
 		const opts = self.options
 		// see evaluate function, this method is practically identical, except we don't keep track of the real value (since we are not evaluating) and the actual nodes/tokens are passed to the valueValidator, not just the string values.
-		if (ast instanceof ErrorToken || !ast.valid) {
+		if (!ast.valid) {
 			throw new Error("AST node must be valid.")
 		}
 		/** Handle hidden recursive version of the function. */
@@ -1915,16 +1928,16 @@ export class Parser<T extends {} = {}> {
 
 		const self_ = this as any as Parser & { validate: AddParameters<Parser["validate"], [typeof prefix, typeof groupValue, typeof results, typeof prefixes, typeof operator]> }
 
-		if (ast instanceof ConditionNode) {
-			if (!(ast.value instanceof GroupNode)) {
-				const isValue = ast.value instanceof ArrayNode || (ast.value as VariableNode)?.quote?.left.type === TOKEN_TYPE.REGEX
+		if (ast.type === AST_TYPE.CONDITION) {
+			if (!(ast.value.type === AST_TYPE.GROUP)) {
+				const isValue = ast.value.type === AST_TYPE.ARRAY || (ast.value as VariableNode)?.quote?.left.type === TOKEN_TYPE.REGEX
 				const nameNode = ast.property
 					? ast.property as VariableNode
 					: isValue
 					? undefined
 					: ast.value as VariableNode
 
-				let name = nameNode ? unescape(nameNode.value.value) : undefined
+				let name = nameNode ? unescape(nameNode.value.value!) : undefined
 				const isNested = operator !== undefined
 				if (prefix !== undefined && !isNested) {
 					name = name ? applyPrefix(prefix, name, opts.prefixApplier) : prefix
@@ -1938,11 +1951,11 @@ export class Parser<T extends {} = {}> {
 					propertyNodes = [...prefixes]
 				} else {
 					propertyNodes = [...prefixes, ...(nameNode ? [nameNode] : [])]
-					value = ast.value instanceof ArrayNode
+					value = ast.value.type === AST_TYPE.ARRAY
 						? ast.value.values
 						: (ast.value as VariableNode)?.quote?.left.type === TOKEN_TYPE.REGEX
 						? ast.value
-						: ast.property && ast.value instanceof VariableNode
+						: ast.property && ast.value.type === AST_TYPE.VARIABLE
 						? ast.value
 						: true
 				}
@@ -1950,7 +1963,7 @@ export class Parser<T extends {} = {}> {
 				const contextValue = context !== undefined ? get(context, propertyKeys) : undefined
 
 				const boolValue = applyBoolean(groupValue, ast.operator === undefined)
-				const valuePrefix = ast.value instanceof VariableNode && ast.value.prefix
+				const valuePrefix = ast.value.type === AST_TYPE.VARIABLE && ast.value.prefix
 					? ast.value.prefix
 					: undefined
 				operator ??= ast.propertyOperator as ValidToken<TOKEN_TYPE.VALUE | TOKEN_TYPE.OP_CUSTOM>
@@ -1977,7 +1990,7 @@ export class Parser<T extends {} = {}> {
 				if (res && !isArray(res)) throw new Error("The valueValidator must return an array or nothing/undefined")
 				if (res) { for (const entry of res) results.push(entry) }
 			} else {
-				let name = unescape((ast.property as VariableNode).value.value) // this is always a variable node
+				let name = unescape((ast.property as VariableNode).value.value!) // this is always a variable node
 				if (prefix !== undefined) {
 					name = applyPrefix(prefix, name, opts.prefixApplier)
 				}
@@ -1991,19 +2004,19 @@ export class Parser<T extends {} = {}> {
 			}
 		}
 
-		if (ast instanceof GroupNode) {
-			const _prefix = ast.prefix instanceof ConditionNode && ast.prefix.value instanceof VariableNode
+		if (ast.type === AST_TYPE.GROUP) {
+			const _prefix = ast.prefix?.type === AST_TYPE.CONDITION && ast.prefix.value.type === AST_TYPE.VARIABLE
 				? ast.prefix.value
 				: undefined // we do not want to apply not tokens
 			if (_prefix) prefixes.push(_prefix)
 
-			const _groupValue = ast.prefix instanceof ConditionNode
+			const _groupValue = ast.prefix?.type === AST_TYPE.CONDITION
 				? ast.prefix.operator === undefined
-				: !(ast.prefix instanceof ValidToken)
+				: !(ast.prefix?.valid === true)
 
 			self_.validate(ast.expression as any, context, applyPrefix(prefix, _prefix?.value.value ?? "", opts.prefixApplier), applyBoolean(groupValue, _groupValue), results, prefixes, operator)
 		}
-		if (ast instanceof ExpressionNode) {
+		if (ast.type === AST_TYPE.EXPRESSION) {
 			// prefixes must be spread because we don't want the left branch (if it goes deeper) to affect the right
 			self_.validate(ast.left, context, prefix, groupValue, results, [...prefixes], operator)
 			self_.validate(ast.right, context, prefix, groupValue, results, [...prefixes], operator)

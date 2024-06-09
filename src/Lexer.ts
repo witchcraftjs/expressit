@@ -1,8 +1,8 @@
 import { isBlank } from "@alanscodelog/utils/isBlank.js"
 import { pushIfNotIn } from "@alanscodelog/utils/pushIfNotIn.js"
 
-import { checkParserOpts } from "./helpers/parser/checkParserOpts.js"
-import { parseParserOptions } from "./helpers/parser/parseParserOptions.js"
+import { checkParserOpts } from "./internal/checkParserOpts.js"
+import { parseParserOptions } from "./internal/parseParserOptions.js"
 import type { FullParserOptions } from "./types/index.js"
 
 const regexFlags = /^[a-zA-Z]+/

@@ -3,7 +3,7 @@ import { type } from "./type.js"
 import { type ExtractTokenType, TOKEN_TYPE } from "../../types/ast.js"
 
 /**
- * Faster way, more intuitive way to generate the options for matching delimiters (e.g. quotes and parens) for functions like @see variable and @see group .
+ * Faster way, more intuitive way to generate the options for matching delimiters (e.g. quotes and parens) for functions like {@link variable} and {@link group} .
  */
 
 export function delim<

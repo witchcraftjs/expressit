@@ -1,4 +1,4 @@
-import type { ValueComparer } from "../../types/parser.js"
+import type { ValueComparer } from "../types/parser.js"
 
 
 export const defaultValueComparer: ValueComparer =
