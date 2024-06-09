@@ -62,11 +62,11 @@ const simplify = (suggestions: Suggestion[]): Omit<Suggestion, "cursorInfo">[] =
 })
 // todo unify genExpected* functions
 const rawPrefixes = ["prefix", `quoted prefix`, `prefix"requires"escape`]
-const prefixes = ["prefix", `"quoted prefix"`, `"prefix\\"requires\\"escape"`]
+const prefixes = ["prefix", `"quoted prefix"`, `prefix\\"requires\\"escape`]
 const genExpectedPrefixes = (suggestion: Suggestion) => prefixes.map(value => ({ suggestion, value }))
 
 const rawVariables = ["variable", `quoted variable`, `variable"requires"escape`]
-const variables = ["variable", `"quoted variable"`, `"variable\\"requires\\"escape"`]
+const variables = ["variable", `"quoted variable"`, `variable\\"requires\\"escape`]
 const genExpectedVariables = (suggestion: Suggestion) => variables.map(value => ({ suggestion, value }))
 
 const wordOperators = ["and", "AND", "or", "OR"]
@@ -85,10 +85,10 @@ const genExpectedCustomOps = (suggestion: Suggestion) => customPropertyOperators
 const properties = ["prop"]
 const genExpectedProps = (suggestion: Suggestion) => properties.map(value => ({ suggestion, value }))
 const rawArrayValues = ["value", `quoted value`, `value"requires"escape`]
-const arrayValues = ["value", `"quoted value"`, `"value\\"requires\\"escape"`]
+const arrayValues = ["value", `"quoted value"`, `value\\"requires\\"escape`]
 const genExpectedArrayValues = (suggestion: Suggestion) => arrayValues.map(value => ({ suggestion, value }))
 const rawValues = ["value", `quoted value`, `value"requires"escape`]
-const values = ["value", `"quoted value"`, `"value\\"requires\\"escape"`]
+const values = ["value", `"quoted value"`, `value\\"requires\\"escape`]
 const genExpectedValues = (suggestion: Suggestion) => values.map(value => ({ suggestion, value }))
 
 const completionOpts: Parameters<Parser["autocomplete"]>[2] = {

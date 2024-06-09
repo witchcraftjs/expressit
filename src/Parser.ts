@@ -14,6 +14,7 @@ import * as handle from "./ast/handlers.js"
 import { applyBoolean } from "./internal/applyBoolean.js"
 import { applyPrefix } from "./internal/applyPrefix.js"
 import { checkParserOpts } from "./internal/checkParserOpts.js"
+import { escapeVariableOrPrefix } from "./internal/escapeVariableOrPrefix.js"
 import { extractPosition } from "./internal/extractPosition.js"
 import { getUnclosedRightParenCount } from "./internal/getUnclosedRightParenCount.js"
 import { parseParserOptions } from "./internal/parseParserOptions.js"
@@ -34,6 +35,7 @@ const OPPOSITE = {
 	[TOKEN_TYPE.AND]: TOKEN_TYPE.OR,
 	[TOKEN_TYPE.OR]: TOKEN_TYPE.AND,
 }
+
 function isEqualSet(setA: Set<any>, setB: Set<any>): boolean {
 	if (setA.size !== setB.size) return false
 	for (const key of setA) {
@@ -1048,31 +1050,9 @@ export class Parser<T extends {} = {}> {
 							: type === SUGGESTION_TYPE.VALUE
 								? values
 								: unreachable()
-					return arr.map(variable => {
-						// we don't need to alter options since we can just check there are no quotes (also tells us no prefixes are used) and no operators are defined
-						const res = self.parse(variable)
-						if (isNode(res) && res.type === AST_TYPE.CONDITION &&
-							res.operator === undefined &&
-							isNode(res.value) && res.value.type === AST_TYPE.VARIABLE &&
-							res.value.quote === undefined) {
-							return { suggestion, value: res.value.value.value! }
-						} else {
-							return { suggestion, value: quote + variable.replace(new RegExp(quote, "g"), `\\${quote}`) + quote }
-						}
-					})
+					return arr.map(variable => ({ suggestion, value: escapeVariableOrPrefix(variable, quote) }))
 				}
-				case SUGGESTION_TYPE.PREFIX: return prefixes.map(prefix => {
-					const res = self.parse(prefix)
-					if (isNode(res) &&
-						res.type === AST_TYPE.CONDITION &&
-						res.operator === undefined &&
-						isNode(res.value) && res.value.type === AST_TYPE.VARIABLE &&
-						res.value.quote === undefined) {
-						return { suggestion, value: res.value.value.value! }
-					} else {
-						return { suggestion, value: quote + prefix.replace(new RegExp(quote, "g"), `\\${quote}`) + quote }
-					}
-				})
+				case SUGGESTION_TYPE.PREFIX: return prefixes.map(prefix => ({ suggestion, value: escapeVariableOrPrefix(prefix, quote) }))
 			}
 		}).flat()
 	}
