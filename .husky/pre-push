@@ -2,4 +2,4 @@
 
 echo "Running pre-push hook"
 
-npm run lint:commits
+npm run build && npm run lint && npm run test && npm run lint:commits
