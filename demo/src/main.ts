@@ -5,9 +5,8 @@ import "./style.css"
 
 import { crop } from "@alanscodelog/utils/crop.js"
 import { Parser } from "@witchcraft/expressit"
-import { parseParserOptions } from "@witchcraft/expressit/helpers/parser/index.js"
+import { parseParserOptions } from "@witchcraft/expressit/internal/parseParserOptions.js"
 import { prettyAst } from "@witchcraft/expressit/utils"
-
 
 const body = document.body
 
