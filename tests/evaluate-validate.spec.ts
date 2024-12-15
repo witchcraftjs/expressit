@@ -91,6 +91,18 @@ describe("evaluate", () => {
 			const expectedNormalized = nExpression(nCondition("a", true, true), "&&", nCondition("b", true, true))
 			expect(normalized).to.deep.equal(expectedNormalized)
 		})
+		it("!(!a)", () => {
+			const input = "!(!a)"
+			const parser = new Parser(opts)
+			const ast = parser.parse(input)
+			const normalized = parser.normalize(ast)
+
+			expect(parser.evaluate(normalized, { a: true })).equal(true)
+			expect(parser.evaluate(normalized, { a: false })).equal(false)
+
+			const expectedNormalized = nCondition("a", true, false)
+			expect(normalized).to.deep.equal(expectedNormalized)
+		})
 		it("!a && !b", () => {
 			const input = "!a && !b"
 			const parser = new Parser(opts)

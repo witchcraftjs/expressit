@@ -1803,6 +1803,7 @@ export class Parser<T extends {} = {}> {
 				if (prefix !== undefined && !isNested) {
 					name = name ? applyPrefix(prefix, name, opts.prefixApplier) : prefix
 				}
+
 				let value: any
 				if (isNested) {
 					value = name ?? true
@@ -1855,16 +1856,21 @@ export class Parser<T extends {} = {}> {
 				return self_.normalize(ast.value, name, boolValue, operator) as any
 			}
 		}
-
 		if (ast.type === AST_TYPE.GROUP) {
 			const _prefix = ast.prefix?.type === AST_TYPE.CONDITION && ast.prefix?.value.type === AST_TYPE.VARIABLE
 				? unescape(ast.prefix.value.value.value!)
 				: undefined // we do not want to apply not tokens
+			const isNotToken = _prefix === undefined
+
 			const _groupValue = ast.prefix?.type === AST_TYPE.CONDITION
 				? ast.prefix.operator === undefined
 				: !(ast.prefix?.valid === true)
 
-			const applied = applyPrefix(prefix, _prefix ?? "", opts.prefixApplier)
+			// do not attempt to apply prefix if it's undefined (a not token)
+			// otherwise we would get weird calls to applyPrefix
+			const applied = isNotToken
+				? prefix
+				: applyPrefix(prefix, _prefix, opts.prefixApplier)
 
 			return self_.normalize(ast.expression as any, applied, applyBoolean(groupValue, _groupValue), operator) as any
 		}
