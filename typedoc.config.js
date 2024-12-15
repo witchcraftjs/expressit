@@ -1,14 +1,10 @@
-// #awaiting https://github.com/TypeStrong/typedoc/pull/2268
-// import fs from "fs"
-// import path from "path"
-//
-// import pkg from "./package.json"
-const fs = require("fs")
-const path = require("path")
-const pkg = require("./package.json")
+import fs from "fs"
+import path from "path"
+
+import pkg from "./package.json" with { type: "json" }
 
 
-module.exports = {
+export default {
 	githubPages: true,
 	navigationLinks: {
 		Github: pkg.repository,

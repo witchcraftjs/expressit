@@ -3,8 +3,8 @@ import { indent } from "@alanscodelog/utils/indent.js"
 import { pretty } from "@alanscodelog/utils/pretty.js"
 import type { Keys } from "@alanscodelog/utils/types"
 
-// @ts-expect-error todo
-import { repository, version } from "../package.js"
+import packageJson from "../../package.json" assert { type: "json" }
+const { version, repository } = packageJson
 import type { ERROR_CODES, ErrorInfo } from "../types/errors.js"
 
 /** @internal */

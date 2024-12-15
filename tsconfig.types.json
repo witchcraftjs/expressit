@@ -11,9 +11,10 @@
 		"allowJs": false,
 		"skipLibCheck": true, // ignore node modules
 		// preserve documentation
-		"removeComments": false
+		"removeComments": false,
 	},
-	"tsc-alias": {
-		"resolveFullPaths": true // for esm compatibility
-	}
+	"include": [
+		"src/**/*.ts",
+		"src/**/*.js",
+	],
 }
