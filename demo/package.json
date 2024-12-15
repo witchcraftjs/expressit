@@ -1,5 +1,5 @@
 {
-	"name": "demo2",
+	"name": "demo",
 	"private": true,
 	"version": "0.0.0",
 	"type": "module",
@@ -13,9 +13,9 @@
 		"prepare": " npm run build"
 	},
 	"devDependencies": {
-		"typescript": "^5.0.2",
-		"vite": "^4.4.5",
-		"@witchcraft/expressit": "file:../"
+		"@witchcraft/expressit": "file:../",
+		"typescript": "~5.7.2",
+		"vite": "^6.0.2"
 	},
 	"dependencies": {
 		"@alanscodelog/utils": "^4.0.0"
