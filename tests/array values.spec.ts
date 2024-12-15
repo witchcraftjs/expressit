@@ -168,3 +168,44 @@ it(`] - cannot match missing left brackets, will parse as value`, () => {
 	)
 	expect(ast).to.deep.equal(expected)
 })
+it(`["val"]`, () => {
+	const input = `["val"]`
+	const ast = new Parser().parse(input)
+	const expected = condition(
+		array(
+			[v(input, "val", delim("\"", "\""))],
+			delim(true, true),
+			findPos(input, "["),
+			findPos(input, "]"),
+		),
+	)
+	expect(ast).to.deep.equal(expected)
+})
+it(`['val']`, () => {
+	const input = `['val']`
+	const ast = new Parser().parse(input)
+
+	const expected = condition(
+		array(
+			[v(input, "val", delim("'", "'"))],
+			delim(true, true),
+			findPos(input, "["),
+			findPos(input, "]"),
+		),
+	)
+	expect(ast).to.deep.equal(expected)
+})
+it("[`val`]", () => {
+	const input = "[`val`]"
+	const ast = new Parser().parse(input)
+
+	const expected = condition(
+		array(
+			[v(input, "val", delim("`", "`"))],
+			delim(true, true),
+			findPos(input, "["),
+			findPos(input, "]"),
+		),
+	)
+	expect(ast).to.deep.equal(expected)
+})

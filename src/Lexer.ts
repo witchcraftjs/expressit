@@ -332,6 +332,7 @@ export class Lexer {
 						previous?.type === $T.VALUE_NOT_SINGLE
 						/* Similarly, if the previous token was an unquoted value, we have a quote error.*/
 						|| previous?.type === $T.VALUE_UNQUOTED) {
+						if (mode.startsWith(BRACKET_PREFIX)) return MODE.BRACKET_MAIN
 						return MODE.MAIN
 					}
 					switch (mode) {
@@ -369,6 +370,7 @@ export class Lexer {
 				push: (mode, tokens) => {
 					const previous = tokens[tokens.length - 2]
 					if (previous?.type === $T.VALUE_NOT_BACKTICK || previous?.type === $T.VALUE_UNQUOTED) {
+						if (mode.startsWith(BRACKET_PREFIX)) return MODE.BRACKET_MAIN
 						return MODE.MAIN
 					}
 					switch (mode) {
@@ -663,7 +665,6 @@ export class Lexer {
 				if (match) {
 					let matchLength = match === true ? 1 : (match as string).length
 					let type = t.type
-					
 					if (t.longerAlt) {
 						const longerMatch = this.$[t.longerAlt].matches(c, input, index, mode)
 						const longerMatchLength = longerMatch === true ? 1 : (longerMatch as string).length
