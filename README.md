@@ -35,7 +35,10 @@ pnpm install @witchcraft/expressit
 	- `extractTokens`, `getCursorInfo`, `getOppositeDelimiter`, `getSurroundingErrors` - useful for adding custom syntax highlighting.
 	- `prettyAst` - pretty prints a compact version of the ast for debugging
 	- other minor utilities - `isDelimiter`, `isQuote`, etc.
-- **Pre-Configured Parsers** - Includes a pre-configured boolean parser (intended for parsing shortcut contexts in a similar way to VS Code).
+- **Pre-Configured Example Parsers** 
+	- Shortcut Context Parser / Boolean Parser - Intended for parsing shortcut contexts in a similar way to VS Code).
+	- Experimental parser with **SQL output support** - Create an easy to read query language that can be used to generate safe SQL queries (it's flexible, but built to integrate
+	  easily with drizzle).
 - **Lots of Docs and Tests**
 
 # Usage
@@ -79,7 +82,7 @@ const parser = new Parser({/* opts */})
 	// ON ENTER/SUBMIT
 	const res = parser.evaluate(ast, context)
 ```
-Many more examples can be found in the [tests](https://github.com/witchcraftjs/expressit/blob/master/tests), and there's also some WIP pre-configured parsers in [src/examples](https://github.com/witchcraftjs/expressit/blob/master/src/examples/) whose usage can be seen in [./test/examples.spec.ts](https://github.com/witchcraftjs/expressit/blob/master/test/examples.spec.ts).
+Many more examples can be found in the [tests](https://github.com/witchcraftjs/expressit/blob/master/tests), and there's also some example pre-configured parsers in [src/examples](https://github.com/witchcraftjs/expressit/blob/master/src/examples/) whose usage can be seen in [./test/examples.spec.ts](https://github.com/witchcraftjs/expressit/blob/master/test/examples.spec.ts).
 
 ## [Development](./docs-src/DEVELOPMENT.md)
 

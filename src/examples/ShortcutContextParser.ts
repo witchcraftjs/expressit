@@ -1,3 +1,7 @@
+import { Parser } from "../Parser.js"
+import type { Position } from "../types/ast.js"
+import type { ValueQuery } from "../types/parser.js"
+
 /* TODO TOUPDATE */
 /**
  * A pre-configured parser for parsing shortcut contexts (similar to VSCode's [when clause contexts](https://code.visualstudio.com/docs/getstarted/keybindings#_when-clause-contexts)).
@@ -9,15 +13,11 @@
  * The validate function will return a list of positions with a list of errors which includes handling invalid or duplicate regex flags.
  */
 
-import { Parser } from "../Parser.js"
-import type { Position } from "../types/ast.js"
-import type { ValueQuery } from "../types/parser.js"
 
-
-export class ShortcutContextParser<T extends
+export class ShortcutContextParser<TErrorTokens extends
 	Position & { type: ("invalidKey" | "unregexableKey" | "invalidRegexFlag" | "duplicateRegexFlag") } =
 	Position & { type: ("invalidKey" | "unregexableKey" | "invalidRegexFlag" | "duplicateRegexFlag") },
-> extends Parser<T> {
+> extends Parser<TErrorTokens> {
 	validKeys: string[] = []
 
 	regexablekeys: string[] = []
@@ -49,21 +49,21 @@ export class ShortcutContextParser<T extends
 				}
 				return contextValue === condition.value
 			},
-			valueValidator: (_contextValue, query): T[] | void => {
-				let tokens: T[] = []
+			valueValidator: (_contextValue, query): TErrorTokens[] | void => {
+				let tokens: TErrorTokens[] = []
 				if (!this.validKeys.includes(query.propertyName!)) {
 					tokens = tokens.concat(query.property.map(token => ({
 						start: token.start,
 						end: token.end,
 						type: "invalidKey",
-					})) as T[])
+					})) as TErrorTokens[])
 				}
 				if (query.isRegex && !this.regexablekeys.includes(query.propertyName!)) {
 					tokens = tokens.concat(query.property.map(token => ({
 						start: token.start,
 						end: token.end,
 						type: "unregexableKey",
-					})) as T[])
+					})) as TErrorTokens[])
 				}
 				if (query.regexFlags) {
 					const chars = query.regexFlags.value.split("")
@@ -75,14 +75,14 @@ export class ShortcutContextParser<T extends
 								start: start + i,
 								end: start + i + 1,
 								type: "duplicateRegexFlag",
-							} as T)
+							} as TErrorTokens)
 						}
 						if (!validRegexFlags.includes(char)) {
 							tokens.push({
 								start: start + i,
 								end: start + i + 1,
 								type: "invalidRegexFlag",
-							} as T)
+							} as TErrorTokens)
 						}
 					}
 				}
@@ -93,7 +93,7 @@ export class ShortcutContextParser<T extends
 				let finalOperator: any = operator
 				// another way to allow special unquoted value types is something like this:
 				if (typeof value === "string" && !isQuoted) {
-					const asNum = parseInt(value, 2)
+					const asNum = parseInt(value, 10)
 					if (!isNaN(asNum)) finalValue = asNum
 					if (["true", "false"].includes(value)) {
 						finalValue = value === "true"
@@ -132,7 +132,7 @@ export class ShortcutContextParser<T extends
 		for (const key of Object.keys(context)) {
 			if (typeof context[key] === "boolean") {
 				this.validKeys.push(prev ? `${prev}.${key}` : key)
-				if (context[key] === true) {
+				if (context[key]) {
 					this.regexablekeys.push(prev ? `${prev}.${key}` : key)
 				}
 			} else {

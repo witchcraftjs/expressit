@@ -11,3 +11,4 @@ dist
 !flake.lock
 .direnv
 todo.md
+tests/db/migrations
