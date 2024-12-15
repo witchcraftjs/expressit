@@ -70,7 +70,7 @@ const tokenVariable = [TOKEN_TYPE.BACKTICK, TOKEN_TYPE.DOUBLEQUOTE, TOKEN_TYPE.S
 /**
  * Creates the main parser class which handles all functionality (evaluation, validation, etc).
  */
-export class Parser<T extends {} = {}> {
+export class Parser<T = any> {
 	// needed for evaluate and validate so they are only checked on demand
 	private evaluationOptionsChecked: boolean = false
 

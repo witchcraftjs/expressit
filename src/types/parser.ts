@@ -4,7 +4,7 @@ import type { ArrayNode, ConditionNode, NormalizedCondition, Position, TOKEN_TYP
 
 
 // #partially-synced
-export type FullParserOptions<T extends {} = {}> = MakeRequired<
+export type FullParserOptions<T = any> = MakeRequired<
 	ParserOptions<T>,
 	// makes required all except:
 	Exclude<keyof ParserOptions<T>,
@@ -18,7 +18,7 @@ export type FullParserOptions<T extends {} = {}> = MakeRequired<
 	// overrides
 	keywords: DeepRequired<KeywordOptions>
 }
-export type ParserOptions<T extends {} = {}> = {
+export type ParserOptions<T = any> = {
 	/**
 	 * Allows any conditions (i.e. a variable or negated variable) to precede groups and append themselves to all variables inside them. Regular use of groups for changing precedence (e.g. `(a || b) && c` ) or negating expressions `!(a || b)` is still supported even if `prefixableGroups` is false.
 	 *
@@ -116,7 +116,7 @@ export type ParserOptions<T extends {} = {}> = {
 	/**
 	 * Enables regex strings as values. The value is treated as if it was quoted by forward slashes. Any repetition of lowercase characters (even if there are multiple) attached to the end are assumed to be flags and added as a single token to the value's `quotes.mode` property.
 	 *
-	 * Can be passed a custom function to determine when to use the regex value or not (it is converted to a regular value). The function is passed the property, the operator, and whether it's an expanded operator. If their is an error token for the property or operator, an empty string is passed.
+	 * Can be passed a custom function to determine when to use the regex value or not (it is converted to a regular value). The function is passed the property, the operator, and whether it's an expanded operator. If there is an error token for the property or operator, an empty string is passed.
 	 *
 	 * ```ts
 	 * // allow anything (`prop=/val/`, `prop:op:/val`, `prop=(/val/)`, `prop:op(/val/)`) but the value alone (`/regex/`)
@@ -272,7 +272,7 @@ export type ParserOptions<T extends {} = {}> = {
 	 * ```ts
 	 * type Operators = "contains"
 	 * function valueComparer(condition: Omit<Condition, "negate">, contextValue: any, context: any): boolean {
-	 * 	switch (operator as Operators) {
+	 * 	switch (condition.operator as Operators) {
 	 * 		case "contains": return (contextValue as string[]).includes(condition.value as string)
 	 * 		// ...
 	 * 	}
@@ -307,13 +307,13 @@ export type ParserOptions<T extends {} = {}> = {
 	 * 	if (prefix) {
 	 * 		const val = value as string // it's always a string if prefixed
 	 * 		switch (prefix as RawPrefixes) {
-	 * 			case "num": finalValue = parseInt(val, 2); break
+	 * 			case "num": finalValue = parseInt(val, 10); break
 	 * 			// ...
 	 * 		}
 	 * 	}
 	 * 	// another way to allow special unquoted value types is something like this:
 	 * 	if (typeof value === "string" && !isQuoted) {
-	 * 		const asNum = parseInt(value, 2)
+	 * 		const asNum = parseInt(value, 10)
 	 * 		if (!isNaN(asNum)) finalValue = asNum
 	 * 		if (["true","false"].includes(value)) {
 	 * 			finalValue = value === "true" ? true : false

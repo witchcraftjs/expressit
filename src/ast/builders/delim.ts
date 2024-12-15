@@ -21,7 +21,7 @@ export function delim<
 	{
 		left: TLeft extends string ? true : TLeft
 		right: TRight extends string ? true : TRight
-	} & TType extends undefined ? {} : { type: TType } {
+	} & TType extends undefined ? Record<string,never> : { type: TType } {
 	let quoteType
 	if (typeof left === "string") quoteType = type(left)
 	else if (typeof right === "string") quoteType = type(right)

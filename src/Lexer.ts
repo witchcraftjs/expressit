@@ -100,7 +100,7 @@ export interface TokenCategoryType<
 	TTokens extends RealTokenType<$T, any>[] = RealTokenType<$T, any>[],
 > extends BaseTokenType<TC> {
 	isCategory: true
-	entries: Partial<{[ key in TTokens[number]["type"]]: TTokens[number] }>
+	entries: Partial<Record<TTokens[number]["type"], TTokens[number]>>
 	// entries: Partial<Record<TTokens[number]["type"], TTokens[number]>>
 }
 
@@ -181,10 +181,10 @@ export class Lexer {
 
 	branches: {[key in keyof typeof MODE]?: TokenType<$T>[] }
 
-	opts: FullParserOptions<{}>
+	opts: FullParserOptions<any>
 
 	constructor(
-		opts: Partial<FullParserOptions<{}>> = {},
+		opts: Partial<FullParserOptions<any>> = {},
 	) {
 		this.opts = parseParserOptions(opts)
 		checkParserOpts(this.opts)

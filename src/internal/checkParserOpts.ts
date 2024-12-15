@@ -9,7 +9,7 @@ import { ERROR_CODES } from "../types/errors.js"
 import type { FullParserOptions, ParserOptions } from "../types/parser.js"
 
 /** @internal */
-export function checkParserOpts<T extends {}>(opts: FullParserOptions<T>, evaluatorChecks: boolean = false, validatorChecks: boolean = false): void {
+export function checkParserOpts<T>(opts: FullParserOptions<T>, evaluatorChecks: boolean = false, validatorChecks: boolean = false): void {
 	if (!evaluatorChecks) {
 		const keywordsList = [...opts.keywords.and, ...opts.keywords.or, ...opts.keywords.not].map(keyword => keyword.value)
 		const symNots = opts.keywords.not.filter(op => op.isSymbol).map(op => op.value)
@@ -48,8 +48,8 @@ export function checkParserOpts<T extends {}>(opts: FullParserOptions<T>, evalua
 			`prefixableStrings cannot contain blank entries`,
 			)
 		}
-		for (const key of ["and", "or", "not"]) {
-			const invalid = opts.keywords[key as keyof FullParserOptions["keywords"]]
+		for (const key of ["and", "or", "not"] as const) {
+			const invalid = opts.keywords[key]
 				?.find(_ => isBlank(_.value))
 				?.value
 			if (invalid !== undefined) {

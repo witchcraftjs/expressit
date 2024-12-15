@@ -1,6 +1,7 @@
 import { readMigrationFiles } from "drizzle-orm/migrator"
 import path from "path"
 import url from "url"
+// eslint-disable-next-line @typescript-eslint/naming-convention
 const __dirname = url.fileURLToPath(new URL(".", import.meta.url))
 
 const tests = path.resolve(__dirname)

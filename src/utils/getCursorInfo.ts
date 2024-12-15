@@ -56,7 +56,7 @@ export function getCursorInfo(
 			}
 		}
 		if (token.start >= index) {
-			info.next ||= token
+			info.next ??= token
 			if (token.valid && !info.valid.next) {
 				info.valid.next = token
 				break

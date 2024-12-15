@@ -115,15 +115,15 @@ export function condition(
 		node.sep = {}
 		if (sepL) {
 			node.sep.left = sepL
-			node.property ||= error(sepL.start, [TOKEN_TYPE.VALUE])
-			node.propertyOperator ||= error(sepL?.end ?? sepR?.start, [TOKEN_TYPE.VALUE])
+			node.property ??= error(sepL.start, [TOKEN_TYPE.VALUE])
+			node.propertyOperator ??= error(sepL?.end ?? sepR?.start, [TOKEN_TYPE.VALUE])
 		}
 		if (sepR) node.sep.right = sepR
 		else if (!node.value || node.value.type === AST_TYPE.VARIABLE) {
 			node.sep.right = error(node.value?.start ?? end, [TOKEN_TYPE.OP_EXPANDED_SEP])
 		}
 	} else if (propertyOperator) {
-		node.property ||= error(propertyOperator.start, [TOKEN_TYPE.VALUE])
+		node.property ??= error(propertyOperator.start, [TOKEN_TYPE.VALUE])
 	}
 	return createConditionNode(node as ConditionNode)
 }

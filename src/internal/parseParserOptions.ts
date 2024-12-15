@@ -5,10 +5,10 @@ import { defaultValueComparer } from "../defaults/defaultValueComparer.js"
 import type { FullParserOptions, ParserOptions } from "../types/parser.js"
 
 /** @internal */
-export function parseParserOptions<T extends {} = {}>(
+export function parseParserOptions<T>(
 	options: ParserOptions<T>,
 ): FullParserOptions<T> {
-	const opts: ParserOptions = {
+	const opts: ParserOptions<T> = {
 		prefixApplier: defaultPrefixApplier,
 		keyParser: defaultKeyParser,
 		valueComparer: defaultValueComparer,
