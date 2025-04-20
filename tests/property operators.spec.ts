@@ -409,7 +409,7 @@ describe(`expandedPropertySeparator only`, () => {
 		const expected = condition(
 			v(input, "var"),
 			true,
-			e(input, "", [TOKEN_TYPE.OP_EXPANDED_SEP]),
+			e(input, "", [TOKEN_TYPE.VALUE]),
 			e(input, ":", [TOKEN_TYPE.VALUE]),
 			{
 				left: t(input, ":", TOKEN_TYPE.OP_EXPANDED_SEP),
@@ -467,14 +467,14 @@ describe(`expandedPropertySeparator only - with groups`, () => {
 		)
 		expect(ast).to.deep.equal(expected)
 	})
-	it.only(`:op()`, () => {
+	it(`:op()`, () => {
 		const input = `:op()`
 
 		const ast = new Parser({ expandedPropertySeparator: ":" }).parse(input)
 		const expected = condition(
 			group(undefined, e(input, "(", [TOKEN_TYPE.VALUE])),
 			true,
-			e(input, "", [TOKEN_TYPE.OP_EXPANDED_SEP]),
+			e(input, "", [TOKEN_TYPE.VALUE]),
 			t(input, "op"),
 			{
 				left: t(input, ":", TOKEN_TYPE.OP_EXPANDED_SEP),
