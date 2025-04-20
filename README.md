@@ -1,7 +1,6 @@
 ### 🚧 WORK IN PROGRESS 🚧
 [![NPM Version (with latest tag)](https://img.shields.io/npm/v/%40witchcraft%2Fexpressit/latest)](https://www.npmjs.com/package/@witchcraft/expressit/v/latest)
 <!-- [![NPM Version (with beta tag)](https://img.shields.io/npm/v/%40witchcraft%2Fexpressit/beta)](https://www.npmjs.com/package/@witchcraft/expressit/v/beta) -->
-[![Build](https://github.com/witchcraftjs/expressit/actions/workflows/build.yml/badge.svg)](https://github.com/witchcraftjs/expressit/actions/workflows/build.yml)
 [![Docs](https://github.com/witchcraftjs/expressit/workflows/Docs/badge.svg)](https://github.com/witchcraftjs/expressit/actions/workflows/docs.yml)
 [![Release](https://github.com/witchcraftjs/expressit/actions/workflows/release.yml/badge.svg)](https://github.com/witchcraftjs/expressit/actions/workflows/release.yml)
 
@@ -88,6 +87,6 @@ Many more examples can be found in the [tests](https://github.com/witchcraftjs/e
 
 ## Related
 
-[Shortcuts Manager](https://github.com/alanscodelog/shortcuts-manager)
+[Shortcuts Manager](https://github.com/witchcraftjs/spellcraft)
 
 [Parsekey (shortcuts parser)](https://github.com/alanscodelog/parsekey)

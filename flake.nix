@@ -28,13 +28,13 @@
 
         devShells.default = pkgs.mkShell {
           packages = with pkgs;[
-            nodejs_22
-            nodejs_22.pkgs.pnpm
+            nodejs_23
+            nodejs_23.pkgs.pnpm
           ];
           shellHook = ''
             export NPM_TOKEN=$(cat $SECRETS_DIR/NPM_TOKEN)
             export GH_TOKEN=$(cat $SECRETS_DIR/GH_TOKEN)
-            echo "node `${pkgs.nodejs}/bin/node --version`"
+            echo "node `${pkgs.nodejs_23}/bin/node --version`"
             echo "pnpm `${pkgs.nodePackages.pnpm}/bin/pnpm --version`"
           '';
         };

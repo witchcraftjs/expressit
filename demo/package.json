@@ -14,10 +14,10 @@
 	},
 	"devDependencies": {
 		"@witchcraft/expressit": "file:../",
-		"typescript": "~5.7.2",
+		"typescript": "~5.5.0",
 		"vite": "^6.0.2"
 	},
 	"dependencies": {
-		"@alanscodelog/utils": "^4.0.0"
+		"@alanscodelog/utils": "^5.1.0"
 	}
 }

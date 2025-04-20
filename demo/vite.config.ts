@@ -2,7 +2,6 @@
 import tsconfigPaths from "vite-tsconfig-paths"
 import { defineConfig } from "vitest/config"
 
-// import postcss from "./postcss.config.js"
 import pkg from "../package.json"
 
 // https://vitejs.dev/config/
@@ -42,8 +41,5 @@ export default async ({ mode }: { mode: string }) => defineConfig({
 			// watch changes in linked repos
 			ignored: ["!**/node_modules/@alanscodelog/**"],
 		},
-	},
-	css: {
-		// postcss,
 	},
 })
