@@ -1,29 +1,34 @@
+import { type EnumLike } from "@alanscodelog/utils"
+import { enumFromArray } from "@alanscodelog/utils/enumFromArray.js"
+
 import type { ParserOptions } from "./parser.js"
 
 
-export enum ERROR_CODES {
-	PARSER_POSITION_ERROR = "PARSER.POSITION",
-	PARSER_CONFLICTING_OPTIONS_ERROR = "PARSER.OPTIONS.CONFLICTING",
-	PARSER_OPTION_REQUIRED_ERROR = "PARSER.OPTIONS.CUSTOM_REQUIRED",
-}
+export const PARSER_ERROR = enumFromArray([
+	"POSITION_ERROR",
+	"CONFLICTING_OPTIONS_ERROR",
+	"OPTION_REQUIRED_ERROR",
+], "PARSER.")
+
+export type ParserError = EnumLike<typeof PARSER_ERROR>
 
 
-export type ErrorInfo<T extends ERROR_CODES> =
-	T extends ERROR_CODES
-	? ERROR_Info[T]
+export type ErrorInfo<T extends ParserError> =
+	T extends ParserError
+	? ErrorCodesInfo[T]
 	: never
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
-export type ERROR_Info = {
-	[ERROR_CODES.PARSER_POSITION_ERROR]: {
+ 
+export type ErrorCodesInfo = {
+	[PARSER_ERROR.POSITION_ERROR]: {
 		start?: number
 		end?: number
 	}
-	[ERROR_CODES.PARSER_CONFLICTING_OPTIONS_ERROR]: {
+	[PARSER_ERROR.CONFLICTING_OPTIONS_ERROR]: {
 		prohibited: string[]
 		invalid: string
 	}
-	[ERROR_CODES.PARSER_OPTION_REQUIRED_ERROR]: {
+	[PARSER_ERROR.OPTION_REQUIRED_ERROR]: {
 		options?: (keyof ParserOptions)[]
 		requires: keyof ParserOptions
 	}

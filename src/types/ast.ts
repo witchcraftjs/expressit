@@ -1,94 +1,97 @@
-import type { AnyFunction } from "@alanscodelog/utils/types"
+import { enumFromArray } from "@alanscodelog/utils/enumFromArray.js"
+import type { AnyFunction, EnumLike } from "@alanscodelog/utils/types"
 
 
 export type AddParameters<T extends AnyFunction, TExtra extends any[] = [boolean]> = (...args: [...Parameters<T>, ...TExtra]) => ReturnType<T>
 
-export enum TOKEN_TYPE {
-	VALUE = "VALUE",
-	AND = "AND",
-	OR = "OR",
-	NOT = "NOT",
-	BACKTICK = "BACKTICK",
-	SINGLEQUOTE = "SINGLEQUOTE",
-	DOUBLEQUOTE = "DOUBLEQUOTE",
-	PARENL = "PARENL",
-	PARENR = "PARENR",
-	BRACKETL = "BRACKETL",
-	BRACKETR = "BRACKETR",
-	OP_EXPANDED_SEP = "OP_EXPANDED",
-	OP_CUSTOM = "OP_CUSTOM",
-	REGEX = "REGEX",
-}
+export const TOKEN_TYPE = enumFromArray([
+	"VALUE",
+	"AND",
+	"OR",
+	"NOT",
+	"BACKTICK",
+	"SINGLEQUOTE",
+	"DOUBLEQUOTE",
+	"PARENL",
+	"PARENR",
+	"BRACKETL",
+	"BRACKETR",
+	"OP_EXPANDED_SEP",
+	"OP_CUSTOM",
+	"REGEX",
+])
+
+export type TokenType = EnumLike<typeof TOKEN_TYPE>
 
 /**
  * @internal
  * Note if the negation operator, `!`, is used as a propertyOperator, this will return the wrong type.
  */
-export type ExtractTokenType<T extends string> =
+export type ExtractToken<T extends string> =
 	T extends "`"
-	? TOKEN_TYPE.BACKTICK
+	? typeof TOKEN_TYPE.BACKTICK
 	: T extends `'`
-	? TOKEN_TYPE.SINGLEQUOTE
+	? typeof TOKEN_TYPE.SINGLEQUOTE
 	: T extends `"`
-	? TOKEN_TYPE.DOUBLEQUOTE
+	? typeof TOKEN_TYPE.DOUBLEQUOTE
 	: T extends `/`
-	? TOKEN_TYPE.REGEX
+	? typeof TOKEN_TYPE.REGEX
 	: T extends `(`
-	? TOKEN_TYPE.PARENL
+	? typeof TOKEN_TYPE.PARENL
 	: T extends `)`
-	? TOKEN_TYPE.PARENR
+	? typeof TOKEN_TYPE.PARENR
 	: T extends `[`
-	? TOKEN_TYPE.BRACKETL
+	? typeof TOKEN_TYPE.BRACKETL
 	: T extends `]`
-	? TOKEN_TYPE.BRACKETR
+	? typeof TOKEN_TYPE.BRACKETR
 	: T extends `and`
-	? TOKEN_TYPE.AND
+	? typeof TOKEN_TYPE.AND
 	: T extends `&&`
-	? TOKEN_TYPE.AND
+	? typeof TOKEN_TYPE.AND
 	: T extends `&`
-	? TOKEN_TYPE.AND
+	? typeof TOKEN_TYPE.AND
 	: T extends `or`
-	? TOKEN_TYPE.OR
+	? typeof TOKEN_TYPE.OR
 	: T extends `||`
-	? TOKEN_TYPE.OR
+	? typeof TOKEN_TYPE.OR
 	: T extends `|`
-	? TOKEN_TYPE.OR
+	? typeof TOKEN_TYPE.OR
 	: T extends `not`
-	? TOKEN_TYPE.NOT
+	? typeof TOKEN_TYPE.NOT
 	: T extends `!`
-	? TOKEN_TYPE.NOT
-	: TOKEN_TYPE.VALUE
+	? typeof TOKEN_TYPE.NOT
+	: typeof TOKEN_TYPE.VALUE
 
-export type TokenParenTypes =
-	| TOKEN_TYPE.PARENL
-	| TOKEN_TYPE.PARENR
+export type TokenParen =
+	| typeof TOKEN_TYPE.PARENL
+	| typeof TOKEN_TYPE.PARENR
 export type TokenBracketTypes =
-	| TOKEN_TYPE.BRACKETL
-	| TOKEN_TYPE.BRACKETR
+	| typeof TOKEN_TYPE.BRACKETL
+	| typeof TOKEN_TYPE.BRACKETR
 
-export type TokenDelimiterTypes =
-	| TokenParenTypes
-	| TokenQuoteTypes
+export type TokenDelimiter =
+	| TokenParen
+	| TokenQuote
 	| TokenBracketTypes
-	| TOKEN_TYPE.OP_EXPANDED_SEP
+	| typeof TOKEN_TYPE.OP_EXPANDED_SEP
 
-export type TokenQuoteTypes =
-	| TOKEN_TYPE.BACKTICK
-	| TOKEN_TYPE.SINGLEQUOTE
-	| TOKEN_TYPE.DOUBLEQUOTE
-	| TOKEN_TYPE.REGEX
+export type TokenQuote =
+	| typeof TOKEN_TYPE.BACKTICK
+	| typeof TOKEN_TYPE.SINGLEQUOTE
+	| typeof TOKEN_TYPE.DOUBLEQUOTE
+	| typeof TOKEN_TYPE.REGEX
 
-export type TokenBooleanTypes =
-	| TOKEN_TYPE.AND
-	| TOKEN_TYPE.OR
+export type TokenBoolean =
+	| typeof TOKEN_TYPE.AND
+	| typeof TOKEN_TYPE.OR
 
-export type TokenOperatorTypes =
-	| TokenBooleanTypes
-	| TOKEN_TYPE.NOT
+export type TokenOperator =
+	| TokenBoolean
+	| typeof TOKEN_TYPE.NOT
 
-export type TokenPropertyOperatorTypes =
-	| TOKEN_TYPE.OP_CUSTOM
-	| TOKEN_TYPE.OP_EXPANDED_SEP
+export type TokenPropertyOperator =
+	| typeof TOKEN_TYPE.OP_CUSTOM
+	| typeof TOKEN_TYPE.OP_EXPANDED_SEP
 
 
 // export type EmptyObj = Record<"start"|"end", undefined>
@@ -101,16 +104,18 @@ export type Position = {
 	end: number
 }
 
-export enum AST_TYPE {
-	EXPRESSION = "EXPRESSION",
-	NORMALIZED_EXPRESSION = "NORMALIZED_EXPRESSION",
-	GROUP = "GROUP",
-	ARRAY = "ARRAY",
-	CONDITION = "CONDITION",
-	NORMALIZED_CONDITION = "NORMALIZED_CONDITION",
-	VARIABLE = "VARIABLE",
-}
+export const AST_TYPE = enumFromArray([
+	"EXPRESSION",
+	"NORMALIZED_EXPRESSION",
+	"GROUP",
+	"ARRAY",
+	"CONDITION",
+	"NORMALIZED_CONDITION",
+	"VARIABLE",
+])
+
 // #region AST nodes
+export type AstType = EnumLike<typeof AST_TYPE>
 
 
 export type RawNode<T extends Node> = Omit<T, "valid" | "type" | "isNode">
@@ -130,7 +135,7 @@ export interface BaseToken {
 /**
  * Valid tokens always have a value, even if it might be an empty string.
  */
-export interface ValidToken<TType extends TOKEN_TYPE = TOKEN_TYPE> extends BaseToken {
+export interface ValidToken<TType extends TokenType = TokenType> extends BaseToken {
 	valid: true
 	type: TType
 	value: string
@@ -150,7 +155,7 @@ export interface ErrorToken extends BaseToken {
 	type?: undefined
 	value?: undefined
 	valid: false
-	expected: TOKEN_TYPE[]
+	expected: TokenType[]
 }
 
 /**
@@ -159,7 +164,7 @@ export interface ErrorToken extends BaseToken {
  * Using {@link Token} does not work well in certain situations and is also more complex because it has so many generics.
  */
 export type AnyToken<
-	TType extends TOKEN_TYPE = TOKEN_TYPE,
+	TType extends TokenType = TokenType,
 > =
 	| ValidToken<TType>
 	| ErrorToken
@@ -175,7 +180,7 @@ export type ParserResults = ExpressionNode | ConditionNode | GroupNode | ErrorTo
  */
 
 export interface Node<
-	TType extends AST_TYPE = AST_TYPE,
+	TType extends AstType = AstType,
 	TValid extends boolean = boolean,
 > {
 	isNode: true
@@ -222,16 +227,16 @@ export interface GroupNode<
 	TPrefix extends
 		TPrefixable extends true
 			? ConditionNode<TValid> |
-			ValidToken<TOKEN_TYPE.NOT> |
+			ValidToken<typeof TOKEN_TYPE.NOT> |
 			undefined
-			: ValidToken<TOKEN_TYPE.NOT> |
+			: ValidToken<typeof TOKEN_TYPE.NOT> |
 			undefined =
 		TPrefixable extends true
 			? ConditionNode<TValid> |
-			ValidToken<TOKEN_TYPE.NOT> |
+			ValidToken<typeof TOKEN_TYPE.NOT> |
 			undefined
-			: ValidToken<TOKEN_TYPE.NOT>,
-> extends Node<AST_TYPE.GROUP> {
+			: ValidToken<typeof TOKEN_TYPE.NOT>,
+> extends Node<typeof AST_TYPE.GROUP> {
 	/**
 	 * If the condition is negated this will contain a "not" **token**, {@link ValidToken} .
 	 *
@@ -250,7 +255,7 @@ export interface GroupNode<
 	/**
 	 * The parenthesis tokens, {@link ValidToken} . These will always be defined (although not necessarily with valid tokens).
 	 */
-	paren: NodeDelimiters<TOKEN_TYPE.PARENL, TOKEN_TYPE.PARENR>
+	paren: NodeDelimiters<typeof TOKEN_TYPE.PARENL, typeof TOKEN_TYPE.PARENR>
 }
 
 
@@ -266,18 +271,18 @@ export interface GroupNode<
  * If `prefixableStrings` is true, the `prefix` property might contain a value token.
  */
 
-export interface VariableNode<TValid extends boolean = boolean> extends Node<AST_TYPE.VARIABLE, TValid> {
+export interface VariableNode<TValid extends boolean = boolean> extends Node<typeof AST_TYPE.VARIABLE, TValid> {
 	value: TValid extends boolean
-		? AnyToken<TOKEN_TYPE.VALUE>
+		? AnyToken<typeof TOKEN_TYPE.VALUE>
 		: TValid extends true
-		? ValidToken<TOKEN_TYPE.VALUE>
+		? ValidToken<typeof TOKEN_TYPE.VALUE>
 	: ErrorToken
-	prefix?: ValidToken<TOKEN_TYPE.VALUE> // todo
-	quote?: NodeDelimiters<TokenQuoteTypes, TokenQuoteTypes>
+	prefix?: ValidToken<typeof TOKEN_TYPE.VALUE> // todo
+	quote?: NodeDelimiters<TokenQuote, TokenQuote>
 }
 
-export interface ExpressionNode<TValid extends boolean = boolean> extends Node<AST_TYPE.EXPRESSION> {
-	operator: AnyToken<TokenBooleanTypes>
+export interface ExpressionNode<TValid extends boolean = boolean> extends Node<typeof AST_TYPE.EXPRESSION> {
+	operator: AnyToken<TokenBoolean>
 	left:
 	| ExpressionNode<TValid>
 	| ConditionNode<TValid>
@@ -298,17 +303,17 @@ export type Nodes = ExpressionNode | ConditionNode | GroupNode | VariableNode | 
  *
  * These are usually not important for evaluating an expression but are useful for syntax highlighting.
  */
-export type NodeDelimiters<TLEFT extends TOKEN_TYPE, TRIGHT extends TOKEN_TYPE = TLEFT> = {
+export type NodeDelimiters<TLEFT extends TokenType, TRIGHT extends TokenType = TLEFT> = {
 	left: AnyToken<TLEFT>
 	right: AnyToken<TRIGHT>
 	/** Only exists if regexes are enabled and this is a regex value. */
-	flags?: ValidToken<TOKEN_TYPE.VALUE>
+	flags?: ValidToken<typeof TOKEN_TYPE.VALUE>
 }
 
 
-export interface ArrayNode<TValid extends boolean = boolean> extends Node<AST_TYPE.ARRAY> {
+export interface ArrayNode<TValid extends boolean = boolean> extends Node<typeof AST_TYPE.ARRAY> {
 	values: VariableNode[]
-	bracket: NodeDelimiters<TOKEN_TYPE.BRACKETL, TOKEN_TYPE.BRACKETR>
+	bracket: NodeDelimiters<typeof TOKEN_TYPE.BRACKETL, typeof TOKEN_TYPE.BRACKETR>
 	valid: TValid
 }
 
@@ -321,7 +326,7 @@ export interface ArrayNode<TValid extends boolean = boolean> extends Node<AST_TY
  */
 export interface ConditionNode<
 	TValid extends boolean = boolean,
-> extends Node<AST_TYPE.CONDITION> {
+> extends Node<typeof AST_TYPE.CONDITION> {
 	/**
 	 * Contains a value node which could be a variable, an array node (if enabled), or a group.
 	 *
@@ -337,7 +342,7 @@ export interface ConditionNode<
 	/**
 	 * If the condition was negated, contains the "not" token, {@link ValidToken} , the condition was negated with.
 	 */
-	operator?: ValidToken<TOKEN_TYPE.NOT>
+	operator?: ValidToken<typeof TOKEN_TYPE.NOT>
 	/**
 	 * If condition property operators are used, this will contain the property (as a variable), or an error token if it was missing (but some separator or operator was passed).
 	 *
@@ -355,7 +360,7 @@ export interface ConditionNode<
 	 *
 	 * See the corresponding {@link ParserOptions} for more details.
 	 */
-	propertyOperator?: AnyToken<TOKEN_TYPE.OP_CUSTOM | TOKEN_TYPE.VALUE>
+	propertyOperator?: AnyToken<typeof TOKEN_TYPE.OP_CUSTOM | typeof TOKEN_TYPE.VALUE>
 	/**
 	 * If "long/expanded" form condition property operators are used, this will contain the separators, otherwise it is undefined.
 	 *
@@ -368,8 +373,8 @@ export interface ConditionNode<
 	 * See the corresponding {@link ParserOptions} for more details.
 	 */
 	sep?: {
-		left?: AnyToken<TOKEN_TYPE.OP_EXPANDED_SEP>
-		right?: AnyToken<TOKEN_TYPE.OP_EXPANDED_SEP>
+		left?: AnyToken<typeof TOKEN_TYPE.OP_EXPANDED_SEP>
+		right?: AnyToken<typeof TOKEN_TYPE.OP_EXPANDED_SEP>
 	}
 }
 
@@ -377,7 +382,7 @@ export interface NormalizedCondition<
 	TOp extends string = string,
 	TValue = any,
 > {
-	type: AST_TYPE.NORMALIZED_CONDITION
+	type: typeof AST_TYPE.NORMALIZED_CONDITION
 	value: TValue
 	operator?: TOp
 	property: string[]
@@ -386,14 +391,14 @@ export interface NormalizedCondition<
 
 
 export interface NormalizedExpression<TType extends string = string, TValue = any> {
-	type: AST_TYPE.NORMALIZED_EXPRESSION
+	type: typeof AST_TYPE.NORMALIZED_EXPRESSION
 	left:
 	| NormalizedExpression<TType, TValue>
 	| NormalizedCondition<TType, TValue>
 	right:
 	| NormalizedExpression<TType, TValue>
 	| NormalizedCondition<TType, TValue>
-	operator: TokenBooleanTypes
+	operator: TokenBoolean
 }
 
 export type ParentTypes<T extends Node | BaseToken | undefined> =

@@ -467,8 +467,9 @@ describe(`expandedPropertySeparator only - with groups`, () => {
 		)
 		expect(ast).to.deep.equal(expected)
 	})
-	it(`:op()`, () => {
+	it.only(`:op()`, () => {
 		const input = `:op()`
+
 		const ast = new Parser({ expandedPropertySeparator: ":" }).parse(input)
 		const expected = condition(
 			group(undefined, e(input, "(", [TOKEN_TYPE.VALUE])),

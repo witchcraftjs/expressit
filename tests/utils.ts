@@ -5,7 +5,16 @@ import { condition, error, pos, token, type, variable } from "../src/ast/builder
 import { createCondition } from "../src/ast/createNormalizedCondition.js"
 import { createExpression } from "../src/ast/createNormalizedExpression.js"
 import { Parser } from "../src/Parser.js"
-import { type ErrorToken, type ExtractTokenType, type FirstParam,type Position,TOKEN_TYPE, type ValidToken, type VariableNode } from "../src/types/index.js"
+import {
+	type ErrorToken,
+	type ExtractToken,
+	type FirstParam,
+	type Position,
+	TOKEN_TYPE,
+	type TokenType,
+	type ValidToken,
+	type VariableNode,
+} from "../src/types/index.js"
 import type { ParserOptions } from "../src/types/parser.js"
 
 
@@ -42,9 +51,9 @@ export const checkVariables = (
  * Quickly create a valid {@link ValidToken} .
  * Given the full string fed to the parser and a token value (only operators or delimiters) returns a token of the correct type with the positions auto-filled.
  */
-export const t = <T extends string, TForceType extends TOKEN_TYPE>(
+export const t = <T extends string, TForceType extends TokenType>(
 	input: string, value: T, tokenType?: TForceType,
-): TForceType extends TOKEN_TYPE ? ValidToken<TForceType> : ValidToken<ExtractTokenType<T>> =>
+): TForceType extends TokenType ? ValidToken<TForceType> : ValidToken<ExtractToken<T>> =>
 	token(tokenType ?? type(value) as any, value, findPos(input, value)) as any
 
 /**
@@ -64,7 +73,7 @@ export const v = <T extends string>(
  */
 export const e = <T extends string>(
 	input: string, beforeError: string, expected: T[],
-): ErrorToken => error<ExtractTokenType<T>>(findPos(input, beforeError).end, expected as any)
+): ErrorToken => error<ExtractToken<T>>(findPos(input, beforeError).end, expected as any)
 
 type ConditionConstructor = FirstParam<typeof createCondition>
 export const nCondition = (

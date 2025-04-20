@@ -16,7 +16,7 @@ import { createGroupNode } from "../createGroupNode.js"
 export function group(
 	prefix:
 	| ConditionNode
-	| ValidToken<TOKEN_TYPE.NOT>
+	| ValidToken<typeof TOKEN_TYPE.NOT>
 	| undefined,
 
 	expression:
@@ -30,9 +30,7 @@ export function group(
 	parenLeftPos?: Position,
 	parenRightPos?: Position,
 ): GroupNode {
-	if (expression === undefined) {
-		expression = token(TOKEN_TYPE.VALUE, undefined, prefix?.end !== undefined ? { start: prefix.end } : undefined)
-	}
+	expression ??= token(TOKEN_TYPE.VALUE, undefined, prefix?.end !== undefined ? { start: prefix.end } : undefined)
 
 	const node: Partial<FirstParam<typeof createGroupNode>> = {
 		prefix: undefined,

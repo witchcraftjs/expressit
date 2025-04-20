@@ -6,7 +6,7 @@ import { isDelimiter } from "./isDelimiter.js"
 import { isParen } from "./isParen.js"
 import { isQuote } from "./isQuote.js"
 
-import { type AnyToken, type ArrayNode, type ConditionNode,type GroupNode, TOKEN_TYPE, type TokenDelimiterTypes, type VariableNode } from "../types/ast.js"
+import { type AnyToken, type ArrayNode, type ConditionNode,type GroupNode, TOKEN_TYPE, type TokenDelimiter, type VariableNode } from "../types/ast.js"
 
 /**
  * Given a delimiter token, returns it's opposite pair, or undefined if the type passed was not a delimiter token (so you can pass any type without checking).
@@ -14,7 +14,7 @@ import { type AnyToken, type ArrayNode, type ConditionNode,type GroupNode, TOKEN
 export function getOppositeDelimiter(
 	token: AnyToken,
 	parentsMap: ReturnType<typeof generateParentsMap>
-): AnyToken<TokenDelimiterTypes> | undefined {
+): AnyToken<TokenDelimiter> | undefined {
 	const parent = parentsMap.get(token)
 	if (!isDelimiter(token)) throw new Error("Token is not a delimiter type.")
 	if (isParen(token)) {

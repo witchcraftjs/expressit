@@ -1,10 +1,10 @@
-import { type ExtractTokenType, TOKEN_TYPE } from "../../types/ast.js"
+import { type ExtractToken, TOKEN_TYPE } from "../../types/ast.js"
 /**
  * Given a the string value of an operator or single delimiter token, returns the corresponding {@link ValidToken_TYPE} .
  */
 export function type<T extends string>(
 	operatorSymbol: T,
-): ExtractTokenType<T> {
+): ExtractToken<T> {
 	switch (operatorSymbol) {
 		case "`": return TOKEN_TYPE.BACKTICK as any
 		case `'`: return TOKEN_TYPE.SINGLEQUOTE as any

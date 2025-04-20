@@ -7,7 +7,12 @@ import { findPos } from "./utils.js"
 
 import { Parser } from "../src/Parser.js"
 import type { AnyToken, Position } from "../src/types/ast.js"
-import { type CursorInfo, type Suggestion, SUGGESTION_TYPE } from "../src/types/autocomplete.js"
+import {
+	type CursorInfo,
+	type Suggestion,
+	SUGGESTION_TYPE,
+	type SuggestionType,
+} from "../src/types/autocomplete.js"
 import { getCursorInfo } from "../src/utils/getCursorInfo.js"
 
 
@@ -42,7 +47,7 @@ function createCursor(cursor: DeepPartial<CursorInfo>): CursorInfo {
 	return res as unknown as CursorInfo
 }
 
-const suggest = (type: SUGGESTION_TYPE | string, range: Position, before: boolean = false, after: boolean = false, group: boolean = false, prefix?: string | false) => ({
+const suggest = (type: SuggestionType | string, range: Position, before: boolean = false, after: boolean = false, group: boolean = false, prefix?: string | false) => ({
 	type: type.includes("ERROR.") ? type.replace("ERROR.", "") : type,
 	range,
 	requires: {

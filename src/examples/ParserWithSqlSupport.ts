@@ -29,7 +29,7 @@ export interface BaseOperatorDefinition {
 	/** How to compare the value when evualuating a condition. This is only used if using `evaluate`. */
 	valueComparer: (condition: any, contextValue: any) => boolean
 }
-export type BaseErrorTokenTypes =
+export type SqlParserError =
 	| "invalidKey"
 	| "unknownProperty"
 	| "unknownOperator"
@@ -53,11 +53,11 @@ export type BaseErrorTokenTypes =
  */
 export class ParserWithSqlSupport<TErrorToken extends
 	Position & {
-		type: BaseErrorTokenTypes
+		type: SqlParserError
 		message?: string
 	} =
 	Position & {
-		type: BaseErrorTokenTypes
+		type: SqlParserError
 		message?: string
 	},
 	TPropertyDefinition extends BasePropertyDefinition = BasePropertyDefinition,
@@ -70,9 +70,13 @@ export class ParserWithSqlSupport<TErrorToken extends
 
 	operatorMap: Record<string, string>
 
+	propertyDefinitions: TPropertyDefinitions
+
+	operatorDefinitions: TOperatorDefinitions
+
 	constructor(
-		public propertyDefinitions: TPropertyDefinitions,
-		public operatorDefinitions: TOperatorDefinitions,
+		propertyDefinitions: TPropertyDefinitions,
+		operatorDefinitions: TOperatorDefinitions,
 		{ sqlEscapeValue }: { sqlEscapeValue: TSqlEscapeValue }
 	) {
 		const operators = []
@@ -229,6 +233,8 @@ export class ParserWithSqlSupport<TErrorToken extends
 				return { value: finalValue, operator: finalOperator, negate: isNegated }
 			},
 		})
+		this.propertyDefinitions = propertyDefinitions
+		this.operatorDefinitions = operatorDefinitions
 		this.operatorMap = operatorMap
 		this.sqlEscapeValue = sqlEscapeValue
 	}

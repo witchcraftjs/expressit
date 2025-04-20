@@ -2,7 +2,7 @@ import { isArray } from "@alanscodelog/utils/isArray.js"
 
 import { pos } from "./pos.js"
 
-import type { AnyToken, EmptyObj, ErrorToken, Position, TOKEN_TYPE, ValidToken } from "../../types/ast.js"
+import type { AnyToken, EmptyObj, ErrorToken, Position, TokenType, ValidToken } from "../../types/ast.js"
 import { createToken } from "../createToken.js"
 
 
@@ -16,7 +16,7 @@ import { createToken } from "../createToken.js"
 
 export function token<
 	TValue extends string | undefined,
-	TType extends TOKEN_TYPE = TOKEN_TYPE,
+	TType extends TokenType = TokenType,
 >(
 	type: TValue extends undefined ? TType | TType[] : TType,
 	value: TValue,

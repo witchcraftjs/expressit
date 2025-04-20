@@ -1,3 +1,6 @@
+import { type EnumLike } from "@alanscodelog/utils"
+import { enumFromArray } from "@alanscodelog/utils/enumFromArray.js"
+
 import type { AnyToken, Position, ValidToken } from "./ast.js"
 
 
@@ -82,35 +85,36 @@ export type CursorInfo = {
 	}
 }
 
-export enum SUGGESTION_TYPE {
-	// can ignore whitespace requirement if replacing with quoted
-	VARIABLE = "VARIABLE",
-	ARRAY_VALUE = "ARRAY_VALUE",
-	VALUE = "VALUE",
-	PREFIX = "PREFIX",
-	BOOLEAN_WORD_OP = "BOOLEAN_WORD_OP",
-	BOOLEAN_SYMBOL_OP = "BOOLEAN_SYMBOL_OP",
-	BACKTICK = "BACKTICK",
-	DOUBLEQUOTE = "DOUBLEQUOTE",
-	SINGLEQUOTE = "SINGLEQUOTE",
-	PARENL = "PARENL",
-	PARENR = "PARENR",
-	PROPERTY = "PROPERTY",
-	EXPANDED_PROPERTY_OPERATOR = "EXPANDED_PROPERTY_OPERATOR",
-	CUSTOM_PROPERTY_OPERATOR = "CUSTOM_PROPERTY_OPERATOR",
-	PROPERTY_SEP = "PROPERTY_SEP",
-	BRAKCETR = "BRAKCETR",
-	REGEX = "REGEX",
-	REGEX_FLAGS = "REGEX_FLAGS",
+export const SUGGESTION_TYPE = enumFromArray([
+	"VARIABLE",
+	"ARRAY_VALUE",
+	"VALUE",
+	"PREFIX",
+	"BOOLEAN_WORD_OP",
+	"BOOLEAN_SYMBOL_OP",
+	"BACKTICK",
+	"DOUBLEQUOTE",
+	"SINGLEQUOTE",
+	"PARENL",
+	"PARENR",
+	"PROPERTY",
+	"EXPANDED_PROPERTY_OPERATOR",
+	"CUSTOM_PROPERTY_OPERATOR",
+	"PROPERTY_SEP",
+	"BRAKCETR",
+	"REGEX",
+	"REGEX_FLAGS",
 	/** This is not an oversight, I haven't figured out a fast way to detect left bracket errors. */
 	// BRAKCETL = "BRAKCETL",
-}
+])
+
+export type SuggestionType = EnumLike<typeof SUGGESTION_TYPE>
 
 /**
  * A suggestion entry that describes a type of suggestion.
  */
 export type Suggestion = {
-	type: SUGGESTION_TYPE
+	type: SuggestionType
 	/** The range the suggestion should replace / be inserted at. */
 	range: Position
 	/** {@link CursorInfo} */

@@ -19,9 +19,9 @@ import { extractPosition } from "./internal/extractPosition.js"
 import { getUnclosedRightParenCount } from "./internal/getUnclosedRightParenCount.js"
 import { parseParserOptions } from "./internal/parseParserOptions.js"
 import { unescape } from "./internal/unescape.js"
-import { $C, $T, Lexer,type RealTokenType, type Token, type TokenCategoryType, type TokenType } from "./Lexer.js"
-import type { ArrayNode, ConditionNode, GroupNode, NormalizedCondition, NormalizedExpression, ParserResults, TokenBooleanTypes, ValidToken, VariableNode, } from "./types/ast.js"
-import { type AnyToken, AST_TYPE,type Completion, type Position, type Suggestion,SUGGESTION_TYPE, TOKEN_TYPE } from "./types/index.js"
+import { $C, type $CType, $T, type $TType, Lexer, type LexerCategoryToken, type LexerRealToken, type LexerToken,type Token } from "./Lexer.js"
+import type { ArrayNode, ConditionNode, GroupNode, NormalizedCondition, NormalizedExpression, ParserResults, TokenBoolean, TokenType, ValidToken, VariableNode } from "./types/ast.js"
+import { type AnyToken, AST_TYPE, type Completion, type Position, type Suggestion, SUGGESTION_TYPE, type SuggestionType,TOKEN_TYPE } from "./types/index.js"
 import type { FullParserOptions, KeywordEntry, ParserOptions, ValidationQuery, ValueQuery } from "./types/parser.js"
 import { extractTokens } from "./utils/extractTokens.js"
 import { generateParentsMap } from "./utils/generateParentsMap.js"
@@ -52,7 +52,7 @@ const defaultNodeDirs = {
 const createDefaultRequires = (partial: DeepPartial<Suggestion["requires"]> = {}): Suggestion["requires"] => ({
 	whitespace: {
 		...defaultNodeDirs,
-		...(partial.whitespace ? partial.whitespace : {}),
+		...(partial.whitespace ?? {}),
 	},
 	group: partial.group ?? false,
 	prefix: partial.prefix ?? false,
@@ -62,7 +62,7 @@ const createDefaultRequires = (partial: DeepPartial<Suggestion["requires"]> = {}
 const tokenRequiresWhitespace = (valid: ValidToken | undefined, whitespace: boolean, wordOps: KeywordEntry[]): boolean => {
 	if (whitespace || valid === undefined) return false
 	return valid.type === TOKEN_TYPE.VALUE ||
-		([TOKEN_TYPE.AND, TOKEN_TYPE.OR, TOKEN_TYPE.NOT].includes(valid.type) &&
+		(([TOKEN_TYPE.AND, TOKEN_TYPE.OR, TOKEN_TYPE.NOT] as string[]).includes(valid.type) &&
 			wordOps.find(_ => _.value === valid.value) !== undefined)
 }
 const tokenVariable = [TOKEN_TYPE.BACKTICK, TOKEN_TYPE.DOUBLEQUOTE, TOKEN_TYPE.SINGLEQUOTE, TOKEN_TYPE.VALUE, TOKEN_TYPE.REGEX]
@@ -96,9 +96,9 @@ export class Parser<T = any> {
 
 	private readonly lexer: Lexer
 
-	private readonly $: Record<$T, RealTokenType<$T>>
+	private readonly $: Record<$TType, LexerRealToken<$TType>>
 
-	private readonly $categories: Partial<Record<$C, TokenCategoryType<$C>>>
+	private readonly $categories: Partial<Record<$CType, LexerCategoryToken<$CType>>>
 
 	private readonly info: Pick<ReturnType<Lexer["calculateSymbolInfo"]>, "expandedSepAlsoCustom" | "customOpAlsoNegation">
 
@@ -117,7 +117,7 @@ export class Parser<T = any> {
 
 	state: {
 		rawInput: string
-		lexedTokens: Token<$T>[]
+		lexedTokens: Token<$TType>[]
 		index: number
 		shift: number
 	} = {
@@ -131,7 +131,7 @@ export class Parser<T = any> {
 	 * This is exposed mainly for debugging purposes. Use parse directly instead.
 	 */
 	lex(input: string): {
-		tokens: Token<$T> []
+		tokens: Token<$TType> []
 		shift: number
 		rawInput: string
 	} {
@@ -168,7 +168,7 @@ export class Parser<T = any> {
 	parse(
 		input: string
 		| {
-			tokens: Token<$T> []
+			tokens: Token<$TType> []
 			shift: number
 			rawInput: string
 		},
@@ -206,9 +206,9 @@ export class Parser<T = any> {
 	}
 	
 	
-	transformCategoryToken<TC extends $C>(
+	transformCategoryToken<TC extends $CType>(
 		token: Token,
-		categoryToken: TokenCategoryType<TC>,
+		categoryToken: LexerCategoryToken<TC>,
 	): Token<TC> {
 		return {
 			...token,
@@ -216,37 +216,37 @@ export class Parser<T = any> {
 		}
 	}
 
-	getCategoryTokens<TType extends $C>(
+	getCategoryTokens<TType extends $CType>(
 		type: TType,
-	): TokenCategoryType<TType>["entries"] | undefined {
-		return this.$categories[type as $C]?.entries as any
+	): LexerCategoryToken<TType>["entries"] | undefined {
+		return this.$categories[type as $CType]?.entries as any
 	}
 
-	getTokenType(type: $T | $C): TokenType<$T> | undefined {
-		return this.$[type as any as $T] as any
+	getTokenType(type: $TType | $CType): LexerToken<$TType> | undefined {
+		return this.$[type as any as $TType] as any
 	}
 
-	isExactType<TType extends $T>(token: Token, type: TType): token is Token<TType> {
+	isExactType<TType extends $TType>(token: Token, type: TType): token is Token<TType> {
 		if (this.$[type]) {
 			return this.isType(token, type)
 		}
 		return false
 	}
 
-	isType(token: Token | undefined, type: $T | $C): boolean {
+	isType(token: Token | undefined, type: $TType | $CType): boolean {
 		if (token === undefined) return false
 		if (token.type === type) return true
 		const tokenType = this.getTokenType(token.type)
 		
 		if (tokenType?.type === type) return true
-		const category = this.$categories[type as $C]
-		if (category?.entries[token.type as $T] !== undefined) {
+		const category = this.$categories[type as $CType]
+		if (category?.entries[token.type as $TType] !== undefined) {
 			return true
 		}
 		return false
 	}
 
-	createErrorToken(type: $T, index?: number): Token {
+	createErrorToken(type: $TType, index?: number): Token {
 		return {
 			type,
 			value: "",
@@ -265,7 +265,7 @@ export class Parser<T = any> {
 	}
 	
 
-	peek(n = 1): Token<$T> | undefined {
+	peek(n = 1): Token<$TType> | undefined {
 		return this.state.lexedTokens[this.state.index + n]
 	}
 
@@ -273,12 +273,12 @@ export class Parser<T = any> {
 		return this.peek(1) === undefined
 	}
 
-	consumeAny(): Token<$T> {
+	consumeAny(): Token<$TType> {
 		return this.consume(this.peek(1)?.type)
 	}
 
 	consume<
-		TType extends $T | $C,
+		TType extends $TType | $CType,
 	>(
 		type: TType | undefined,
 	): Token<TType> {
@@ -289,9 +289,9 @@ export class Parser<T = any> {
 		if (nextToken === undefined) {
 			throw new Error(`Reached end of input without consuming a token of type ${type}`)
 		}
-		if (this.$categories[type as $C] !== undefined) {
-			const categoryToken = this.$categories[type as $C]
-			const tokenType = categoryToken?.entries[nextToken.type as $T]
+		if (this.$categories[type as $CType] !== undefined) {
+			const categoryToken = this.$categories[type as $CType]
+			const tokenType = categoryToken?.entries[nextToken.type as $TType]
 			if (categoryToken && tokenType) {
 				this.state.index++
 				return this.transformCategoryToken(nextToken, categoryToken) as Token<TType>
@@ -299,7 +299,7 @@ export class Parser<T = any> {
 				throw new Error("here")
 			}
 		} else {
-			const tokenType = this.getTokenType(type as $T)
+			const tokenType = this.getTokenType(type as $TType)
 			if (tokenType !== undefined) {
 				if (nextToken?.type === tokenType.type) {
 					this.state.index++
@@ -554,9 +554,9 @@ export class Parser<T = any> {
 		{ onlyValues = false, convertRegexValues = false, convertArrayValues = false }:
 		{ onlyValues?: boolean, convertRegexValues?: boolean, convertArrayValues?: boolean } = {},
 	): [
-			ValidToken<TOKEN_TYPE.PARENL> | undefined,
+			ValidToken<typeof TOKEN_TYPE.PARENL> | undefined,
 			GroupNode["expression"],
-		ValidToken<TOKEN_TYPE.PARENR> | undefined,
+		ValidToken<typeof TOKEN_TYPE.PARENR> | undefined,
 		] {
 		const parenL = this.ruleParenL()
 		let parenLeftCount = 0
@@ -709,7 +709,7 @@ export class Parser<T = any> {
 				rest = {
 					sepL: undefined,
 					sepR,
-					propertyOperator: sepL as any as AnyToken<TOKEN_TYPE.OP_CUSTOM>,
+					propertyOperator: sepL as any as AnyToken<typeof TOKEN_TYPE.OP_CUSTOM>,
 				}
 			} else {
 				rest = { sepL, sepR, propertyOperator: op }
@@ -756,7 +756,7 @@ export class Parser<T = any> {
 		}
 		if (this.isType(next, $C.REGEX_ANY)) {
 			// this is safe since the start can never match flags
-			const quoteL = this.ruleRegexAny() as ValidToken<TOKEN_TYPE.REGEX>
+			const quoteL = this.ruleRegexAny() as ValidToken<typeof TOKEN_TYPE.REGEX>
 			// unlike other values, regexes will swallow all input if incorrect
 			const maybeValue = this.peek(1)
 			// note the inversion (todo inverse map)
@@ -774,7 +774,7 @@ export class Parser<T = any> {
 			return handle.variable(undefined, undefined, value, quoteR)
 		}
 		if (this.isType(next, $C.QUOTE_ANY)) {
-			const quoteToken = next as Token<$T.QUOTE_BACKTICK | $T.QUOTE_DOUBLE | $T.QUOTE_SINGLE>
+			const quoteToken = next as Token<typeof $T.QUOTE_BACKTICK | typeof $T.QUOTE_DOUBLE | typeof $T.QUOTE_SINGLE>
 			const quoteL = this.ruleValueDelimAny()
 			const maybeValue = this.peek(1)
 			const value = !quoteL && this.isType(maybeValue, $T.VALUE_UNQUOTED)
@@ -792,7 +792,7 @@ export class Parser<T = any> {
 		return undefined
 	}
 
-	ruleValueDelimAny(): ValidToken<TOKEN_TYPE.SINGLEQUOTE | TOKEN_TYPE.DOUBLEQUOTE | TOKEN_TYPE.BACKTICK | TOKEN_TYPE.REGEX> | undefined {
+	ruleValueDelimAny(): ValidToken<typeof TOKEN_TYPE.SINGLEQUOTE | typeof TOKEN_TYPE.DOUBLEQUOTE | typeof TOKEN_TYPE.BACKTICK | typeof TOKEN_TYPE.REGEX> | undefined {
 		const next = this.peek(1)!
 		
 		if (this.isType(next, $C.QUOTE_ANY)) {
@@ -802,7 +802,7 @@ export class Parser<T = any> {
 		return undefined
 	}
 
-	ruleRegexAny(): ValidToken<TOKEN_TYPE.REGEX> | [ValidToken<TOKEN_TYPE.REGEX>, AnyToken<TOKEN_TYPE.VALUE>] {
+	ruleRegexAny(): ValidToken<typeof TOKEN_TYPE.REGEX> | [ValidToken<typeof TOKEN_TYPE.REGEX>, AnyToken<typeof TOKEN_TYPE.VALUE>] {
 		const value = this.consume($C.REGEX_ANY)
 		if (value.value.length > 1) {
 			// cheat a bit to extract the flags
@@ -826,11 +826,11 @@ export class Parser<T = any> {
 	}
 
 	ruleValueNot<
-		TType extends $T.QUOTE_SINGLE | $T.QUOTE_DOUBLE | $T.QUOTE_BACKTICK | $C.REGEX_ANY,
+		TType extends typeof $T.QUOTE_SINGLE | typeof $T.QUOTE_DOUBLE | typeof $T.QUOTE_BACKTICK | typeof $C.REGEX_ANY,
 	>(
 		type: TType,
 	): ValidToken<
-			TOKEN_TYPE.VALUE
+			typeof TOKEN_TYPE.VALUE
 		> {
 		const realType = {
 			[$T.QUOTE_SINGLE]: $C.VALUE_FOR_SINGLE,
@@ -848,15 +848,15 @@ export class Parser<T = any> {
 		return handle.token.value(...this.processToken(value)) as any
 	}
 
-	ruleQuote<TType extends $T.QUOTE_SINGLE | $T.QUOTE_DOUBLE | $T.QUOTE_BACKTICK >(
+	ruleQuote<TType extends typeof $T.QUOTE_SINGLE | typeof $T.QUOTE_DOUBLE | typeof $T.QUOTE_BACKTICK >(
 		type: TType,
 	): ValidToken<
-		TType extends $T.QUOTE_SINGLE
-		? TOKEN_TYPE.SINGLEQUOTE
-		: TType extends $T.QUOTE_DOUBLE
-		? TOKEN_TYPE.DOUBLEQUOTE
-		: TType extends $T.QUOTE_BACKTICK
-		? TOKEN_TYPE.BACKTICK
+		TType extends typeof $T.QUOTE_SINGLE
+		? typeof TOKEN_TYPE.SINGLEQUOTE
+		: TType extends typeof $T.QUOTE_DOUBLE
+		? typeof TOKEN_TYPE.DOUBLEQUOTE
+		: TType extends typeof $T.QUOTE_BACKTICK
+		? typeof TOKEN_TYPE.BACKTICK
 		: never
 		> {
 		const quote = this.peek(1)
@@ -891,7 +891,7 @@ export class Parser<T = any> {
 			onlyToken?: TOnlyToken
 			unprefixed?: boolean
 		} = {},
-	): TOnlyToken extends true ? Token<$T.VALUE_UNQUOTED> | undefined : AnyToken<TOKEN_TYPE.VALUE> | undefined {
+	): TOnlyToken extends true ? Token<typeof $T.VALUE_UNQUOTED> | undefined : AnyToken<typeof TOKEN_TYPE.VALUE> | undefined {
 		const next = this.peek(1)
 		const next2 = this.peek(2)
 		const next4 = this.peek(4)
@@ -912,13 +912,13 @@ export class Parser<T = any> {
 		}: {
 			onlyToken?: TOnlyToken
 		} = {},
-	): TOnlyToken extends true ? Token<$T.VALUE_UNQUOTED> : AnyToken<TOKEN_TYPE.VALUE> {
+	): TOnlyToken extends true ? Token<typeof $T.VALUE_UNQUOTED> : AnyToken<typeof TOKEN_TYPE.VALUE> {
 		const t = this.consume($T.VALUE_UNQUOTED)
 		const res = onlyToken ? t : handle.token.value(...this.processToken(t))
 		return (res) as any
 	}
 
-	ruleParenL(): ValidToken<TOKEN_TYPE.PARENL> | undefined {
+	ruleParenL(): ValidToken<typeof TOKEN_TYPE.PARENL> | undefined {
 		const next = this.peek(1)
 		const value = next?.type === $T.PAREN_L
 			? this.consume($T.PAREN_L)
@@ -929,12 +929,12 @@ export class Parser<T = any> {
 			: undefined
 	}
 
-	ruleParenR(): ValidToken<TOKEN_TYPE.PARENR> | undefined {
+	ruleParenR(): ValidToken<typeof TOKEN_TYPE.PARENR> | undefined {
 		const value = this.consume($T.PAREN_R)
 		return handle.delimiter.parenR(...this.processToken(value))
 	}
 
-	ruleBracketL(): ValidToken<TOKEN_TYPE.BRACKETL> | undefined {
+	ruleBracketL(): ValidToken<typeof TOKEN_TYPE.BRACKETL> | undefined {
 		const next = this.peek(1)
 		const value = next?.type === $T.BRACKET_L
 			? this.consume($T.BRACKET_L)
@@ -945,12 +945,12 @@ export class Parser<T = any> {
 			: undefined
 	}
 
-	ruleBracketR(): ValidToken<TOKEN_TYPE.BRACKETR> | undefined {
+	ruleBracketR(): ValidToken<typeof TOKEN_TYPE.BRACKETR> | undefined {
 		const value = this.consume($T.BRACKET_R)
 		return handle.delimiter.bracketR(...this.processToken(value))
 	}
 	
-	ruleNot(): ValidToken<TOKEN_TYPE.NOT> | undefined {
+	ruleNot(): ValidToken<typeof TOKEN_TYPE.NOT> | undefined {
 		if (this.isType(this.peek(1), $C.OPERATOR_NOT)) {
 			const op = this.consume($C.OPERATOR_NOT)
 			return handle.operator.not(...this.processToken<true>(op))
@@ -1129,13 +1129,13 @@ export class Parser<T = any> {
 		const wordOps = [...opts.keywords.and, ...opts.keywords.or, ...opts.keywords.not].filter(op => !op.isSymbol)
 
 		const canSuggestOpAfterPrev = (
-			token.valid.prev && tokenVariable.includes(token.valid.prev?.type) &&
+			token.valid.prev && (tokenVariable as string[]).includes(token.valid.prev?.type) &&
 			(token.whitespace.prev || token.valid.prev.type === TOKEN_TYPE.PARENR) &&
 			!token.at && token.valid.next === undefined
 		)
 		const canSuggestOpBeforeNext =
 			(
-				token.valid.next && tokenVariable.includes(token.valid.next?.type) &&
+				token.valid.next && (tokenVariable as string[]).includes(token.valid.next?.type) &&
 				token.whitespace.next && // no parenL allowed since check since there will already be prefix suggestions
 				!token.at && token.valid.prev === undefined
 			)
@@ -1169,7 +1169,7 @@ export class Parser<T = any> {
 		} else {
 			const surroundingErrors = getSurroundingErrors(tokens, token)
 
-			const errorTypesHandled: TOKEN_TYPE[] = []
+			const errorTypesHandled: TokenType[] = []
 			const errorSuggestion = {
 				isError: true,
 				cursorInfo: token,
@@ -1192,7 +1192,7 @@ export class Parser<T = any> {
 							const isRight = (errorParent as VariableNode).quote!.right === error
 							suggestions.push({
 								...errorSuggestion,
-								type: type as any as SUGGESTION_TYPE,
+								type: type as any as SuggestionType,
 								requires: createDefaultRequires({
 									whitespace: {
 										before: isRight ? false : requiresWhitespacePrev,
@@ -1229,7 +1229,7 @@ export class Parser<T = any> {
 						case TOKEN_TYPE.PARENR:
 							suggestions.push({
 								...errorSuggestion,
-								type: type as any as SUGGESTION_TYPE,
+								type: type as any as SuggestionType,
 								requires: createDefaultRequires(),
 								range: pos({ start: index }, { fill: true }),
 							})
@@ -1880,7 +1880,7 @@ export class Parser<T = any> {
 
 			// apply De Morgan's laws if group prefix was negative
 			// the values are already flipped, we just have to flip the operator
-			const type: TokenBooleanTypes = (groupValue === false ? OPPOSITE[ast.operator!.type!] : ast.operator.type) as TokenBooleanTypes
+			const type: TokenBoolean = (groupValue === false ? OPPOSITE[ast.operator!.type!] : ast.operator.type)!
 			return createExpression<TType, TValue>({ operator: type, left: left as any, right: right as any })
 		}
 		return unreachable()
@@ -1910,7 +1910,7 @@ export class Parser<T = any> {
 		// eslint-disable-next-line prefer-rest-params
 		const prefixes: VariableNode[] = arguments[5] ?? []
 		// eslint-disable-next-line prefer-rest-params
-		let operator: ValidToken<TOKEN_TYPE.VALUE | TOKEN_TYPE.OP_CUSTOM> | undefined = arguments[6]
+		let operator: ValidToken<typeof TOKEN_TYPE.VALUE | typeof TOKEN_TYPE.OP_CUSTOM> | undefined = arguments[6]
 
 		const self_ = this as any as Parser & { validate: AddParameters<Parser["validate"], [typeof prefix, typeof groupValue, typeof results, typeof prefixes, typeof operator]> }
 
@@ -1952,7 +1952,7 @@ export class Parser<T = any> {
 				const valuePrefix = ast.value.type === AST_TYPE.VARIABLE && ast.value.prefix
 					? ast.value.prefix
 					: undefined
-				operator ??= ast.propertyOperator as ValidToken<TOKEN_TYPE.VALUE | TOKEN_TYPE.OP_CUSTOM>
+				operator ??= ast.propertyOperator as ValidToken<typeof TOKEN_TYPE.VALUE | typeof TOKEN_TYPE.OP_CUSTOM>
 				const isRegex = (ast.value as VariableNode)?.quote?.left.type === TOKEN_TYPE.REGEX
 				const isQuoted = (ast.value as VariableNode)?.quote !== undefined
 				const isExpanded = ast.sep !== undefined
@@ -1985,7 +1985,7 @@ export class Parser<T = any> {
 
 				if (ast.property) prefixes.push((ast.property as any))
 				// eslint-disable-next-line @typescript-eslint/no-shadow
-				const operator = ast.propertyOperator as ValidToken<TOKEN_TYPE.VALUE | TOKEN_TYPE.OP_CUSTOM>
+				const operator = ast.propertyOperator as ValidToken<typeof TOKEN_TYPE.VALUE | typeof TOKEN_TYPE.OP_CUSTOM>
 				self_.validate(ast.value, context, name, boolValue, results, prefixes, operator)
 			}
 		}

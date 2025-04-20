@@ -1,9 +1,9 @@
-import { type AnyToken, TOKEN_TYPE, type TokenDelimiterTypes } from "../types/ast.js"
+import { type AnyToken, TOKEN_TYPE, type TokenDelimiter } from "../types/ast.js"
 
 /**
  * Returns whether token is a delimiter type (including if it's an expanded operator separator).
  */
-export function isDelimiter(token?: AnyToken): token is AnyToken<TokenDelimiterTypes> {
+export function isDelimiter(token?: AnyToken): token is AnyToken<TokenDelimiter> {
 	return ([
 		TOKEN_TYPE.BACKTICK,
 		TOKEN_TYPE.DOUBLEQUOTE,
@@ -14,5 +14,5 @@ export function isDelimiter(token?: AnyToken): token is AnyToken<TokenDelimiterT
 		TOKEN_TYPE.BRACKETR,
 		TOKEN_TYPE.OP_EXPANDED_SEP,
 		TOKEN_TYPE.REGEX,
-	] as TokenDelimiterTypes[]).includes(token?.type as TokenDelimiterTypes)
+	] as TokenDelimiter[]).includes(token?.type as TokenDelimiter)
 }

@@ -1,7 +1,7 @@
 import { pos } from "./pos.js"
 import { token } from "./token.js"
 
-import { type AnyToken, type EmptyObj,type FirstParam, type Position, TOKEN_TYPE, type TokenQuoteTypes, type ValidToken, type VariableNode } from "../../types/ast.js"
+import { type AnyToken, type EmptyObj,type FirstParam, type Position, TOKEN_TYPE, type TokenQuote, type ValidToken, type VariableNode } from "../../types/ast.js"
 import { createVariableNode } from "../createVariableNode.js"
 
 
@@ -14,9 +14,9 @@ import { createVariableNode } from "../createVariableNode.js"
  */
 
 export function variable(
-	prefix: ValidToken<TOKEN_TYPE.VALUE> | undefined,
-	value: string | AnyToken<TOKEN_TYPE.VALUE>,
-	quote?: { type: TokenQuoteTypes, left?: boolean, right?: boolean, flags?: string },
+	prefix: ValidToken<typeof TOKEN_TYPE.VALUE> | undefined,
+	value: string | AnyToken<typeof TOKEN_TYPE.VALUE>,
+	quote?: { type: TokenQuote, left?: boolean, right?: boolean, flags?: string },
 	position?: Position | EmptyObj,
 ): VariableNode {
 	if (typeof value === "string") {
@@ -76,7 +76,7 @@ export function variable(
 	return createVariableNode(node as any)
 }
 
-function quoteFromType(type: TokenQuoteTypes | undefined): string {
+function quoteFromType(type: TokenQuote | undefined): string {
 	switch (type) {
 		case TOKEN_TYPE.BACKTICK: return "`"
 		case TOKEN_TYPE.DOUBLEQUOTE: return "\""

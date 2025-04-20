@@ -1,3 +1,5 @@
+import type { EnumLike } from "@alanscodelog/utils"
+import { enumFromArray } from "@alanscodelog/utils/enumFromArray.js"
 import { isBlank } from "@alanscodelog/utils/isBlank.js"
 import { pushIfNotIn } from "@alanscodelog/utils/pushIfNotIn.js"
 
@@ -7,63 +9,68 @@ import type { FullParserOptions } from "./types/index.js"
 
 const regexFlags = /^[a-zA-Z]+/
 
-enum MODE {
-	MAIN = "MAIN",
-	MAYBE_QUOTE_ERROR = "MAYBE_QUOTE_ERROR",
-	NOT_SINGLE = "NOT_SINGLE",
-	NOT_DOUBLE = "NOT_DOUBLE",
-	NOT_BACKTICK = "NOT_BACKTICK",
-	NOT_REGEX = "NOT_REGEX",
-	REGEX_END = "REGEX_END",
-	BRACKET_MAIN = "BRACKET_MAIN",
-	BRACKET_MAYBE_QUOTE_ERROR = "BRACKET_MAYBE_QUOTE_ERROR",
-	BRACKET_NOT_SINGLE = "BRACKET_NOT_SINGLE",
-	BRACKET_NOT_DOUBLE = "BRACKET_NOT_DOUBLE",
-	BRACKET_NOT_BACKTICK = "BRACKET_NOT_BACKTICK",
-	
-}
+const MODE = enumFromArray([
+	"MAIN",
+	"MAYBE_QUOTE_ERROR",
+	"NOT_SINGLE",
+	"NOT_DOUBLE",
+	"NOT_BACKTICK",
+	"NOT_REGEX",
+	"REGEX_END",
+	"BRACKET_MAIN",
+	"BRACKET_MAYBE_QUOTE_ERROR",
+	"BRACKET_NOT_SINGLE",
+	"BRACKET_NOT_DOUBLE",
+	"BRACKET_NOT_BACKTICK",
+	"BRACKET_NOT_REGEX",
+	"BRACKET_REGEX_END",
+])
+
 const BRACKET_PREFIX = "BRACKET"
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
-export enum $T {
-	_ = "_", // whitespace,
-	VALUE_UNQUOTED = "VALUE_UNQUOTED",
-	VALUE_REGEX = "VALUE_REGEX",
-	VALUE_NOT_SINGLE = "VALUE_NOT_SINGLE",
-	VALUE_NOT_DOUBLE = "VALUE_NOT_DOUBLE",
-	VALUE_NOT_BACKTICK = "VALUE_NOT_BACKTICK",
-	SYM_OR = "SYM_OR",
-	SYM_AND = "SYM_AND",
-	SYM_NOT = "SYM_NOT",
-	WORD_OR = "WORD_OR",
-	WORD_AND = "WORD_AND",
-	WORD_NOT = "WORD_NOT",
-	REGEX_START = "REGEX_START",
-	REGEX_END = "REGEX_END",
-	EXP_PROP_OP = "EXP_PROP_OP",
-	CUSTOM_PROP_OP = "CUSTOM_PROP_OP",
-	PAREN_L = "PAREN_L",
-	PAREN_R = "PAREN_R",
-	BRACKET_L = "BRACKET_L",
-	BRACKET_R = "BRACKET_R",
-	QUOTE_SINGLE = "QUOTE_SINGLE",
-	QUOTE_DOUBLE = "QUOTE_DOUBLE",
-	QUOTE_BACKTICK = "QUOTE_BACKTICK",
-}
+export const $T = enumFromArray([
+	"_",
+	"VALUE_UNQUOTED",
+	"VALUE_REGEX",
+	"VALUE_NOT_SINGLE",
+	"VALUE_NOT_DOUBLE",
+	"VALUE_NOT_BACKTICK",
+	"SYM_OR",
+	"SYM_AND",
+	"SYM_NOT",
+	"WORD_OR",
+	"WORD_AND",
+	"WORD_NOT",
+	"REGEX_START",
+	"REGEX_END",
+	"EXP_PROP_OP",
+	"CUSTOM_PROP_OP",
+	"PAREN_L",
+	"PAREN_R",
+	"BRACKET_L",
+	"BRACKET_R",
+	"QUOTE_SINGLE",
+	"QUOTE_DOUBLE",
+	"QUOTE_BACKTICK",
+])
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
-export enum $C {
-	ANY = "ANY",
-	QUOTE_ANY = "QUOTE_ANY",
-	REGEX_ANY = "REGEX_ANY",
-	VALUE_FOR_SINGLE = "VALUE_FOR_SINGLE",
-	VALUE_FOR_DOUBLE = "VALUE_FOR_DOUBLE",
-	VALUE_FOR_BACKTICK = "VALUE_FOR_BACKTICK",
-	OPERATOR_OR = "OPERATOR_OR",
-	OPERATOR_AND = "OPERATOR_AND",
-	OPERATOR_NOT = "OPERATOR_NOT",
-	VALUE = "VALUE",
-}
+export type $TType = EnumLike<typeof $T>
+
+export const $C = enumFromArray([
+	"ANY",
+	"QUOTE_ANY",
+	"REGEX_ANY",
+	"VALUE_FOR_SINGLE",
+	"VALUE_FOR_DOUBLE",
+	"VALUE_FOR_BACKTICK",
+	"OPERATOR_OR",
+	"OPERATOR_AND",
+	"OPERATOR_NOT",
+	"VALUE",
+])
+// eslint-disable-next-line @typescript-eslint/naming-convention
+export type $CType = EnumLike<typeof $C>
 	
 
 type SymbolInfo = {
@@ -80,40 +87,42 @@ type SymbolInfo = {
 
 type TokenMatchFunc = (c: string, input: string, start: number, mode: string) => string | boolean
 
-interface BaseTokenType<T extends $T | $C> {
+interface LexerBaseToken<T extends $TType | $CType> {
 	type: T
 	skip?: boolean
 }
-export interface RealTokenType<
-	T extends $T = $T,
+
+export interface LexerRealToken<
+	T extends $TType = $TType,
 	TPush extends string | undefined = undefined,
 	// TCategories extends $C[] | undefined = undefined,
-> extends BaseTokenType<T> {
+> extends LexerBaseToken<T> {
 	matches: TokenMatchFunc
 	push?: TPush | ((mode: string, tokens: Token[]) => TPush)
 	// categories?: TCategories
-	longerAlt?: $T
+	longerAlt?: $TType
 	skip?: boolean
 }
-export interface TokenCategoryType<
-	TC extends $C,
-	TTokens extends RealTokenType<$T, any>[] = RealTokenType<$T, any>[],
-> extends BaseTokenType<TC> {
+
+export interface LexerCategoryToken<
+	TC extends $CType,
+	TTokens extends LexerRealToken<$TType, any>[] = LexerRealToken<$TType, any>[],
+> extends LexerBaseToken<TC> {
 	isCategory: true
 	entries: Partial<Record<TTokens[number]["type"], TTokens[number]>>
 	// entries: Partial<Record<TTokens[number]["type"], TTokens[number]>>
 }
 
-export type TokenType<TC extends $C | $T> = TC extends $T
-? RealTokenType<TC, any>
-: TC extends $C
-? TokenCategoryType<TC>
+export type LexerToken<TC extends $CType | $TType> = TC extends $TType
+? LexerRealToken<TC, any>
+: TC extends $CType
+? LexerCategoryToken<TC>
 : never
 
-function createTokenCategoryType<T extends $C, TTokens extends RealTokenType<$T, any>>(
+function createLexerCategoryToken<T extends $CType, TTokens extends LexerRealToken<$TType, any>>(
 	type: T,
 	entries: (TTokens | undefined)[],
-): TokenCategoryType<T, TTokens[]> {
+): LexerCategoryToken<T, TTokens[]> {
 	return {
 		type,
 		isCategory: true,
@@ -125,12 +134,12 @@ function createTokenCategoryType<T extends $C, TTokens extends RealTokenType<$T,
 }
 
 function createTokenType<
-	T extends $T,
+	T extends $TType,
 	TPush extends string | undefined = undefined,
 >(
 	type: T,
-	opts: Omit<RealTokenType<T, TPush>, "type">,
-): RealTokenType<T, TPush > {
+	opts: Omit<LexerRealToken<T, TPush>, "type">,
+): LexerRealToken<T, TPush > {
 	return {
 		type,
 		...opts,
@@ -164,7 +173,7 @@ function matchSymbol(symbols: string[]): TokenMatchFunc {
 	}
 }
 
-export interface Token<T extends $T | $C = $T | $C> {
+export interface Token<T extends $TType | $CType = $TType | $CType> {
 	type: T
 	value: string
 	startOffset: number
@@ -175,11 +184,11 @@ export interface Token<T extends $T | $C = $T | $C> {
 export class Lexer {
 	symbols: SymbolInfo
 
-	$: {[key in $T]: RealTokenType<key, any> }
+	$: {[key in $TType]: LexerRealToken<key, any> }
 
 	$categories: ReturnType<Lexer["createTokens"]>["$categories"]
 
-	branches: {[key in keyof typeof MODE]?: TokenType<$T>[] }
+	branches: {[key in keyof typeof MODE]?: LexerToken<$TType>[] }
 
 	opts: FullParserOptions<any>
 
@@ -509,7 +518,7 @@ export class Lexer {
 			}),
 		}
 		const $categories = {
-			[$C.ANY]: createTokenCategoryType($C.ANY, [
+			[$C.ANY]: createLexerCategoryToken($C.ANY, [
 				$[$T.REGEX_START],
 				$[$T.REGEX_END],
 				$[$T.QUOTE_SINGLE],
@@ -532,39 +541,39 @@ export class Lexer {
 				$[$T.BRACKET_L],
 				$[$T.BRACKET_R],
 			] as const),
-			[$C.VALUE]: createTokenCategoryType($C.VALUE, [
+			[$C.VALUE]: createLexerCategoryToken($C.VALUE, [
 				$[$T.VALUE_UNQUOTED],
 				$[$T.VALUE_NOT_SINGLE],
 				$[$T.VALUE_NOT_DOUBLE],
 				$[$T.VALUE_NOT_BACKTICK],
 			] as const),
-			[$C.VALUE_FOR_SINGLE]: createTokenCategoryType($C.VALUE_FOR_SINGLE, [
+			[$C.VALUE_FOR_SINGLE]: createLexerCategoryToken($C.VALUE_FOR_SINGLE, [
 				$[$T.VALUE_NOT_SINGLE],
 			] as const),
-			[$C.VALUE_FOR_DOUBLE]: createTokenCategoryType($C.VALUE_FOR_DOUBLE, [
+			[$C.VALUE_FOR_DOUBLE]: createLexerCategoryToken($C.VALUE_FOR_DOUBLE, [
 				$[$T.VALUE_NOT_DOUBLE],
 			] as const),
-			[$C.VALUE_FOR_BACKTICK]: createTokenCategoryType($C.VALUE_FOR_BACKTICK, [
+			[$C.VALUE_FOR_BACKTICK]: createLexerCategoryToken($C.VALUE_FOR_BACKTICK, [
 				$[$T.VALUE_NOT_BACKTICK],
 			] as const),
-			[$C.REGEX_ANY]: createTokenCategoryType($C.REGEX_ANY, [
+			[$C.REGEX_ANY]: createLexerCategoryToken($C.REGEX_ANY, [
 				$[$T.REGEX_START],
 				$[$T.REGEX_END],
 			] as const),
-			[$C.QUOTE_ANY]: createTokenCategoryType($C.QUOTE_ANY, [
+			[$C.QUOTE_ANY]: createLexerCategoryToken($C.QUOTE_ANY, [
 				$[$T.QUOTE_SINGLE],
 				$[$T.QUOTE_DOUBLE],
 				$[$T.QUOTE_BACKTICK],
 			] as const),
-			[$C.OPERATOR_OR]: createTokenCategoryType($C.OPERATOR_OR, [
+			[$C.OPERATOR_OR]: createLexerCategoryToken($C.OPERATOR_OR, [
 				$[$T.SYM_OR],
 				$[$T.WORD_OR],
 			] as const),
-			[$C.OPERATOR_AND]: createTokenCategoryType($C.OPERATOR_AND, [
+			[$C.OPERATOR_AND]: createLexerCategoryToken($C.OPERATOR_AND, [
 				$[$T.SYM_AND],
 				$[$T.WORD_AND],
 			] as const),
-			[$C.OPERATOR_NOT]: createTokenCategoryType($C.OPERATOR_NOT, [
+			[$C.OPERATOR_NOT]: createLexerCategoryToken($C.OPERATOR_NOT, [
 				$[$T.SYM_NOT],
 				$[$T.WORD_NOT],
 			] as const),
@@ -572,7 +581,7 @@ export class Lexer {
 		return { $, $categories }
 	}
 
-	createModeBranches(): {[key in keyof typeof MODE]?: TokenType<$T>[] } {
+	createModeBranches(): {[key in keyof typeof MODE]?: LexerToken<$TType>[] } {
 		const opts = this.opts
 		const $ = this.$
 		const quotes = [
@@ -652,13 +661,13 @@ export class Lexer {
 	}
 	
 	
-	tokenize(input: string): Token<$T>[] {
+	tokenize(input: string): Token<$TType>[] {
 		const branches = this.createModeBranches()
-		const tokens: Token<$T>[] = []
+		const tokens: Token<$TType>[] = []
 		let mode = MODE.MAIN
 		let index = 0
 		let c = input[index]
-		let branch = branches[mode] as any as TokenType<$T>[]
+		let branch = branches[mode] as any as LexerToken<$TType>[]
 		while (index < input.length) {
 			for (const t of branch) {
 				let match = t.matches(c, input, index, mode)
@@ -694,7 +703,8 @@ export class Lexer {
 		return tokens
 	}
 }
-function createToken<T extends $T>(type: T, value: string, startOffset: number, endOffset: number): Token<T> {
+
+function createToken<T extends $TType>(type: T, value: string, startOffset: number, endOffset: number): Token<T> {
 	return {
 		type,
 		value,

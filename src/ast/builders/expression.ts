@@ -1,7 +1,7 @@
 import { pos } from "./pos.js"
 import { token } from "./token.js"
 
-import { type AnyToken, type ConditionNode, type ErrorToken, type ExpressionNode,type GroupNode, type Position, TOKEN_TYPE, type TokenBooleanTypes } from "../../types/ast.js"
+import { type AnyToken, type ConditionNode, type ErrorToken, type ExpressionNode,type GroupNode, type Position, TOKEN_TYPE, type TokenBoolean } from "../../types/ast.js"
 import { createExpressionNode } from "../createExpressionNode.js"
 
 
@@ -18,7 +18,7 @@ export function expression(
 		ErrorToken |
 		undefined,
 	operator:
-		AnyToken<TokenBooleanTypes> |
+		AnyToken<TokenBoolean> |
 		undefined,
 	right:
 		ConditionNode |
@@ -39,17 +39,13 @@ export function expression(
 
 	const position = pos({ start, end } as Position)
 
-	if (left === undefined) {
-		left = token(TOKEN_TYPE.VALUE, undefined, { start: position.start })
-	}
+	left ??= token(TOKEN_TYPE.VALUE, undefined, { start: position.start })
 	let op!: ExpressionNode["operator"]
 	if (operator === undefined) {
 		operator = token([TOKEN_TYPE.AND, TOKEN_TYPE.OR], undefined, { start: left.end })
 	} else op = operator
 
-	if (right === undefined) {
-		right = token(TOKEN_TYPE.VALUE, undefined, { start: op.end })
-	}
+	right ??= token(TOKEN_TYPE.VALUE, undefined, { start: op.end })
 
 	return createExpressionNode({
 		left,

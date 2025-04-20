@@ -21,10 +21,10 @@ export function condition(
 	| GroupNode
 	| ArrayNode
 	| ErrorToken,
-	not: true | ValidToken<TOKEN_TYPE.NOT> = true,
+	not: true | ValidToken<typeof TOKEN_TYPE.NOT> = true,
 	property?: VariableNode | ErrorToken,
-	propertyOperator?: AnyToken<TOKEN_TYPE.OP_CUSTOM | TOKEN_TYPE.VALUE>,
-	{ right, left }: Partial<Record<"right" | "left", ValidToken<TOKEN_TYPE.OP_EXPANDED_SEP>>> = { },
+	propertyOperator?: AnyToken<typeof TOKEN_TYPE.OP_CUSTOM | typeof TOKEN_TYPE.VALUE>,
+	{ right, left }: Partial<Record<"right" | "left", ValidToken<typeof TOKEN_TYPE.OP_EXPANDED_SEP>>> = { },
 ): ConditionNode {
 	const position = pos(value satisfies Position)
 	const notStart = not === true ? undefined : not.start

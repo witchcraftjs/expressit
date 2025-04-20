@@ -43,10 +43,10 @@ export function getSurroundingErrors(tokens: AnyToken[], token: CursorInfo): Err
 	}
 
 	return errors.sort((a, b) => {
-		const aIsQuote = [TOKEN_TYPE.DOUBLEQUOTE, TOKEN_TYPE.BACKTICK, TOKEN_TYPE.SINGLEQUOTE].includes(a.expected[0])
-		const bIsQuote = [TOKEN_TYPE.DOUBLEQUOTE, TOKEN_TYPE.BACKTICK, TOKEN_TYPE.SINGLEQUOTE].includes(b.expected[0])
-		const aIsParen = [TOKEN_TYPE.PARENR, TOKEN_TYPE.PARENL].includes(a.expected[0])
-		const bIsParen = [TOKEN_TYPE.PARENR, TOKEN_TYPE.PARENL].includes(b.expected[0])
+		const aIsQuote = ([TOKEN_TYPE.DOUBLEQUOTE, TOKEN_TYPE.BACKTICK, TOKEN_TYPE.SINGLEQUOTE] as string[]).includes(a.expected[0])
+		const bIsQuote = ([TOKEN_TYPE.DOUBLEQUOTE, TOKEN_TYPE.BACKTICK, TOKEN_TYPE.SINGLEQUOTE]as string[]).includes(b.expected[0])
+		const aIsParen = ([TOKEN_TYPE.PARENR, TOKEN_TYPE.PARENL] as string[]).includes(a.expected[0])
+		const bIsParen = ([TOKEN_TYPE.PARENR, TOKEN_TYPE.PARENL] as string[]).includes(b.expected[0])
 		const aCloseness = Math.abs(i - tokens.indexOf(a))
 		const bCloseness = Math.abs(i - tokens.indexOf(b))
 		const closenessComparison = aCloseness - bCloseness

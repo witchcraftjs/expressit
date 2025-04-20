@@ -3,12 +3,12 @@ import { indent } from "@alanscodelog/utils/indent.js"
 import { pretty } from "@alanscodelog/utils/pretty.js"
 import type { Keys } from "@alanscodelog/utils/types"
 
-import packageJson from "../../package.json" assert { type: "json" }
+import packageJson from "../../package.json" with { type: "json" }
 const { version, repository } = packageJson
-import type { ERROR_CODES, ErrorInfo } from "../types/errors.js"
+import type { ErrorInfo, ParserError } from "../types/errors.js"
 
 /** @internal */
-export class ExpressitError<T extends ERROR_CODES> extends Error {
+export class ExpressitError<T extends ParserError> extends Error {
 	version: string = version
 
 	repo: string = repository

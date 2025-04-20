@@ -9,15 +9,15 @@ export function createGroupNode<
 	TPrefix extends
 		TPrefixable extends true
 			? ConditionNode<TValid> |
-			ValidToken<TOKEN_TYPE.NOT> |
+			ValidToken<typeof TOKEN_TYPE.NOT> |
 			undefined
-			: ValidToken<TOKEN_TYPE.NOT> |
+			: ValidToken<typeof TOKEN_TYPE.NOT> |
 			undefined =
 		TPrefixable extends true
 			? ConditionNode<TValid> |
-			ValidToken<TOKEN_TYPE.NOT> |
+			ValidToken<typeof TOKEN_TYPE.NOT> |
 			undefined
-			: ValidToken<TOKEN_TYPE.NOT>,
+			: ValidToken<typeof TOKEN_TYPE.NOT>,
 >(raw: {
 	prefix: TPrefix
 } & RawNode<GroupNode<TValid>>): GroupNode<TValid, TPrefixable, TPrefix> {

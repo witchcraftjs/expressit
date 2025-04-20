@@ -7,28 +7,28 @@ import { createGroupNode } from "./createGroupNode.js"
 import { createToken } from "./createToken.js"
 import { createVariableNode } from "./createVariableNode.js"
 
-import { type AnyToken, type ArrayNode,AST_TYPE,type ConditionNode, type ErrorToken, type ExpressionNode,type FirstParam,type GroupNode, type Position, TOKEN_TYPE, type TokenBooleanTypes, type TokenDelimiterTypes, type TokenOperatorTypes, type TokenQuoteTypes, type ValidToken, type VariableNode } from "../types/ast.js"
+import { type AnyToken, type ArrayNode,AST_TYPE,type ConditionNode, type ErrorToken, type ExpressionNode,type FirstParam,type GroupNode, type Position, TOKEN_TYPE, type TokenBoolean, type TokenDelimiter, type TokenOperator, type TokenQuote, type TokenType, type ValidToken, type VariableNode } from "../types/ast.js"
 
 
 /* #region HELPERS */
-function error<T extends TOKEN_TYPE>(pos: number, expected: T[]): ErrorToken {
+function error<T extends TokenType>(pos: number, expected: T[]): ErrorToken {
 	if (pos === undefined) throw new Error("should never happen, passed undefined position for error token")
 	return createToken({ expected, start: pos, end: pos })
 }
 /* #regionend */
 
 /* #region TOKENS */
-const operators = <T extends TokenOperatorTypes>
+const operators = <T extends TokenOperator>
 (type: T) =>
 	(value: string, pos: Position): ValidToken<T> => createToken({ value, type, ...pos })
 
-const delimiters = <T extends TokenDelimiterTypes>
+const delimiters = <T extends TokenDelimiter>
 (type: T) =>
 	(value: string | undefined, pos: Position): ValidToken<T> | undefined =>
 		// check must be falsy, we want to return undefined when given ""
 		value ? createToken({ value, type, ...pos }) : undefined
 
-const maybeToken = <T extends TOKEN_TYPE> (type: T) => <TVal extends string | undefined> (value: TVal, pos: Position): TVal extends string ? ValidToken<T> : ErrorToken => {
+const maybeToken = <T extends TokenType> (type: T) => <TVal extends string | undefined> (value: TVal, pos: Position): TVal extends string ? ValidToken<T> : ErrorToken => {
 	if (value === undefined) {
 		return error(pos.end, [type]) as any
 	} else {
@@ -63,11 +63,11 @@ export const operator = {
 
 /* #region AST NODES */
 export function variable(
-	prefix: ValidToken<TOKEN_TYPE.VALUE> | null | undefined,
-	quoteL: AnyToken<TokenQuoteTypes> | null | undefined,
-	value: AnyToken<TOKEN_TYPE.VALUE> | null | undefined,
-	quoteR: AnyToken<TokenQuoteTypes> | null | undefined,
-	flags?: ValidToken<TOKEN_TYPE.VALUE>,
+	prefix: ValidToken<typeof TOKEN_TYPE.VALUE> | null | undefined,
+	quoteL: AnyToken<TokenQuote> | null | undefined,
+	value: AnyToken<typeof TOKEN_TYPE.VALUE> | null | undefined,
+	quoteR: AnyToken<TokenQuote> | null | undefined,
+	flags?: ValidToken<typeof TOKEN_TYPE.VALUE>,
 ): VariableNode {
 	const node: FirstParam<typeof createVariableNode> = {
 		prefix: prefix ?? undefined,
@@ -92,19 +92,19 @@ export function variable(
 
 
 export function condition(
-	not: ValidToken<TOKEN_TYPE.NOT> | null | undefined,
+	not: ValidToken<typeof TOKEN_TYPE.NOT> | null | undefined,
 	property: VariableNode | null | undefined,
 	{ propertyOperator, sepL, sepR }: {
 		propertyOperator?: ConditionNode["propertyOperator"] | null
-		sepL?: ValidToken<TOKEN_TYPE.OP_EXPANDED_SEP> | null
-		sepR?: ValidToken<TOKEN_TYPE.OP_EXPANDED_SEP> | null
+		sepL?: ValidToken<typeof TOKEN_TYPE.OP_EXPANDED_SEP> | null
+		sepR?: ValidToken<typeof TOKEN_TYPE.OP_EXPANDED_SEP> | null
 	} = {},
 	value?: VariableNode | GroupNode | ArrayNode | null,
 ): ConditionNode {
 	const start = (not?.start ?? property?.start ?? sepL?.start ?? propertyOperator?.start ?? sepR?.start ?? value?.start)!
 	const end = (value?.end ?? sepR?.end ?? propertyOperator?.end ?? sepL?.end ?? property?.end ?? not?.end)!
 	const node: FirstParam<typeof createConditionNode> = {
-		value: value ? value : error(end, [TOKEN_TYPE.VALUE]),
+		value: value ?? error(end, [TOKEN_TYPE.VALUE]),
 		start,
 		end,
 	}
@@ -130,7 +130,7 @@ export function condition(
 
 export function expression(
 	left: ConditionNode | GroupNode | null | undefined,
-	operator: ValidToken<TokenBooleanTypes> | null | undefined,
+	operator: ValidToken<TokenBoolean> | null | undefined,
 	right: ConditionNode | GroupNode | null | undefined,
 ): ExpressionNode {
 	return createExpressionNode({
@@ -143,11 +143,11 @@ export function expression(
 }
 
 export function group(
-	operator: ValidToken<TOKEN_TYPE.NOT> | null | undefined,
+	operator: ValidToken<typeof TOKEN_TYPE.NOT> | null | undefined,
 	prefix: ConditionNode | null | undefined,
-	parenL: ValidToken<TOKEN_TYPE.PARENL> | null | undefined,
+	parenL: ValidToken<typeof TOKEN_TYPE.PARENL> | null | undefined,
 	condition: GroupNode["expression"],
-	parenR: ValidToken<TOKEN_TYPE.PARENR> | null | undefined,
+	parenR: ValidToken<typeof TOKEN_TYPE.PARENR> | null | undefined,
 ): GroupNode {
 	return createGroupNode({
 		prefix: prefix ?? operator ?? undefined,
@@ -162,9 +162,9 @@ export function group(
 }
 
 export function array(
-	bracketL: ValidToken<TOKEN_TYPE.BRACKETL>,
+	bracketL: ValidToken<typeof TOKEN_TYPE.BRACKETL>,
 	values: VariableNode[],
-	bracketR: ValidToken<TOKEN_TYPE.BRACKETR> | null | undefined,
+	bracketR: ValidToken<typeof TOKEN_TYPE.BRACKETR> | null | undefined,
 ): ArrayNode {
 	return createArrayNode({
 		values,

@@ -443,9 +443,9 @@ export type ValueQuery
 /** {@link ParserOptions}["valueValidator"] */
 export type ValidationQuery = Omit<ValueQuery, "value" | "operator" | "prefix" | "regexFlags" | "property"> & {
 	value?: VariableNode | ArrayNode
-	operator?: ValidToken<TOKEN_TYPE.VALUE | TOKEN_TYPE.OP_CUSTOM>
-	prefix?: ValidToken<TOKEN_TYPE.VALUE>
-	regexFlags?: ValidToken<TOKEN_TYPE.VALUE>
+	operator?: ValidToken<typeof TOKEN_TYPE.VALUE | typeof TOKEN_TYPE.OP_CUSTOM>
+	prefix?: ValidToken<typeof TOKEN_TYPE.VALUE>
+	regexFlags?: ValidToken<typeof TOKEN_TYPE.VALUE>
 	property: VariableNode[]
 	/** The property as would be passed to the {@link ParserOptions}["valueComparer"] function (i.e. joined as a string using the {@link ParseOptions}["prefixApplier"] ) */
 	propertyName?: string

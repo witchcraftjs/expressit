@@ -5,8 +5,8 @@ import { isNode } from "../utils/isNode.js"
 export function createConditionNode<
 	TValid extends boolean = boolean,
 	TOperator extends
-		ValidToken<TOKEN_TYPE.NOT> | undefined =
-		ValidToken<TOKEN_TYPE.NOT> | undefined,
+		ValidToken<typeof TOKEN_TYPE.NOT> | undefined =
+		ValidToken<typeof TOKEN_TYPE.NOT> | undefined,
 >(raw: {
 	operator?: TOperator
 	property?: ConditionNode<TValid>["property"]
