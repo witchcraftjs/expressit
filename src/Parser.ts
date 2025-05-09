@@ -296,7 +296,7 @@ export class Parser<T = any> {
 				this.state.index++
 				return this.transformCategoryToken(nextToken, categoryToken) as Token<TType>
 			} else {
-				throw new Error("here")
+				unreachable()
 			}
 		} else {
 			const tokenType = this.getTokenType(type as $TType)
