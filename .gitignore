@@ -1,6 +1,4 @@
 **/*.log*
-*lock*
-!demo/*lock*
 .vscode
 node_modules
 worktree*/**/*
