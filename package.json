@@ -64,7 +64,7 @@
 		"build:types": "tsc --emitDeclarationOnly -p tsconfig.types.json",
 		"lint:eslint": "eslint \"{src,tests,bin}/**/*.{cjs,js,ts}\" \"*.{cjs,js,ts}\" --max-warnings=1 --report-unused-disable-directives",
 		"lint:types": "tsc --noEmit --pretty",
-		"lint:commits": "commitlint --from $(git rev-list --max-parents=0 HEAD) --to HEAD --verbose",
+		"lint:commits": "commitlint --from-last-tag --to HEAD --verbose",
 		"lint:imports": "madge --circular --extensions ts ./src",
 		"lint": "npm run lint:types && npm run lint:eslint",
 		"coverage": "vitest --exclude '.direnv/**/*' --coverage",
@@ -148,7 +148,6 @@
 	"@comments": {
 		"scripts": {
 			"test": "Runs `lint:types` before (so that flags can be passed to the test command) so that we can test type assertions. See expect_type function in @alanscodelog/utils.",
-			"lint:commits": "Lints all unpushed commits in the active branch.",
 			"prepare": "Needed so that if we pull the package from git it will get built and installed properly.",
 			"actions:debug": "For debugging github build action locally with nektos/act. Requires act and docker. Note: Cache will never work locally because of https://github.com/nektos/act/issues/285"
 		}
