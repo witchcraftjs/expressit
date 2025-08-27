@@ -16,44 +16,32 @@
 			"import": "./dist/ast/index.js"
 		},
 		"./ast/*": {
-			"types": "./dist/ast/*",
-			"import": "./dist/ast/*"
-		},
-		"./internal": {
-			"types": "./dist/internal/index.d.ts",
-			"import": "./dist/internal/index.js"
+			"types": "./dist/ast/*.d.ts",
+			"import": "./dist/ast/*.js"
 		},
 		"./internal/*": {
-			"types": "./dist/internal/*",
-			"import": "./dist/internal/*"
-		},
-		"./methods": {
-			"types": "./dist/methods/index.d.ts",
-			"import": "./dist/methods/index.js"
-		},
-		"./methods/*": {
-			"types": "./dist/methods/*",
-			"import": "./dist/methods/*"
+			"types": "./dist/internal/*.d.ts",
+			"import": "./dist/internal/*.js"
 		},
 		"./utils": {
 			"types": "./dist/utils/index.d.ts",
 			"import": "./dist/utils/index.js"
 		},
 		"./utils/*": {
-			"types": "./dist/utils/*",
-			"import": "./dist/utils/*"
+			"types": "./dist/utils/*.d.ts",
+			"import": "./dist/utils/*.js"
 		},
 		"./examples": {
 			"types": "./dist/examples/index.d.ts",
 			"import": "./dist/examples/index.js"
 		},
 		"./examples/*": {
-			"types": "./dist/examples/*",
-			"import": "./dist/examples/*"
+			"types": "./dist/examples/*.d.ts",
+			"import": "./dist/examples/*.js"
 		},
 		"./*": {
-			"types": "./dist/types/*",
-			"import": "./dist/types/*"
+			"types": "./dist/types/*.d.ts",
+			"import": "./dist/types/*.js"
 		}
 	},
 	"scripts": {
