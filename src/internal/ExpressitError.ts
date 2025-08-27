@@ -1,6 +1,6 @@
-import { crop } from "@alanscodelog/utils/crop.js"
-import { indent } from "@alanscodelog/utils/indent.js"
-import { pretty } from "@alanscodelog/utils/pretty.js"
+import { crop } from "@alanscodelog/utils/crop"
+import { indent } from "@alanscodelog/utils/indent"
+import { pretty } from "@alanscodelog/utils/pretty"
 import type { Keys } from "@alanscodelog/utils/types"
 
 import packageJson from "../../package.json" with { type: "json" }

@@ -3,7 +3,7 @@
  
 import "./style.css"
 
-import { crop } from "@alanscodelog/utils/crop.js"
+import { crop } from "@alanscodelog/utils/crop"
 import { Parser } from "@witchcraft/expressit"
 import { parseParserOptions } from "@witchcraft/expressit/internal/parseParserOptions.js"
 import { prettyAst } from "@witchcraft/expressit/utils"

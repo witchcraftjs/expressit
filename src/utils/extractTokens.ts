@@ -1,4 +1,4 @@
-import { unreachable } from "@alanscodelog/utils/unreachable.js"
+import { unreachable } from "@alanscodelog/utils/unreachable"
 
 import { isNode } from "./isNode.js"
 import { isToken } from "./isToken.js"

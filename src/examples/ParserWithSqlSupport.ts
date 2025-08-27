@@ -1,4 +1,4 @@
-import { unreachable } from "@alanscodelog/utils/unreachable.js"
+import { unreachable } from "@alanscodelog/utils/unreachable"
 
 import { Parser } from "../Parser.js"
 import { AST_TYPE, type NormalizedCondition, type NormalizedExpression, type Position,TOKEN_TYPE } from "../types/ast.js"

@@ -1,8 +1,8 @@
 /* eslint-disable prefer-rest-params */
-import * as color from "@alanscodelog/utils/colors.js"
-import { isBlank } from "@alanscodelog/utils/isBlank.js"
+import * as color from "@alanscodelog/utils/colors"
+import { isBlank } from "@alanscodelog/utils/isBlank"
 import { type AddParameters } from "@alanscodelog/utils/types"
-import { unreachable } from "@alanscodelog/utils/unreachable.js"
+import { unreachable } from "@alanscodelog/utils/unreachable"
 
 import { isToken } from "./isToken.js"
 

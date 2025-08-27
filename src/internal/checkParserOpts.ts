@@ -1,5 +1,5 @@
-import { isBlank } from "@alanscodelog/utils/isBlank.js"
-import { pushIfNotIn } from "@alanscodelog/utils/pushIfNotIn.js"
+import { isBlank } from "@alanscodelog/utils/isBlank"
+import { pushIfNotIn } from "@alanscodelog/utils/pushIfNotIn"
 
 import { ExpressitError } from "./ExpressitError.js"
 

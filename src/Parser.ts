@@ -1,11 +1,11 @@
 /* eslint-disable max-lines */
-import { get } from "@alanscodelog/utils/get.js"
-import { insert } from "@alanscodelog/utils/insert.js"
-import { isArray } from "@alanscodelog/utils/isArray.js"
-import { isWhitespace } from "@alanscodelog/utils/isWhitespace.js"
-import { setReadOnly } from "@alanscodelog/utils/setReadOnly.js"
+import { get } from "@alanscodelog/utils/get"
+import { insert } from "@alanscodelog/utils/insert"
+import { isArray } from "@alanscodelog/utils/isArray"
+import { isWhitespace } from "@alanscodelog/utils/isWhitespace"
+import { setReadOnly } from "@alanscodelog/utils/setReadOnly"
 import type { AddParameters , DeepPartial } from "@alanscodelog/utils/types"
-import { unreachable } from "@alanscodelog/utils/unreachable.js"
+import { unreachable } from "@alanscodelog/utils/unreachable"
 
 import { pos } from "./ast/builders/pos.js"
 import { createCondition } from "./ast/createNormalizedCondition.js"

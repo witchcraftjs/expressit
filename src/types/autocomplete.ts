@@ -1,5 +1,5 @@
 import { type EnumLike } from "@alanscodelog/utils"
-import { enumFromArray } from "@alanscodelog/utils/enumFromArray.js"
+import { enumFromArray } from "@alanscodelog/utils/enumFromArray"
 
 import type { AnyToken, Position, ValidToken } from "./ast.js"
 

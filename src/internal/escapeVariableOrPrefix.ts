@@ -1,4 +1,4 @@
-import { multisplice } from "@alanscodelog/utils/multisplice.js"
+import { multisplice } from "@alanscodelog/utils/multisplice"
 
 export function escapeVariableOrPrefix(variable: string, preferredQuote: string): string {
 	let doQuote = false

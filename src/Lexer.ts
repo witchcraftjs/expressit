@@ -1,7 +1,7 @@
 import type { EnumLike } from "@alanscodelog/utils"
-import { enumFromArray } from "@alanscodelog/utils/enumFromArray.js"
-import { isBlank } from "@alanscodelog/utils/isBlank.js"
-import { pushIfNotIn } from "@alanscodelog/utils/pushIfNotIn.js"
+import { enumFromArray } from "@alanscodelog/utils/enumFromArray"
+import { isBlank } from "@alanscodelog/utils/isBlank"
+import { pushIfNotIn } from "@alanscodelog/utils/pushIfNotIn"
 
 import { checkParserOpts } from "./internal/checkParserOpts.js"
 import { parseParserOptions } from "./internal/parseParserOptions.js"

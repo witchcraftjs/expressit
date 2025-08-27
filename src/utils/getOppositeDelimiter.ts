@@ -1,4 +1,4 @@
-import { unreachable } from "@alanscodelog/utils/unreachable.js"
+import { unreachable } from "@alanscodelog/utils/unreachable"
 
 import type { generateParentsMap } from "./generateParentsMap.js"
 import { isBracket } from "./isBracket.js"
