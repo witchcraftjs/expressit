@@ -1,7 +1,7 @@
 {
 	"name": "@witchcraft/expressit",
 	"description": "A blazing fast, customizable, error-tolerant expression parser that creates safe to eval expressions + a few other goodies like autocomplete.",
-	"version": "0.3.1",
+	"version": "0.4.0",
 	"types": "./dist/index.d.ts",
 	"type": "module",
 	"main": "./dist/index.js",
