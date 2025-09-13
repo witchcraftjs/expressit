@@ -3,7 +3,6 @@ name: Release
 env:
   USE_LOCKFILE: ${{ secrets.USE_LOCKFILE }}
   ENABLE_RELEASE: ${{ secrets.ENABLE_RELEASE }}
-  ENABLE_BUILD: ${{ secrets.ENABLE_BUILD }}
 
 on:
   push:
@@ -26,12 +25,8 @@ jobs:
       with:
         USE_LOCKFILE: ${{ secrets.USE_LOCKFILE }}
 
-    - name: Build 
-      if: "env.ENABLE_BUILD == 'true'"
+    - name: Build
       uses: ./.github/actions/composite-build
-      with:
-        USE_LOCKFILE: ${{ secrets.USE_LOCKFILE }}
-
 
     - name: Release
       if: "env.ENABLE_RELEASE == 'true' && ! contains('refs/heads/build ', github.ref)"
@@ -45,7 +40,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      run: pnpm semantic-release --dry-run 
+      run: pnpm semantic-release --dry-run
 
     - run: echo "env.ENABLE_RELEASE is ${{ env.ENABLE_RELEASE == 'true' }} and branch is ${{ github.ref }}, no release can be published." && exit 1
       if: "env.ENABLE_RELEASE != 'true' || contains('refs/heads/build ', github.ref)"

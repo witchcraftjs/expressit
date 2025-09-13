@@ -29,8 +29,6 @@ jobs:
     - name: Build 
       uses: ./.github/actions/composite-build
       if: "env.ENABLE_DOCS == 'true'"
-      with:
-        USE_LOCKFILE: ${{ env.USE_LOCKFILE }}
 
     - run: pnpm doc
       if: "env.ENABLE_DOCS == 'true'"
