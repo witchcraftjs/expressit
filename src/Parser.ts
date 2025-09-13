@@ -121,11 +121,11 @@ export class Parser<T = any> {
 		index: number
 		shift: number
 	} = {
-			rawInput: "",
-			lexedTokens: [],
-			index: 0,
-			shift: 0,
-		}
+		rawInput: "",
+		lexedTokens: [],
+		index: 0,
+		shift: 0,
+	}
 
 	/**
 	 * This is exposed mainly for debugging purposes. Use parse directly instead.
@@ -557,7 +557,7 @@ export class Parser<T = any> {
 			ValidToken<typeof TOKEN_TYPE.PARENL> | undefined,
 			GroupNode["expression"],
 		ValidToken<typeof TOKEN_TYPE.PARENR> | undefined,
-		] {
+	] {
 		const parenL = this.ruleParenL()
 		let parenLeftCount = 0
 		let start: undefined | number
@@ -852,12 +852,12 @@ export class Parser<T = any> {
 		type: TType,
 	): ValidToken<
 		TType extends typeof $T.QUOTE_SINGLE
-		? typeof TOKEN_TYPE.SINGLEQUOTE
-		: TType extends typeof $T.QUOTE_DOUBLE
-		? typeof TOKEN_TYPE.DOUBLEQUOTE
-		: TType extends typeof $T.QUOTE_BACKTICK
-		? typeof TOKEN_TYPE.BACKTICK
-		: never
+			? typeof TOKEN_TYPE.SINGLEQUOTE
+			: TType extends typeof $T.QUOTE_DOUBLE
+				? typeof TOKEN_TYPE.DOUBLEQUOTE
+				: TType extends typeof $T.QUOTE_BACKTICK
+					? typeof TOKEN_TYPE.BACKTICK
+					: never
 		> {
 		const quote = this.peek(1)
 		if (type !== quote?.type) {

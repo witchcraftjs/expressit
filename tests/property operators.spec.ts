@@ -702,22 +702,22 @@ describe(`expandedPropertySeparator only - with groups`, () => {
 					const ast = new Parser({ expandedPropertySeparator: ":", arrayValues: true }).parse(input)
 
 					const expected =
+						group(undefined,
 							group(undefined,
-								group(undefined,
-									condition(
-										e(input, "OP", [TOKEN_TYPE.VALUE]),
-										true,
-										v(input, "prop"),
-										t(input, "OP"),
-										{
-											left: t(input, ":", TOKEN_TYPE.OP_EXPANDED_SEP),
-											right: undefined,
-										},
-									),
-									delim(false, true),
+								condition(
+									e(input, "OP", [TOKEN_TYPE.VALUE]),
+									true,
+									v(input, "prop"),
+									t(input, "OP"),
+									{
+										left: t(input, ":", TOKEN_TYPE.OP_EXPANDED_SEP),
+										right: undefined,
+									},
 								),
 								delim(false, true),
-							)
+							),
+							delim(false, true),
+						)
 					expect(ast).to.deep.equal(expected)
 				})
 			})

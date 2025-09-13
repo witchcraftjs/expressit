@@ -10,3 +10,5 @@ dist
 .direnv
 todo.md
 tests/db/migrations
+.direnv/
+.devenv/

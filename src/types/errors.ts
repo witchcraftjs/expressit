@@ -15,8 +15,8 @@ export type ParserError = EnumLike<typeof PARSER_ERROR>
 
 export type ErrorInfo<T extends ParserError> =
 	T extends ParserError
-	? ErrorCodesInfo[T]
-	: never
+		? ErrorCodesInfo[T]
+		: never
 
  
 export type ErrorCodesInfo = {

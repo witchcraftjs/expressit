@@ -12,8 +12,8 @@ export function createToken<
 		TValid extends true ? TokenType : never =
 		TValid extends true ? TokenType : never
 >(raw: RawToken<ValidToken> | RawToken<ErrorToken>): TValid extends true
-? ValidToken<TType>
-: ErrorToken {
+	? ValidToken<TType>
+	: ErrorToken {
 	if (raw.start === undefined || raw.end === undefined) {
 		throw new ExpressitError(PARSER_ERROR.POSITION_ERROR, raw)
 	}

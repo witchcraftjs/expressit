@@ -12,8 +12,8 @@ export function delim<
 	TType extends TLeft extends string
 		? ExtractToken<TLeft>
 		: TRight extends string
-		? ExtractToken<TRight>
-		: undefined,
+			? ExtractToken<TRight>
+			: undefined,
 >(
 	left: TLeft = false as TLeft,
 	right: TRight = false as TRight,

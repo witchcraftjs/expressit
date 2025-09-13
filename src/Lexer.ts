@@ -114,10 +114,10 @@ export interface LexerCategoryToken<
 }
 
 export type LexerToken<TC extends $CType | $TType> = TC extends $TType
-? LexerRealToken<TC, any>
-: TC extends $CType
-? LexerCategoryToken<TC>
-: never
+	? LexerRealToken<TC, any>
+	: TC extends $CType
+		? LexerCategoryToken<TC>
+		: never
 
 function createLexerCategoryToken<T extends $CType, TTokens extends LexerRealToken<$TType, any>>(
 	type: T,

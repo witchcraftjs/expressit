@@ -29,38 +29,38 @@ export type TokenType = EnumLike<typeof TOKEN_TYPE>
  */
 export type ExtractToken<T extends string> =
 	T extends "`"
-	? typeof TOKEN_TYPE.BACKTICK
-	: T extends `'`
-	? typeof TOKEN_TYPE.SINGLEQUOTE
-	: T extends `"`
-	? typeof TOKEN_TYPE.DOUBLEQUOTE
-	: T extends `/`
-	? typeof TOKEN_TYPE.REGEX
-	: T extends `(`
-	? typeof TOKEN_TYPE.PARENL
-	: T extends `)`
-	? typeof TOKEN_TYPE.PARENR
-	: T extends `[`
-	? typeof TOKEN_TYPE.BRACKETL
-	: T extends `]`
-	? typeof TOKEN_TYPE.BRACKETR
-	: T extends `and`
-	? typeof TOKEN_TYPE.AND
-	: T extends `&&`
-	? typeof TOKEN_TYPE.AND
-	: T extends `&`
-	? typeof TOKEN_TYPE.AND
-	: T extends `or`
-	? typeof TOKEN_TYPE.OR
-	: T extends `||`
-	? typeof TOKEN_TYPE.OR
-	: T extends `|`
-	? typeof TOKEN_TYPE.OR
-	: T extends `not`
-	? typeof TOKEN_TYPE.NOT
-	: T extends `!`
-	? typeof TOKEN_TYPE.NOT
-	: typeof TOKEN_TYPE.VALUE
+		? typeof TOKEN_TYPE.BACKTICK
+		: T extends `'`
+			? typeof TOKEN_TYPE.SINGLEQUOTE
+			: T extends `"`
+				? typeof TOKEN_TYPE.DOUBLEQUOTE
+				: T extends `/`
+					? typeof TOKEN_TYPE.REGEX
+					: T extends `(`
+						? typeof TOKEN_TYPE.PARENL
+						: T extends `)`
+							? typeof TOKEN_TYPE.PARENR
+							: T extends `[`
+								? typeof TOKEN_TYPE.BRACKETL
+								: T extends `]`
+									? typeof TOKEN_TYPE.BRACKETR
+									: T extends `and`
+										? typeof TOKEN_TYPE.AND
+										: T extends `&&`
+											? typeof TOKEN_TYPE.AND
+											: T extends `&`
+												? typeof TOKEN_TYPE.AND
+												: T extends `or`
+													? typeof TOKEN_TYPE.OR
+													: T extends `||`
+														? typeof TOKEN_TYPE.OR
+														: T extends `|`
+															? typeof TOKEN_TYPE.OR
+															: T extends `not`
+																? typeof TOKEN_TYPE.NOT
+																: T extends `!`
+																	? typeof TOKEN_TYPE.NOT
+																	: typeof TOKEN_TYPE.VALUE
 
 export type TokenParen =
 	| typeof TOKEN_TYPE.PARENL
@@ -275,8 +275,8 @@ export interface VariableNode<TValid extends boolean = boolean> extends Node<typ
 	value: TValid extends boolean
 		? AnyToken<typeof TOKEN_TYPE.VALUE>
 		: TValid extends true
-		? ValidToken<typeof TOKEN_TYPE.VALUE>
-	: ErrorToken
+			? ValidToken<typeof TOKEN_TYPE.VALUE>
+			: ErrorToken
 	prefix?: ValidToken<typeof TOKEN_TYPE.VALUE> // todo
 	quote?: NodeDelimiters<TokenQuote, TokenQuote>
 }
@@ -403,29 +403,29 @@ export interface NormalizedExpression<TType extends string = string, TValue = an
 
 export type ParentTypes<T extends Node | BaseToken | undefined> =
 	T extends ValidToken
-	?
+		?
 	| VariableNode
 	| GroupNode
 	| ExpressionNode
 	| ArrayNode
 	| ConditionNode
-	: T extends ErrorToken
-	? VariableNode
+		: T extends ErrorToken
+			? VariableNode
 	| GroupNode
 	| ExpressionNode
 	| ArrayNode
 	| ConditionNode
-	: T extends GroupNode
-	? ExpressionNode | GroupNode | undefined
-	: T extends VariableNode
-	? ConditionNode | ArrayNode | undefined
-	: T extends ExpressionNode
-	? GroupNode | ExpressionNode | undefined
-	: T extends ArrayNode
-	? ConditionNode | undefined
-	: T extends ConditionNode | ExpressionNode
-	? GroupNode | undefined
-	: T extends undefined
-	? undefined
-	: never
+			: T extends GroupNode
+				? ExpressionNode | GroupNode | undefined
+				: T extends VariableNode
+					? ConditionNode | ArrayNode | undefined
+					: T extends ExpressionNode
+						? GroupNode | ExpressionNode | undefined
+						: T extends ArrayNode
+							? ConditionNode | undefined
+							: T extends ConditionNode | ExpressionNode
+								? GroupNode | undefined
+								: T extends undefined
+									? undefined
+									: never
 

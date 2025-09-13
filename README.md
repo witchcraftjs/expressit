@@ -44,7 +44,7 @@ pnpm install @witchcraft/expressit
 
 ```ts
 // while you can import from "@witchcraft/expressit", if using something like vite, it's recommended you do not use barrel imports.
-import { Parser } from "@witchcraft/expressit/Parser.js"
+import { Parser } from "@witchcraft/expressit/Parser"
 
 const parser = new Parser({/* opts */})
 	const context = {

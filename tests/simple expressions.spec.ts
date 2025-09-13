@@ -89,68 +89,68 @@ it(`a && b || c`, () => {
 	const input = "a && b || c"
 	const ast = new Parser().parse(input)
 	const expected =
+		expression(
 			expression(
-				expression(
-					condition(
-						v(input, "a"),
-					),
-					t(input, "&&"),
-					condition(
-						v(input, "b"),
-					),
-				),
-				t(input, "||"),
 				condition(
-					v(input, "c"),
+					v(input, "a"),
 				),
-			)
+				t(input, "&&"),
+				condition(
+					v(input, "b"),
+				),
+			),
+			t(input, "||"),
+			condition(
+				v(input, "c"),
+			),
+		)
 	expect(ast).deep.equal(expected)
 })
 it(`a || b && c`, () => {
 	const input = "a || b && c"
 	const ast = new Parser().parse(input)
 	const expected =
+		expression(
+			condition(
+				v(input, "a"),
+			),
+			t(input, "||"),
 			expression(
 				condition(
-					v(input, "a"),
+					v(input, "b"),
 				),
-				t(input, "||"),
-				expression(
-					condition(
-						v(input, "b"),
-					),
-					t(input, "&&"),
-					condition(
-						v(input, "c"),
-					),
+				t(input, "&&"),
+				condition(
+					v(input, "c"),
 				),
-			)
+			),
+		)
 	expect(ast).deep.equal(expected)
 })
 it(`a ||`, () => {
 	const input = "a ||"
 	const ast = new Parser().parse(input)
 	const expected =
-			expression(
-				condition(
-					v(input, "a"),
-				),
-				t(input, "||"),
-				e(input, "||", [""]),
-			)
+		expression(
+			condition(
+				v(input, "a"),
+			),
+			t(input, "||"),
+			e(input, "||", [""]),
+		)
 	expect(ast).deep.equal(expected)
 })
 it(`a &&`, () => {
 	const input = "a &&"
 	const ast = new Parser().parse(input)
 	const expected =
-			expression(
-				condition(
-					v(input, "a"),
-				),
-				t(input, "&&"),
-				e(input, "&&", [""]),
-			)
+		expression(
+			condition(
+				v(input, "a"),
+			),
+			t(input, "&&"),
+			e(input, "&&", [""]),
+		)
 
 	expect(ast).deep.equal(expected)
 })
@@ -159,15 +159,15 @@ it(`a b`, () => {
 	const ast = new Parser().parse(input)
 
 	const expected =
-			expression(
-				condition(
-					v(input, "a"),
-				),
-				e(input, "a", ["&&", "||"]),
-				condition(
-					v(input, "b"),
-				),
-			)
+		expression(
+			condition(
+				v(input, "a"),
+			),
+			e(input, "a", ["&&", "||"]),
+			condition(
+				v(input, "b"),
+			),
+		)
 
 	expect(ast).deep.equal(expected)
 })
@@ -178,15 +178,15 @@ describe("onMissingBooleanOperator", () => {
 		const ast = new Parser({ onMissingBooleanOperator: "and" }).parse(input)
 
 		const expected =
-				expression(
-					condition(
-						v(input, "a"),
-					),
-					token(TOKEN_TYPE.AND, "", { start: input.indexOf(" "), end: input.indexOf(" ") }),
-					condition(
-						v(input, "b"),
-					),
-				)
+			expression(
+				condition(
+					v(input, "a"),
+				),
+				token(TOKEN_TYPE.AND, "", { start: input.indexOf(" "), end: input.indexOf(" ") }),
+				condition(
+					v(input, "b"),
+				),
+			)
 
 		expect(ast).deep.equal(expected)
 	})
@@ -195,15 +195,15 @@ describe("onMissingBooleanOperator", () => {
 		const ast = new Parser({ onMissingBooleanOperator: "or" }).parse(input)
 
 		const expected =
-				expression(
-					condition(
-						v(input, "a"),
-					),
-					token(TOKEN_TYPE.OR, "", { start: input.indexOf(" "), end: input.indexOf(" ") }),
-					condition(
-						v(input, "b"),
-					),
-				)
+			expression(
+				condition(
+					v(input, "a"),
+				),
+				token(TOKEN_TYPE.OR, "", { start: input.indexOf(" "), end: input.indexOf(" ") }),
+				condition(
+					v(input, "b"),
+				),
+			)
 
 		expect(ast).deep.equal(expected)
 	})
@@ -212,21 +212,21 @@ describe("onMissingBooleanOperator", () => {
 		const ast = new Parser(({ onMissingBooleanOperator: "and" })).parse(input)
 
 		const expected =
+			expression(
+				condition(
+					v(input, "a"),
+				),
+				t(input, "&&"),
 				expression(
 					condition(
-						v(input, "a"),
+						v(input, "b"),
 					),
-					t(input, "&&"),
-					expression(
-						condition(
-							v(input, "b"),
-						),
-						token(TOKEN_TYPE.AND, "", { start: input.indexOf(" c"), end: input.indexOf(" c") }),
-						condition(
-							v(input, "c"),
-						),
+					token(TOKEN_TYPE.AND, "", { start: input.indexOf(" c"), end: input.indexOf(" c") }),
+					condition(
+						v(input, "c"),
 					),
-				)
+				),
+			)
 		expect(ast).deep.equal(expected)
 	})
 	it(`a && b c - onMissingBooleanOperator = or`, () => {
@@ -234,21 +234,21 @@ describe("onMissingBooleanOperator", () => {
 		const ast = new Parser(({ onMissingBooleanOperator: "or" })).parse(input)
 
 		const expected =
+			expression(
 				expression(
-					expression(
-						condition(
-							v(input, "a"),
-						),
-						t(input, "&&"),
-						condition(
-							v(input, "b"),
-						),
-					),
-					token(TOKEN_TYPE.OR, "", { start: input.indexOf(" c"), end: input.indexOf(" c") }),
 					condition(
-						v(input, "c"),
+						v(input, "a"),
 					),
-				)
+					t(input, "&&"),
+					condition(
+						v(input, "b"),
+					),
+				),
+				token(TOKEN_TYPE.OR, "", { start: input.indexOf(" c"), end: input.indexOf(" c") }),
+				condition(
+					v(input, "c"),
+				),
+			)
 		expect(ast).deep.equal(expected)
 	})
 })

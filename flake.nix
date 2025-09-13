@@ -1,42 +1,61 @@
 {
-  description = "";
-
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
+    systems.url = "github:nix-systems/default";
+    devenv = {
+      url = "github:cachix/devenv";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    # does not follow anything
     flake-utils.url = "github:numtide/flake-utils";
+    utils = {
+      url = "github:alanscodelog/nix-devenv-utils";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
-
+  nixConfig = {
+    extra-trusted-public-keys = "devenv.cachix.org-1:w1cLUi8dv3hnoSPGAuibQv+f9TZLr6cv/Hm9XgU50cw=";
+    extra-substituters = "https://devenv.cachix.org";
+  };
   outputs =
     { self
     , nixpkgs
-    , flake-utils
-    } @inputs:
-    flake-utils.lib.eachDefaultSystem
-      (system:
-      let
-        inherit (nixpkgs) lib;
-        distDir = ".dist";
-        pkgs = import nixpkgs
-          {
-            inherit system;
-            config = { };
-            overlays = [ ];
-          };
-        cwd = (builtins.toString ./.);
-      in
-      {
-
-        devShells.default = pkgs.mkShell {
-          packages = with pkgs;[
-            nodejs_23
-            nodejs_23.pkgs.pnpm
-          ];
-          shellHook = ''
-            export NPM_TOKEN=$(cat $SECRETS_DIR/NPM_TOKEN)
-            export GH_TOKEN=$(cat $SECRETS_DIR/GH_TOKEN)
-            echo "node `${pkgs.nodejs_23}/bin/node --version`"
-            echo "pnpm `${pkgs.nodePackages.pnpm}/bin/pnpm --version`"
-          '';
-        };
+    , devenv
+    , systems
+    , utils
+    , ...
+    } @ inputs:
+    let
+      forEachSystem = nixpkgs.lib.genAttrs (import systems);
+    in
+    {
+      packages = forEachSystem (system: {
+        devenv-up = self.devShells.${system}.default.config.procfileScript;
+        devenv-test = self.devShells.${system}.default.config.test;
       });
+
+      devShells = forEachSystem
+        (system:
+          let
+            overlay = final: prev: { };
+            pkgs = import nixpkgs {
+              inherit system;
+              overlays = [ overlay ];
+            };
+          in
+          {
+            default = devenv.lib.mkShell {
+              inherit inputs pkgs;
+              modules =
+                let
+                in
+                [
+                utils.devenvModule
+                  ({ pkgs, config, ... }: {
+                    custom.js.nodejs.package = pkgs.nodejs_24;
+                  })
+                ];
+            };
+          });
+    };
 }
