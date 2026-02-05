@@ -17,7 +17,7 @@ jobs:
       matrix:
         node-version: ["lts/*"]
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
       if: "env.ENABLE_DOCS == 'true'"
 
     - name: Setup
@@ -29,14 +29,24 @@ jobs:
     - name: Build 
       uses: ./.github/actions/composite-build
       if: "env.ENABLE_DOCS == 'true'"
+      with:
+        USE_LOCKFILE: ${{ env.USE_LOCKFILE }}
 
     - run: pnpm doc
       if: "env.ENABLE_DOCS == 'true'"
 
-    - run: pnpm i --frozen-lockfile
-      working-directory: demo 
-      
-    - run: pnpm demo:build
+    - name: Build and Copy Demos/Playgrounds if They Exist
+      if: "env.ENABLE_DOCS == 'true'"
+      # we don't need to build the playground as normally the full build script should do it
+      run: |
+        if [ -d "playground" ]; then
+          cp -r playground/.output/public docs/demo
+        fi
+        if [ -d "demo" ]; then
+          pushcd demo && pnpm i --frozen-lockfile
+          popd
+          cp -r demo/dist docs/demo
+        fi
 
     - name: Documentation
       uses: crazy-max/ghaction-github-pages@v4
