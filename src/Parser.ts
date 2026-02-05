@@ -1423,7 +1423,7 @@ export class Parser<T = any> {
 
 			if (target) {
 				const parent = getParent(target, parentMap)
-				if (parent && parent.type === AST_TYPE.VARIABLE) {
+				if (parent?.type === AST_TYPE.VARIABLE) {
 					const range = pos(parent)
 					const parentParent = getParent(parent, parentMap)
 					const condition = parentParent as ConditionNode

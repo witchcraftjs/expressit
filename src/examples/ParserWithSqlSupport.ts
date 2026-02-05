@@ -175,7 +175,7 @@ export class ParserWithSqlSupport<TErrorToken extends
 				const value = val.value.value
 				const res = convertAndValidateValue(query.isQuoted, value, prop, propertyDefinitions)
 				if (res instanceof Error) {
-					if (!query.value || query.value.type !== "VARIABLE") unreachable()
+					if (query.value?.type !== "VARIABLE") unreachable()
 					const token = query.value.value
 					tokens.push({
 						start: token.start,

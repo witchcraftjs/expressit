@@ -23,7 +23,7 @@ export class ShortcutContextParser<TErrorTokens extends
 	regexablekeys: string[] = []
 
 	constructor(
-		dummyContext: Record<string, any>,
+		dummyContext: Record<string, any> | (() => Record<string, any>),
 		validRegexFlags: string[] = ["i", "u", "m"],
 	) {
 		super({
@@ -120,7 +120,7 @@ export class ShortcutContextParser<TErrorTokens extends
 				return { value: finalValue, operator: finalOperator, negate: isNegated }
 			},
 		})
-		this._extractKeysFromContext(dummyContext)
+		this._extractKeysFromContext(typeof dummyContext === "function" ? dummyContext() : dummyContext)
 	}
 
 	setContext(context: Record<string, any>): void {
