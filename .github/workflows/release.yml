@@ -12,7 +12,6 @@ on:
 
 permissions:
   id-token: write 
-  contents: write
 
 jobs:
   release:
@@ -20,7 +19,11 @@ jobs:
     strategy:
       matrix:
         node-version: ["lts/*"]
-
+    permissions:
+      contents: write # to be able to publish a GitHub release
+      issues: write # to be able to comment on released issues
+      pull-requests: write # to be able to comment on released pull requests
+      id-token: write # to enable use of OIDC for trusted publishing and npm provenance
     steps:
     - uses: actions/checkout@v4
 
@@ -29,22 +32,26 @@ jobs:
       with:
         USE_LOCKFILE: ${{ secrets.USE_LOCKFILE }}
 
-    - name: Build
+    # - run: pnpm i --frozen-lockfile
+    #   working-directory: playground OR demo
+
+    - name: Build 
       uses: ./.github/actions/composite-build
+      with:
+        USE_LOCKFILE: ${{ secrets.USE_LOCKFILE }}
+
 
     - name: Release
       if: "env.ENABLE_RELEASE == 'true' && ! contains('refs/heads/build ', github.ref)"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       run: pnpm semantic-release
 
     - name: Release Dry Run
       if: "env.ENABLE_RELEASE != 'true' || contains('refs/heads/build ', github.ref)"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      run: pnpm semantic-release --dry-run
+      run: pnpm semantic-release --dry-run 
 
     - run: echo "env.ENABLE_RELEASE is ${{ env.ENABLE_RELEASE == 'true' }} and branch is ${{ github.ref }}, no release can be published." && exit 1
       if: "env.ENABLE_RELEASE != 'true' || contains('refs/heads/build ', github.ref)"
