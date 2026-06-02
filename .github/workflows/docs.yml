@@ -1,8 +1,4 @@
-name: Docs 
-
-env:
-  USE_LOCKFILE: ${{ secrets.USE_LOCKFILE }}
-  ENABLE_DOCS: ${{ secrets.ENABLE_DOCS }}
+name: Docs
 
 on:
   push:
@@ -12,48 +8,26 @@ on:
 
 jobs:
   docs:
+    if: "vars.ENABLE_DOCS == 'true'"
     runs-on: ubuntu-latest
     strategy:
       matrix:
         node-version: ["lts/*"]
     steps:
-    - uses: actions/checkout@v6
-      if: "env.ENABLE_DOCS == 'true'"
+      - uses: actions/checkout@v6
 
-    - name: Setup
-      uses: ./.github/actions/composite-setup
-      if: "env.ENABLE_DOCS == 'true'"
-      with:
-        USE_LOCKFILE: ${{ env.USE_LOCKFILE }}
+      - name: Setup
+        uses: alanscodelog/actions/.github/actions/setup@master
+        with:
+          USE_LOCKFILE: ${{ vars.USE_LOCKFILE }}
 
-    - name: Build 
-      uses: ./.github/actions/composite-build
-      if: "env.ENABLE_DOCS == 'true'"
-      with:
-        USE_LOCKFILE: ${{ env.USE_LOCKFILE }}
+      - name: Build
+        uses: alanscodelog/actions/.github/actions/build@master
 
-    - run: pnpm doc
-      if: "env.ENABLE_DOCS == 'true'"
-
-    - name: Build and Copy Demos/Playgrounds if They Exist
-      if: "env.ENABLE_DOCS == 'true'"
-      # we don't need to build the playground as normally the full build script should do it
-      run: |
-        if [ -d "playground" ]; then
-          cp -r playground/.output/public docs/demo
-        fi
-        if [ -d "demo" ]; then
-          pushcd demo && pnpm i --frozen-lockfile
-          popd
-          cp -r demo/dist docs/demo
-        fi
-
-    - name: Documentation
-      uses: crazy-max/ghaction-github-pages@v4
-      if: "env.ENABLE_DOCS == 'true'"
-      with:
-        jekyll: false
-        target_branch: gh-pages
-        build_dir: docs
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Deploy Docs
+        uses: alanscodelog/actions/.github/actions/docs@master
+        with:
+          build_playground: true
+          build_demo: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

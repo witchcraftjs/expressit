@@ -1,8 +1,9 @@
 ### 🚧 WORK IN PROGRESS 🚧
-[![NPM Version (with latest tag)](https://img.shields.io/npm/v/%40witchcraft%2Fexpressit/latest)](https://www.npmjs.com/package/@witchcraft/expressit/v/latest)
-<!-- [![NPM Version (with beta tag)](https://img.shields.io/npm/v/%40witchcraft%2Fexpressit/beta)](https://www.npmjs.com/package/@witchcraft/expressit/v/beta) -->
-[![Docs](https://github.com/witchcraftjs/expressit/workflows/Docs/badge.svg)](https://github.com/witchcraftjs/expressit/actions/workflows/docs.yml)
-[![Release](https://github.com/witchcraftjs/expressit/actions/workflows/release.yml/badge.svg)](https://github.com/witchcraftjs/expressit/actions/workflows/release.yml)
+[![Docs][docs-src]][docs-href]
+[![Release][release-src]][release-href]
+[![npm version][npm-version-src]][npm-version-href]
+[![License][license-src]][license-href]
+[![Nuxt][nuxt-src]][nuxt-href]
 
 Expressit is a blazing fast, customizable, error-tolerant expression parser that creates safe to eval expressions + a few other goodies.
 
@@ -90,3 +91,15 @@ Many more examples can be found in the [tests](https://github.com/witchcraftjs/e
 [Shortcuts Manager](https://github.com/witchcraftjs/spellcraft)
 
 [Parsekey (shortcuts parser)](https://github.com/alanscodelog/parsekey)
+
+<!-- Badges -->
+[docs-src]: https://github.com/witchcraftjs/expressit/actions/workflows/docs.yml/badge.svg
+[docs-href]: https://github.com/witchcraftjs/expressit/actions/workflows/docs.yml
+[release-src]: https://github.com/witchcraftjs/expressit/actions/workflows/release.yml/badge.svg
+[release-href]: https://github.com/witchcraftjs/expressit/actions/workflows/release.yml
+[npm-version-src]: https://img.shields.io/npm/v/@witchcraft/expressit/latest
+[npm-version-href]: https://www.npmjs.com/package/@witchcraft/expressit/v/latest
+[license-src]: https://img.shields.io/npm/l/@witchcraft/expressit.svg?style=flat&colorA=020420&colorB=00DC82
+[license-href]: https://npmjs.com/package/@witchcraft/expressit
+[nuxt-src]: https://img.shields.io/badge/Nuxt-020420?logo=nuxt.js
+[nuxt-href]: https://nuxt.com

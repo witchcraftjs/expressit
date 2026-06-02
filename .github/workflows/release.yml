@@ -1,9 +1,5 @@
 name: Release
 
-env:
-  USE_LOCKFILE: ${{ secrets.USE_LOCKFILE }}
-  ENABLE_RELEASE: ${{ secrets.ENABLE_RELEASE }}
-
 on:
   push:
     branches: [ master, alpha, beta, build ]
@@ -11,7 +7,7 @@ on:
     types: [ release ]
 
 permissions:
-  id-token: write 
+  id-token: write
 
 jobs:
   release:
@@ -20,38 +16,24 @@ jobs:
       matrix:
         node-version: ["lts/*"]
     permissions:
-      contents: write # to be able to publish a GitHub release
-      issues: write # to be able to comment on released issues
-      pull-requests: write # to be able to comment on released pull requests
-      id-token: write # to enable use of OIDC for trusted publishing and npm provenance
+      contents: write
+      issues: write
+      pull-requests: write
+      id-token: write
     steps:
-    - uses: actions/checkout@v6
+      - uses: actions/checkout@v6
 
-    - name: Setup
-      uses: ./.github/actions/composite-setup
-      with:
-        USE_LOCKFILE: ${{ secrets.USE_LOCKFILE }}
+      - name: Setup
+        uses: alanscodelog/actions/.github/actions/setup@master
+        with:
+          USE_LOCKFILE: ${{ vars.USE_LOCKFILE }}
 
-    # - run: pnpm i --frozen-lockfile
-    #   working-directory: playground OR demo
+      - name: Build
+        uses: alanscodelog/actions/.github/actions/build@master
 
-    - name: Build 
-      uses: ./.github/actions/composite-build
-      with:
-        USE_LOCKFILE: ${{ secrets.USE_LOCKFILE }}
-
-
-    - name: Release
-      if: "env.ENABLE_RELEASE == 'true' && ! contains('refs/heads/build ', github.ref)"
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: pnpm semantic-release
-
-    - name: Release Dry Run
-      if: "env.ENABLE_RELEASE != 'true' || contains('refs/heads/build ', github.ref)"
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: pnpm semantic-release --dry-run 
-
-    - run: echo "env.ENABLE_RELEASE is ${{ env.ENABLE_RELEASE == 'true' }} and branch is ${{ github.ref }}, no release can be published." && exit 1
-      if: "env.ENABLE_RELEASE != 'true' || contains('refs/heads/build ', github.ref)"
+      - name: Release
+        uses: alanscodelog/actions/.github/actions/release@master
+        with:
+          ENABLE_RELEASE: ${{ vars.ENABLE_RELEASE == 'true' && github.ref != 'refs/heads/build' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
