@@ -6,6 +6,7 @@
 	"type": "module",
 	"main": "./dist/index.js",
 	"sideEffects": false,
+	"packageManager": "pnpm@11.5.0",
 	"exports": {
 		".": {
 			"types": "./dist/index.d.ts",
@@ -73,13 +74,13 @@
 		"prepare": "husky && npm run build"
 	},
 	"dependencies": {
-		"@alanscodelog/utils": "^6.0.1"
+		"@alanscodelog/utils": "^6.2.0"
 	},
 	"devDependencies": {
 		"@alanscodelog/commitlint-config": "^3.1.2",
 		"@alanscodelog/eslint-config": "^6.3.0",
-		"@alanscodelog/semantic-release-config": "^6.0.1",
-		"@alanscodelog/tsconfigs": "^6.2.0",
+		"@alanscodelog/semantic-release-config": "^6.0.2",
+		"@alanscodelog/tsconfigs": "^6.3.0",
 		"@alanscodelog/vite-config": "^0.0.7",
 		"@commitlint/cli": "^20.4.1",
 		"@electric-sql/pglite": "^0.3.7",

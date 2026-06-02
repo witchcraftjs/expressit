@@ -1,0 +1,6 @@
+allowBuilds:
+  '@alanscodelog/eslint-config': false
+  '@alanscodelog/tsconfigs': false
+  core-js: false
+  esbuild: true
+  unrs-resolver: false
